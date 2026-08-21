@@ -6,6 +6,7 @@ use CodeIgniter\Router\RouteCollection;
 
 // 1. Shield Auth routes (login, register, logout, dsb)
 service('auth')->routes($routes);
+$routes->post('login', 'CustomLoginController::loginAction');
 
 // 2. Arahkan '/' ke halaman dashboard
 $routes->get('/', function () {
@@ -15,6 +16,9 @@ $routes->get('/', function () {
 // 3. Semua route setelah login
 $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get('dashboard', 'Home::index');
+
+    $routes->get ('profile',        'ProfileController::index');
+    $routes->post('profile/update', 'ProfileController::update');
 
     $routes->get ('siswa/download-template', 'SiswaController::downloadTemplate');
     $routes->get ('siswa/export',            'SiswaController::export');
