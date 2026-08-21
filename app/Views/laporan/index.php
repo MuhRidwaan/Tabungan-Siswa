@@ -90,8 +90,16 @@
     <!-- Report Display -->
     <?php if ($jenisLaporan && $reportData !== null) : ?>
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Hasil Laporan</h3>
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h3 class="card-title"><i class="fas fa-file-alt mr-1"></i> Hasil Laporan</h3>
+                <div>
+                    <a href="<?= base_url('laporan/export?' . ($_SERVER['QUERY_STRING'] ?? '')) ?>" class="btn btn-sm btn-success mr-1">
+                        <i class="fas fa-file-excel mr-1"></i> Export Excel (CSV)
+                    </a>
+                    <button type="button" onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-print mr-1"></i> Cetak / Print
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <?php if ($jenisLaporan == 'per_siswa' && !empty($reportData)) : ?>

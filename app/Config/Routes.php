@@ -30,6 +30,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
 
     $routes->get   ('manajemen-kelas',             'ManajemenKelasController::index');
     $routes->post  ('manajemen-kelas/assign',      'ManajemenKelasController::assign');
+    $routes->post  ('manajemen-kelas/promote',     'ManajemenKelasController::promote');
     $routes->get   ('manajemen-kelas/unassign/(:num)', 'ManajemenKelasController::unassign/$1');
 
     $routes->get   ('transaksi',        'TransaksiController::index');
@@ -46,7 +47,8 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get ('pengaturan',        'PengaturanController::index');
     $routes->post('pengaturan/update', 'PengaturanController::update');
 
-    $routes->get('laporan', 'LaporanController::index');
+    $routes->get('laporan',        'LaporanController::index');
+    $routes->get('laporan/export', 'LaporanController::exportExcel');
 });
 
 // 4. Route khusus role "admin"

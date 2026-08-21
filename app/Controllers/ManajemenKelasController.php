@@ -99,4 +99,70 @@ class ManajemenKelasController extends BaseController
 
         return redirect()->back()->with('error', 'Data tidak ditemukan.');
     }
+
+    /**
+     * Proses Kenaikan Kelas Massal Interaktif
+     */
+    public function promote()
+    {
+        $tahunLamaId  = $this->request->getPost('tahun_ajaran_lama_id');
+        $kelasAsalId   = $this->request->getPost('kelas_asal_id');
+        $tahunBaruId  = $this->request->getPost('tahun_ajaran_baru_id');
+        $kelasTujuanId = $this->request->getPost('kelas_tujuan_id');
+        $siswaIds     = $this->request->getPost('siswa_ids') ?: [];
+        $tinggalIds   = $this->request->getPost('siswa_tinggal_ids') ?: [];
+
+        if (!$tahunLamaId || !$kelasAsalId || !$tahunBaruId || !$kelasTujuanId) {
+            return redirect()->back()->with('error', 'Silakan lengkapi parameter Tahun Ajaran dan Kelas Asal/Tujuan.');
+        }
+
+        if (empty($siswaIds) && empty($tinggalIds)) {
+            return redirect()->back()->with('error', 'Tidak ada siswa yang dipilih untuk diproses.');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+        $countPromoted = 0;
+
+        foreach ($siswaIds as $sid) {
+            if ($kelasTujuanId === 'lulus') {
+                $this->siswaModel->update($sid, ['status_siswa' => 'lulus']);
+                $countPromoted++;
+            } else {
+                $existing = $this->riwayatKelasModel->where('siswa_id', $sid)
+                                                    ->where('tahun_ajaran_id', $tahunBaruId)
+                                                    ->first();
+                if ($existing) {
+                    $this->riwayatKelasModel->update($existing['id'], ['kelas_id' => $kelasTujuanId]);
+                } else {
+                    $this->riwayatKelasModel->insert([
+                        'siswa_id'        => $sid,
+                        'kelas_id'        => $kelasTujuanId,
+                        'tahun_ajaran_id' => $tahunBaruId
+                    ]);
+                }
+                $countPromoted++;
+            }
+        }
+
+        foreach ($tinggalIds as $sid) {
+            $existing = $this->riwayatKelasModel->where('siswa_id', $sid)
+                                                ->where('tahun_ajaran_id', $tahunBaruId)
+                                                ->first();
+            if ($existing) {
+                $this->riwayatKelasModel->update($existing['id'], ['kelas_id' => $kelasAsalId]);
+            } else {
+                $this->riwayatKelasModel->insert([
+                    'siswa_id'        => $sid,
+                    'kelas_id'        => $kelasAsalId,
+                    'tahun_ajaran_id' => $tahunBaruId
+                ]);
+            }
+        }
+
+        $db->transComplete();
+
+        session()->setFlashdata('success', "Proses Kenaikan Kelas Selesai: {$countPromoted} siswa berhasil diproses ke Tahun Ajaran Baru!");
+        return redirect()->to('/manajemen-kelas?tahun_ajaran_id=' . $tahunBaruId . '&kelas_id=' . ($kelasTujuanId === 'lulus' ? $kelasAsalId : $kelasTujuanId));
+    }
 }

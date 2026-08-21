@@ -14,8 +14,13 @@
 <div class="container-fluid">
     <!-- Form Filter -->
     <div class="card card-outline card-primary">
-        <div class="card-header">
-            <h3 class="card-title">Pilih Tahun Ajaran & Kelas</h3>
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h3 class="card-title"><i class="fas fa-sitemap mr-1"></i> Pilih Tahun Ajaran & Kelas</h3>
+            <div>
+                <button type="button" class="btn btn-sm btn-purple" data-toggle="modal" data-target="#modalPromote">
+                    <i class="fas fa-level-up-alt mr-1"></i> Proses Kenaikan Kelas Massal
+                </button>
+            </div>
         </div>
         <form method="get" action="<?= base_url('manajemen-kelas') ?>">
             <div class="card-body">
@@ -148,10 +153,120 @@
 </div>
 
 <script>
-document.getElementById('checkAll').addEventListener('click', function(e) {
-    document.querySelectorAll('input[name="siswa_ids[]"]').forEach(function(checkbox) {
-        checkbox.checked = e.target.checked;
+if (document.getElementById('checkAll')) {
+    document.getElementById('checkAll').addEventListener('click', function(e) {
+        document.querySelectorAll('input[name="siswa_ids[]"]').forEach(function(checkbox) {
+            checkbox.checked = e.target.checked;
+        });
     });
-});
+}
 </script>
+
+<!-- Modal Kenaikan Kelas Massal -->
+<div class="modal fade" id="modalPromote" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title"><i class="fas fa-level-up-alt mr-2"></i>Proses Kenaikan Kelas & Moving Siswa</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="<?= base_url('manajemen-kelas/promote') ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="alert alert-info py-2 small mb-3">
+                        <i class="fas fa-info-circle mr-1"></i> Pilih Tahun Ajaran Asal & Kelas Asal. Seluruh siswa yang dicentang akan otomatis dipindahkan ke Tahun Ajaran Baru pada Kelas Tujuan (atau Lulus).
+                    </div>
+
+                    <div class="row">
+                        <!-- Tahun Ajaran Lama -->
+                        <div class="col-md-6 form-group">
+                            <label>Tahun Ajaran Asal (Lama)</label>
+                            <select name="tahun_ajaran_lama_id" class="form-control" required>
+                                <option value="">-- Pilih Tahun Ajaran Asal --</option>
+                                <?php foreach ($tahun_ajaran as $ta) : ?>
+                                    <option value="<?= $ta['id'] ?>" <?= ($selectedTahunId == $ta['id']) ? 'selected' : '' ?>><?= esc($ta['nama_tahun_ajaran']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <!-- Kelas Asal -->
+                        <div class="col-md-6 form-group">
+                            <label>Kelas Asal (Lama)</label>
+                            <select name="kelas_asal_id" class="form-control" required>
+                                <option value="">-- Pilih Kelas Asal --</option>
+                                <?php foreach ($kelas as $k) : ?>
+                                    <option value="<?= $k['id'] ?>" <?= ($selectedKelasId == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="my-2">
+
+                    <div class="row">
+                        <!-- Tahun Ajaran Baru -->
+                        <div class="col-md-6 form-group">
+                            <label>Tahun Ajaran Baru (Tujuan)</label>
+                            <select name="tahun_ajaran_baru_id" class="form-control" required>
+                                <option value="">-- Pilih Tahun Ajaran Baru --</option>
+                                <?php foreach ($tahun_ajaran as $ta) : ?>
+                                    <option value="<?= $ta['id'] ?>" <?= ($ta['status'] == 'aktif') ? 'selected' : '' ?>><?= esc($ta['nama_tahun_ajaran']) ?> <?= ($ta['status'] == 'aktif') ? '(Aktif)' : '' ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <!-- Kelas Tujuan -->
+                        <div class="col-md-6 form-group">
+                            <label>Kelas Tujuan (Naik Kelas / Lulus)</label>
+                            <select name="kelas_tujuan_id" class="form-control" required>
+                                <option value="">-- Pilih Kelas Tujuan --</option>
+                                <?php foreach ($kelas as $k) : ?>
+                                    <option value="<?= $k['id'] ?>"><?= esc($k['nama_kelas']) ?></option>
+                                <?php endforeach; ?>
+                                <option value="lulus">🎓 LULUSKAN SISWA (Tingkat Akhir)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($siswaDiKelas)) : ?>
+                        <label class="font-weight-bold mt-2">Daftar Siswa yang Akan Diproses:</label>
+                        <div class="table-responsive" style="max-height: 250px;">
+                            <table class="table table-sm table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th width="40" class="text-center"><input type="checkbox" id="checkAllPromote" checked></th>
+                                        <th>NIS</th>
+                                        <th>Nama Siswa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($siswaDiKelas as $s) : ?>
+                                        <tr>
+                                            <td class="text-center"><input type="checkbox" name="siswa_ids[]" value="<?= $s['siswa_id'] ?>" checked></td>
+                                            <td><?= esc($s['nis']) ?></td>
+                                            <td><?= esc($s['nama_lengkap']) ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <script>
+                            document.getElementById('checkAllPromote').addEventListener('click', function(e) {
+                                document.querySelectorAll('input[name="siswa_ids[]"]').forEach(chk => chk.checked = e.target.checked);
+                            });
+                        </script>
+                    <?php else: ?>
+                        <div class="alert alert-warning py-2 small mt-2"><i class="fas fa-exclamation-triangle mr-1"></i> Pilih Kelas Asal pada filter di atas terlebih dahulu untuk menampilkan daftar siswa.</div>
+                    <?php endif; ?>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-purple" onclick="return confirm('Apakah Anda yakin ingin memproses kenaikan kelas untuk siswa terpilih?')"><i class="fas fa-level-up-alt mr-1"></i> Eksekusi Kenaikan Kelas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>

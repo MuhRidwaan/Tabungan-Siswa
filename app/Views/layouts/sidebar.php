@@ -35,12 +35,26 @@ if ($user && method_exists($user, 'inGroup') && $user->inGroup('guru')) {
                     </a>
                 </li>
 
-                <li class="nav-header">KELOLA TABUNGAN KELAS</li>
+                <li class="nav-header">KELOLA MASTER & OPERASIONAL</li>
                 
                 <li class="nav-item">
                     <a href="<?= base_url('siswa') ?>" class="nav-link">
                         <i class="nav-icon fas fa-users text-info"></i>
                         <p>Data Siswa</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('kelas') ?>" class="nav-link">
+                        <i class="nav-icon fas fa-school text-primary"></i>
+                        <p>Data Kelas</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('manajemen-kelas') ?>" class="nav-link">
+                        <i class="nav-icon fas fa-random text-purple"></i>
+                        <p>Penempatan & Kenaikan Kelas</p>
                     </a>
                 </li>
 
@@ -69,6 +83,13 @@ if ($user && method_exists($user, 'inGroup') && $user->inGroup('guru')) {
                     <a href="<?= base_url('laporan') ?>" class="nav-link">
                         <i class="nav-icon fas fa-print text-danger"></i>
                         <p>Laporan & Cetak</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('pengaturan') ?>" class="nav-link">
+                        <i class="nav-icon fas fa-cog text-secondary"></i>
+                        <p>Pengaturan Komisi Admin</p>
                     </a>
                 </li>
 

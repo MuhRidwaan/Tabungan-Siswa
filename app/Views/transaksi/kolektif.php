@@ -189,11 +189,15 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat(String(val).replace(/\./g, '').replace(/,/g, '')) || 0;
     }
 
+    function getDraftKey() {
+        const kId = kelasSelect.value || 'all';
+        const tgl = tanggalInput.value || 'today';
+        const jns = jenisSelect.value || 'setor';
+        return `tabungan_draft_kolektif_${kId}_${tgl}_${jns}`;
+    }
+
     // Auto-Save Draft to LocalStorage
     function saveDraftToStorage() {
-        const kelasId = kelasSelect.value;
-        if (!kelasId) return;
-
         const nominals = {};
         const keterangans = {};
 
@@ -208,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const draftData = {
-            kelasId: kelasId,
+            kelasId: kelasSelect.value,
             jenis: jenisSelect.value,
             tanggal: tanggalInput.value,
             ketUmum: ketUmumInput.value,
@@ -217,16 +221,16 @@ document.addEventListener('DOMContentLoaded', function() {
             savedAt: new Date().toLocaleTimeString('id-ID')
         };
 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData));
+        localStorage.setItem(getDraftKey(), JSON.stringify(draftData));
         draftStatusBadge.className = 'badge badge-success p-2 mr-2';
         draftStatusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Draft tersimpan (' + draftData.savedAt + ')';
     }
 
     function loadDraftFromStorage() {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(getDraftKey());
         if (!raw) {
             draftStatusBadge.className = 'badge badge-secondary p-2 mr-2';
-            draftStatusBadge.innerHTML = '<i class="fas fa-info-circle"></i> Belum ada draft';
+            draftStatusBadge.innerHTML = '<i class="fas fa-info-circle"></i> Belum ada draft untuk tanggal ini';
             return null;
         }
         try {
@@ -386,7 +390,35 @@ document.addEventListener('DOMContentLoaded', function() {
         saveDraftToStorage();
     });
 
-    tanggalInput.addEventListener('change', saveDraftToStorage);
+    function checkAndRestoreDraft() {
+        const draft = loadDraftFromStorage();
+        if (draft && draft.nominals) {
+            Object.keys(draft.nominals).forEach(sid => {
+                const inp = document.querySelector(`.input-nominal[data-siswa-id="${sid}"]`);
+                if (inp) {
+                    inp.value = draft.nominals[sid];
+                    updateEstimasiRow(inp);
+                }
+            });
+            if (draft.keterangans) {
+                Object.keys(draft.keterangans).forEach(sid => {
+                    const inp = document.querySelector(`.input-ket[data-siswa-id="${sid}"]`);
+                    if (inp) inp.value = draft.keterangans[sid];
+                });
+            }
+            recalculateTotals();
+        } else {
+            document.querySelectorAll('.input-nominal').forEach(inp => { inp.value = ''; updateEstimasiRow(inp); });
+            document.querySelectorAll('.input-ket').forEach(inp => { inp.value = ''; });
+            recalculateTotals();
+        }
+    }
+
+    tanggalInput.addEventListener('change', function() {
+        checkAndRestoreDraft();
+        saveDraftToStorage();
+    });
+
     ketUmumInput.addEventListener('input', saveDraftToStorage);
 
     // Apply Fill All
@@ -404,8 +436,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Reset Draft
     btnResetDraft.addEventListener('click', function() {
-        if (confirm('Apakah Anda yakin ingin menghapus draft setoran sementara?')) {
-            localStorage.removeItem(STORAGE_KEY);
+        if (confirm('Apakah Anda yakin ingin menghapus draft setoran untuk tanggal ini?')) {
+            localStorage.removeItem(getDraftKey());
             draftAlert.classList.add('d-none');
             location.reload();
         }
