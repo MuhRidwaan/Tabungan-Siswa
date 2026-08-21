@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Controllers\BaseController;
+use App\Models\Kelas;
+use App\Models\Guru; // Kita butuh ini untuk mengambil daftar guru
+
+class KelasController extends BaseController
+{
+    protected $kelas;
+    protected $guru;
+
+    public function __construct()
+    {
+        $this->kelas = new Kelas();
+        $this->guru = new Guru();
+    }
+
+    /**
+     * Menampilkan daftar kelas
+     */
+    public function index()
+    {
+        $data = [
+            'title' => 'Data Kelas',
+            'kelas' => $this->kelas->getAllKelasWithWali()
+        ];
+        return view('kelas/index', $data);
+    }
+
+    /**
+     * Menampilkan form tambah kelas
+     */
+    public function new()
+    {
+        $data = [
+            'title'      => 'Tambah Data Kelas',
+            'validation' => \Config\Services::validation(),
+            'guru'       => $this->guru->where('role', 'guru')->findAll() // Ambil daftar guru
+        ];
+        return view('kelas/create', $data);
+    }
+
+    /**
+     * Menyimpan data kelas baru
+     */
+    public function create()
+    {
+        $rules = [
+            'nama_kelas' => 'required|is_unique[kelas.nama_kelas]|max_length[50]',
+            'tingkat'    => 'required|integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $this->kelas->save([
+            'nama_kelas'    => $this->request->getPost('nama_kelas'),
+            'tingkat'       => $this->request->getPost('tingkat'),
+            'wali_kelas_id' => $this->request->getPost('wali_kelas_id') ?: null, // Set NULL jika tidak dipilih
+        ]);
+
+        session()->setFlashdata('success', 'Data kelas berhasil ditambahkan.');
+        return redirect()->to('/kelas');
+    }
+
+    /**
+     * Menampilkan form edit kelas
+     */
+    public function edit($id)
+    {
+        $data = [
+            'title'      => 'Edit Data Kelas',
+            'validation' => \Config\Services::validation(),
+            'kelas'      => $this->kelas->find($id),
+            'guru'       => $this->guru->where('role', 'guru')->findAll()
+        ];
+        return view('kelas/edit', $data);
+    }
+
+    /**
+     * Mengupdate data kelas
+     */
+    public function update($id)
+    {
+        $rules = [
+            'nama_kelas' => "required|is_unique[kelas.nama_kelas,id,{$id}]|max_length[50]",
+            'tingkat'    => 'required|integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $this->kelas->update($id, [
+            'nama_kelas'    => $this->request->getPost('nama_kelas'),
+            'tingkat'       => $this->request->getPost('tingkat'),
+            'wali_kelas_id' => $this->request->getPost('wali_kelas_id') ?: null,
+        ]);
+
+        session()->setFlashdata('success', 'Data kelas berhasil diupdate.');
+        return redirect()->to('/kelas');
+    }
+
+    /**
+     * Menghapus data kelas
+     */
+    public function delete($id)
+    {
+        // Pengecekan apakah ada siswa di kelas tersebut bisa ditambahkan di sini
+        $this->kelas->delete($id);
+        session()->setFlashdata('success', 'Data kelas berhasil dihapus.');
+        return redirect()->to('/kelas');
+    }
+}

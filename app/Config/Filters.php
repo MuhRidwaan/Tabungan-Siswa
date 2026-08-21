@@ -13,6 +13,12 @@ use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
 
+use CodeIgniter\Shield\Filters\SessionAuth;
+use CodeIgniter\Shield\Filters\TokenAuth;
+use CodeIgniter\Shield\Filters\ChainAuth;
+use CodeIgniter\Shield\Filters\GroupFilter;
+use CodeIgniter\Shield\Filters\PermissionFilter;
+
 class Filters extends BaseFilters
 {
     /**
@@ -34,6 +40,13 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+
+        'auth'       => SessionAuth::class,
+        'session'    => SessionAuth::class,
+        'tokens'     => TokenAuth::class,
+        'chain'      => ChainAuth::class,
+        'group'      => GroupFilter::class,
+        'permission' => PermissionFilter::class,
     ];
 
     /**
@@ -67,17 +80,21 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, array<string, string>>>|array<string, list<string>>
      */
-    public array $globals = [
-        'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
-        ],
-        'after' => [
-            // 'honeypot',
-            // 'secureheaders',
-        ],
-    ];
+  public array $globals = [
+    'before' => [
+        'auth' => [
+            'except' => [
+                '/',
+                'login', 'login/*',
+                'register', 'register/*',
+            ]
+        ]
+    ],
+    'after' => [
+        'toolbar',
+    ],
+];
+
 
     /**
      * List of filter aliases that works on a
