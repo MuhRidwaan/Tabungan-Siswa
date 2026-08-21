@@ -245,4 +245,108 @@ class TransaksiController extends BaseController
             'message' => "Berhasil menyimpan {$countSuccess} transaksi kolektif!"
         ]);
     }
+
+    /**
+     * Menampilkan halaman pencatatan transaksi multi-tanggal per-siswa
+     */
+    public function multiTanggal()
+    {
+        $data = [
+            'title' => 'Pencatatan Setoran Multi-Tanggal (Per-Siswa)',
+            'siswa' => $this->siswaModel->where('status_siswa', 'aktif')->orderBy('nama_lengkap', 'ASC')->findAll()
+        ];
+        return view('transaksi/multi_tanggal', $data);
+    }
+
+    /**
+     * AJAX Endpoint untuk menyimpan transaksi multi-tanggal harian untuk 1 siswa
+     */
+    public function saveMultiTanggal()
+    {
+        $siswaId = $this->request->getPost('siswa_id');
+        $jenis = $this->request->getPost('jenis_transaksi') ?: 'setor';
+
+        $tanggals = $this->request->getPost('tanggal');
+        $nominals = $this->request->getPost('nominal');
+        $keteranganList = $this->request->getPost('keterangan');
+
+        if (!$siswaId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Silakan pilih siswa terlebih dahulu.']);
+        }
+
+        if (empty($tanggals) || !is_array($tanggals)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Tidak ada tanggal transaksi yang dikirim.']);
+        }
+
+        $siswa = $this->siswaModel->find($siswaId);
+        if (!$siswa) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Data siswa tidak ditemukan.']);
+        }
+
+        $this->db->transStart();
+        $countSuccess = 0;
+        $runningSaldo = (float) $siswa['saldo_akhir'];
+
+        foreach ($tanggals as $index => $tgl) {
+            $rawNominal = isset($nominals[$index]) ? $nominals[$index] : 0;
+            $jumlah = (float) str_replace(['.', ','], '', (string)$rawNominal);
+
+            if ($jumlah <= 0) {
+                continue;
+            }
+
+            $saldo_sebelum = $runningSaldo;
+            $saldo_sesudah = 0;
+
+            if ($jenis == 'setor') {
+                $saldo_sesudah = $saldo_sebelum + $jumlah;
+            } else {
+                if ($jumlah > $saldo_sebelum) {
+                    $this->db->transRollback();
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => "Saldo siswa pada tanggal {$tgl} tidak mencukupi untuk penarikan Rp " . number_format($jumlah, 0, ',', '.')
+                    ]);
+                }
+                $saldo_sesudah = $saldo_sebelum - $jumlah;
+            }
+
+            $ket = !empty($keteranganList[$index]) ? $keteranganList[$index] : "Setoran Harian Tgl {$tgl}";
+
+            $dataTransaksi = [
+                'kode_transaksi'  => $this->transaksiModel->generateKodeTransaksi(),
+                'siswa_id'        => $siswaId,
+                'jenis_transaksi' => $jenis,
+                'jumlah'          => $jumlah,
+                'keterangan'      => $ket,
+                'saldo_sebelum'   => $saldo_sebelum,
+                'saldo_sesudah'   => $saldo_sesudah,
+                'pengguna_id'     => session()->get('id') ?? 1,
+                'created_at'      => $tgl . ' ' . date('H:i:s'),
+            ];
+
+            $this->transaksiModel->insert($dataTransaksi);
+            $runningSaldo = $saldo_sesudah;
+            $countSuccess++;
+        }
+
+        if ($countSuccess > 0) {
+            $this->siswaModel->update($siswaId, ['saldo_akhir' => $runningSaldo]);
+        }
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === FALSE) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Gagal menyimpan transaksi multi-tanggal karena error database.']);
+        }
+
+        if ($countSuccess == 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Tidak ada nominal > 0 yang diisi pada tabel tanggal.']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => "Berhasil menyimpan {$countSuccess} transaksi harian untuk " . $siswa['nama_lengkap'] . "!"
+        ]);
+    }
 }

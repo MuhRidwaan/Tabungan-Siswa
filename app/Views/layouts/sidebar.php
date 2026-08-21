@@ -52,6 +52,13 @@ if ($user && method_exists($user, 'inGroup') && $user->inGroup('guru')) {
                 </li>
 
                 <li class="nav-item">
+                    <a href="<?= base_url('transaksi/multi-tanggal') ?>" class="nav-link">
+                        <i class="nav-icon fas fa-calendar-alt text-teal"></i>
+                        <p>Setor Multi-Tanggal</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="<?= base_url('transaksi') ?>" class="nav-link">
                         <i class="nav-icon fas fa-history text-warning"></i>
                         <p>Riwayat Transaksi</p>

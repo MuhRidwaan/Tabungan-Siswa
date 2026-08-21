@@ -15,11 +15,14 @@
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
-                <button type="button" class="btn btn-primary mr-2" id="btn-tambah">
+                <button type="button" class="btn btn-primary mr-2 mb-1" id="btn-tambah">
                     <i class="fas fa-plus"></i> Transaksi Tunggal
                 </button>
-                <a href="<?= base_url('transaksi/kolektif') ?>" class="btn btn-success">
+                <a href="<?= base_url('transaksi/kolektif') ?>" class="btn btn-success mr-2 mb-1">
                     <i class="fas fa-layer-group"></i> Input Setoran Kolektif (Per Kelas)
+                </a>
+                <a href="<?= base_url('transaksi/multi-tanggal') ?>" class="btn btn-info mb-1">
+                    <i class="fas fa-calendar-alt"></i> Input Setoran Multi-Tanggal (Per Siswa)
                 </a>
             </div>
         </div>
