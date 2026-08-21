@@ -163,8 +163,9 @@
             </div>
 
             <?php if (isset($pager)) : ?>
-                <div class="mt-3">
-                    <?= $pager->links('default', 'default_full') ?>
+                <div class="mt-3 d-flex justify-content-between align-items-center flex-wrap">
+                    <span class="text-muted small mb-2 mb-md-0"><i class="fas fa-info-circle mr-1"></i> Gunakan navigasi halaman untuk berpindah data.</span>
+                    <?= $pager->links('default', 'bootstrap_pagination') ?>
                 </div>
             <?php endif; ?>
         </div>
