@@ -17,13 +17,20 @@
     </div>
 </div>
 
+<?php 
+$fotoProfile = session()->get('foto_profil');
+$avatarUrl = ($fotoProfile && file_exists(FCPATH . 'uploads/profile/' . $fotoProfile)) 
+    ? base_url('uploads/profile/' . $fotoProfile) 
+    : base_url('dist/img/user2-160x160.jpg');
+?>
+
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar Widget Card -->
         <div class="col-md-4">
             <div class="card card-primary card-outline">
                 <div class="card-body box-profile text-center">
-                    <img class="profile-user-img img-fluid img-circle elevation-2" src="<?= base_url('dist/img/user2-160x160.jpg') ?>" alt="User profile picture">
+                    <img class="profile-user-img img-fluid img-circle elevation-2" style="width: 120px; height: 120px; object-fit: cover;" src="<?= $avatarUrl ?>" alt="User profile picture">
                     <h3 class="profile-username font-weight-bold mt-2"><?= esc(session()->get('nama_lengkap') ?? $user->username) ?></h3>
                     <p class="text-muted mb-1"><?= esc($user->email ?? '') ?></p>
                     <span class="badge badge-success p-2 mb-3"><i class="fas fa-user-shield mr-1"></i> Akun Terverifikasi</span>
@@ -58,9 +65,15 @@
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-user-edit mr-1"></i> Form Edit Informasi Profil</h3>
                 </div>
-                <form action="<?= base_url('profile/update') ?>" method="post">
+                <form action="<?= base_url('profile/update') ?>" method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
                     <div class="card-body">
+                        
+                        <div class="form-group">
+                            <label for="foto_profil"><i class="fas fa-camera mr-1"></i> Unggah Foto Profil Baru</label>
+                            <input type="file" name="foto_profil" id="foto_profil" class="form-control-file" accept="image/*">
+                            <small class="text-muted">Format: JPG, PNG, WEBP. Maksimal 2MB.</small>
+                        </div>
                         
                         <div class="form-group">
                             <label for="nama_lengkap">Nama Lengkap</label>

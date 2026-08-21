@@ -122,14 +122,38 @@
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
       </li>
+      <!-- User Profile Dropdown Menu -->
+      <?php 
+        $user = function_exists('auth') ? auth()->user() : null;
+        $namaUserNav = session()->get('nama_lengkap') ?? ($user ? $user->username : 'Pengguna');
+        $fotoNav = session()->get('foto_profil');
+        $avatarNavUrl = ($fotoNav && file_exists(FCPATH . 'uploads/profile/' . $fotoNav)) 
+            ? base_url('uploads/profile/' . $fotoNav) 
+            : base_url('dist/img/user2-160x160.jpg');
+      ?>
+      <li class="nav-item dropdown user-menu">
+        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-toggle="dropdown">
+          <img src="<?= $avatarNavUrl ?>" class="user-image img-circle elevation-1 mr-2" style="width: 32px; height: 32px; object-fit: cover;" alt="User Image">
+          <span class="d-none d-md-inline font-weight-bold"><?= esc($namaUserNav) ?></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <!-- User image -->
+          <li class="user-header bg-primary text-center py-3">
+            <img src="<?= $avatarNavUrl ?>" class="img-circle elevation-2" style="width: 80px; height: 80px; object-fit: cover;" alt="User Image">
+            <p class="mt-2 mb-0 font-weight-bold"><?= esc($namaUserNav) ?></p>
+            <small><?= esc($user->email ?? '') ?></small>
+          </li>
+          <!-- Menu Footer-->
+          <li class="user-footer d-flex justify-content-between p-2">
+            <a href="<?= base_url('profile') ?>" class="btn btn-default btn-flat"><i class="fas fa-user-cog mr-1"></i> Profile</a>
+            <a href="<?= base_url('logout') ?>" class="btn btn-default btn-flat text-danger"><i class="fas fa-sign-out-alt mr-1"></i> Logout</a>
+          </li>
+        </ul>
+      </li>
+
       <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true" href="#" role="button">
-          <i class="fas fa-th-large"></i>
         </a>
       </li>
     </ul>

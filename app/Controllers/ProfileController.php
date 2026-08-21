@@ -111,11 +111,22 @@ class ProfileController extends BaseController
 
         $this->db->transComplete();
 
+        // Handle foto profil upload
+        $fileFoto = $this->request->getFile('foto_profil');
+        $fileNameFoto = session()->get('foto_profil');
+
+        if ($fileFoto && $fileFoto->isValid() && !$fileFoto->hasMoved()) {
+            $newName = 'user_' . $userId . '_' . time() . '.' . $fileFoto->getExtension();
+            $fileFoto->move(FCPATH . 'uploads/profile', $newName);
+            $fileNameFoto = $newName;
+        }
+
         // Update data session
         session()->set([
             'nama_lengkap' => $namaLengkap,
             'username'     => $username,
-            'email'        => $email
+            'email'        => $email,
+            'foto_profil'  => $fileNameFoto
         ]);
 
         session()->setFlashdata('success', 'Profil Anda berhasil diperbarui.');
