@@ -349,4 +349,114 @@ class TransaksiController extends BaseController
             'message' => "Berhasil menyimpan {$countSuccess} transaksi harian untuk " . $siswa['nama_lengkap'] . "!"
         ]);
     }
+
+    /**
+     * Download Template CSV untuk Import Transaksi Multi-Tanggal
+     */
+    public function downloadTemplateMulti()
+    {
+        $filename = "template_import_transaksi_multi.csv";
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $filename);
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['nis', 'nama_lengkap', 'tanggal', 'jenis_transaksi', 'nominal', 'keterangan']);
+        fputcsv($output, ['1001', 'Ahmad Dani', date('Y-m-01'), 'setor', '10000', 'Setoran Tanggal 1']);
+        fputcsv($output, ['1001', 'Ahmad Dani', date('Y-m-02'), 'setor', '15000', 'Setoran Tanggal 2']);
+        fputcsv($output, ['1002', 'Siti Rahma', date('Y-m-01'), 'setor', '20000', 'Setoran Tanggal 1']);
+        fclose($output);
+        exit;
+    }
+
+    /**
+     * Import Rekap Transaksi Multi-Tanggal dari CSV
+     */
+    public function importMulti()
+    {
+        $file = $this->request->getFile('file_excel');
+        if (!$file || !$file->isValid()) {
+            return redirect()->back()->with('error', 'File tidak valid atau gagal diunggah.');
+        }
+
+        $ext = strtolower($file->getClientExtension());
+        if (!in_array($ext, ['csv', 'txt'])) {
+            return redirect()->back()->with('error', 'Format file harus berupa CSV (.csv). Silakan unduh template yang telah disediakan.');
+        }
+
+        $handle = fopen($file->getTempName(), "r");
+        if (!$handle) {
+            return redirect()->back()->with('error', 'Gagal membaca file CSV.');
+        }
+
+        $header = fgetcsv($handle, 1000, ",");
+        $countSuccess = 0;
+        $countFailed = 0;
+
+        $this->db->transStart();
+
+        while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            if (count($row) < 5) continue;
+
+            $nis          = trim($row[0]);
+            $namaLengkap  = trim($row[1]);
+            $tanggal      = trim($row[2]);
+            $jenis        = strtolower(trim($row[3])) == 'tarik' ? 'tarik' : 'setor';
+            $jumlah       = (float) str_replace(['.', ','], '', trim($row[4]));
+            $ket          = isset($row[5]) ? trim($row[5]) : "Import Multi-Tanggal {$tanggal}";
+
+            if (empty($nis) || $jumlah <= 0 || empty($tanggal)) {
+                $countFailed++;
+                continue;
+            }
+
+            $siswa = $this->siswaModel->where('nis', $nis)->first();
+            if (!$siswa && !empty($namaLengkap)) {
+                $siswa = $this->siswaModel->where('nama_lengkap', $namaLengkap)->first();
+            }
+
+            if (!$siswa) {
+                $countFailed++;
+                continue;
+            }
+
+            $saldo_sebelum = (float) $siswa['saldo_akhir'];
+            $saldo_sesudah = 0;
+
+            if ($jenis == 'setor') {
+                $saldo_sesudah = $saldo_sebelum + $jumlah;
+            } else {
+                if ($jumlah > $saldo_sebelum) {
+                    $countFailed++;
+                    continue;
+                }
+                $saldo_sesudah = $saldo_sebelum - $jumlah;
+            }
+
+            $dataTransaksi = [
+                'kode_transaksi'  => $this->transaksiModel->generateKodeTransaksi(),
+                'siswa_id'        => $siswa['id'],
+                'jenis_transaksi' => $jenis,
+                'jumlah'          => $jumlah,
+                'keterangan'      => $ket,
+                'saldo_sebelum'   => $saldo_sebelum,
+                'saldo_sesudah'   => $saldo_sesudah,
+                'pengguna_id'     => session()->get('id') ?? 1,
+                'created_at'      => $tanggal . ' ' . date('H:i:s'),
+            ];
+
+            $this->transaksiModel->insert($dataTransaksi);
+            $this->siswaModel->update($siswa['id'], ['saldo_akhir' => $saldo_sesudah]);
+            $countSuccess++;
+        }
+
+        fclose($handle);
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === FALSE) {
+            return redirect()->back()->with('error', 'Gagal memproses import transaksi karena error database.');
+        }
+
+        session()->setFlashdata('success', "Import Transaksi Selesai: {$countSuccess} transaksi berhasil dicatat, {$countFailed} baris dilewati (NIS tidak ditemukan/nominal 0/saldo kurang).");
+        return redirect()->to('/transaksi');
+    }
 }

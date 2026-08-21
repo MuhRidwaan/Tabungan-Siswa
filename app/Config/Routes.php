@@ -31,6 +31,8 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get   ('transaksi',        'TransaksiController::index');
     $routes->get   ('transaksi/kolektif', 'TransaksiController::kolektif');
     $routes->get   ('transaksi/multi-tanggal', 'TransaksiController::multiTanggal');
+    $routes->get   ('transaksi/download-template-multi', 'TransaksiController::downloadTemplateMulti');
+    $routes->post  ('transaksi/import-multi', 'TransaksiController::importMulti');
     $routes->get   ('transaksi/get-siswa-by-kelas/(:num)', 'TransaksiController::getSiswaByKelas/$1');
     $routes->post  ('transaksi/save-kolektif', 'TransaksiController::saveKolektif');
     $routes->post  ('transaksi/save-multi-tanggal', 'TransaksiController::saveMultiTanggal');

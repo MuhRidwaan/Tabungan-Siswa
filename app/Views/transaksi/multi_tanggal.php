@@ -24,8 +24,16 @@
 
     <!-- Filter Header Card -->
     <div class="card card-info card-outline">
-      <div class="card-header">
+      <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
         <h3 class="card-title"><i class="fas fa-user-clock mr-1"></i> Pilih Siswa & Periode Tanggal Harian</h3>
+        <div>
+          <button type="button" class="btn btn-sm btn-success mr-1" data-toggle="modal" data-target="#modalImportMulti">
+            <i class="fas fa-file-excel mr-1"></i> Import Excel/CSV Transaksi
+          </button>
+          <a href="<?= base_url('transaksi/download-template-multi') ?>" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-download mr-1"></i> Download Template CSV
+          </a>
+        </div>
       </div>
       <div class="card-body">
         <form id="formFilterMulti">
@@ -409,7 +417,36 @@ document.addEventListener('DOMContentLoaded', function() {
             btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Setoran Multi-Tanggal';
         });
     });
-});
 </script>
+
+<!-- Modal Import Transaksi Multi-Tanggal -->
+<div class="modal fade" id="modalImportMulti" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Import Transaksi Multi-Tanggal dari CSV</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="<?= base_url('transaksi/import-multi') ?>" method="post" enctype="multipart/form-data">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="file_excel">Pilih File CSV (.csv)</label>
+                        <input type="file" name="file_excel" id="file_excel" class="form-control-file" accept=".csv" required>
+                    </div>
+                    <div class="alert alert-info py-2 small mb-0">
+                        <i class="fas fa-info-circle mr-1"></i> Format file harus sesuai template CSV (kolom: <code>nis, nama_lengkap, tanggal, jenis_transaksi, nominal, keterangan</code>).
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-upload mr-1"></i> Upload & Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <?= $this->endSection() ?>
