@@ -103,6 +103,13 @@ class TransaksiController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Siswa tidak ditemukan.']);
         }
 
+        if ($siswa['status_siswa'] !== 'aktif') {
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Gagal! Siswa ini telah berstatus ' . strtoupper($siswa['status_siswa']) . ' (Tabungan telah ditarik lunas / Lulus) dan tidak dapat melakukan transaksi setor atau tarik lagi.'
+            ]);
+        }
+
         $this->db->transStart();
         
         $saldo_sebelum = (float) $siswa['saldo_akhir'];
@@ -264,8 +271,8 @@ class TransaksiController extends BaseController
             }
 
             $siswa = $this->siswaModel->find($siswaId);
-            if (!$siswa) {
-                continue;
+            if (!$siswa || $siswa['status_siswa'] !== 'aktif') {
+                continue; // Skip graduated / inactive students
             }
 
             $saldo_sebelum = (float) $siswa['saldo_akhir'];
@@ -355,6 +362,13 @@ class TransaksiController extends BaseController
         $siswa = $this->siswaModel->find($siswaId);
         if (!$siswa) {
             return $this->response->setJSON(['success' => false, 'message' => 'Data siswa tidak ditemukan.']);
+        }
+
+        if ($siswa['status_siswa'] !== 'aktif') {
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Gagal! Siswa ini telah berstatus ' . strtoupper($siswa['status_siswa']) . ' (Tabungan telah ditarik lunas / Lulus) dan tidak dapat melakukan transaksi setor atau tarik lagi.'
+            ]);
         }
 
         $this->db->transStart();
