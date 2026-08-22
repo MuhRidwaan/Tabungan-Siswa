@@ -48,12 +48,51 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- DataTables & Plugins -->
+<script src="<?= base_url('plugins/datatables/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') ?>"></script>
+<script src="<?= base_url('plugins/datatables-responsive/js/dataTables.responsive.min.js') ?>"></script>
+<script src="<?= base_url('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') ?>"></script>
+
 <script>
 $(function() {
   if ($.fn.select2) {
     $('.select2').select2({
       theme: 'bootstrap4',
       width: '100%'
+    });
+  }
+
+  // Auto initialize DataTables on all tables with .data-table or table.table-bordered
+  if ($.fn.DataTable) {
+    $('.data-table, .table-datatable, table.table-bordered:not(.no-datatable)').each(function() {
+      if (!$.fn.DataTable.isDataTable(this)) {
+        $(this).DataTable({
+          "responsive": true,
+          "lengthChange": true,
+          "autoWidth": false,
+          "ordering": true,
+          "order": [],
+          "language": {
+            "sEmptyTable":   "Tidak ada data yang tersedia pada tabel ini",
+            "sProcessing":   "Sedang memproses...",
+            "sLengthMenu":   "Tampilkan _MENU_ data",
+            "sZeroRecords":  "Tidak ditemukan data yang sesuai",
+            "sInfo":         "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+            "sInfoEmpty":    "Menampilkan 0 sampai 0 dari 0 data",
+            "sInfoFiltered": "(disaring dari _MAX_ data keseluruhan)",
+            "sInfoPostFix":  "",
+            "sSearch":       "Cari Data:",
+            "sUrl":          "",
+            "oPaginate": {
+              "sFirst":    "Pertama",
+              "sPrevious": "Sebelumnya",
+              "sNext":     "Selanjutnya",
+              "sLast":     "Terakhir"
+            }
+          }
+        });
+      }
     });
   }
 });

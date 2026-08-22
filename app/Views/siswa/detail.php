@@ -196,7 +196,7 @@
 
             <!-- Scrollable Responsive Table Wrapper -->
             <div class="table-responsive text-nowrap custom-scroll" style="overflow-x: auto; max-width: 100%;">
-                <table class="table table-bordered table-striped table-hover text-nowrap mb-0" style="min-width: 950px;">
+                <table class="table table-bordered table-striped table-hover text-nowrap mb-0 data-table" style="min-width: 950px;">
                     <thead class="bg-light">
                         <tr class="text-center">
                             <th width="40">No</th>

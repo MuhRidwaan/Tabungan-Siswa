@@ -42,6 +42,11 @@
   <!-- SweetAlert2 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="<?= base_url('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('plugins/datatables-buttons/css/buttons.bootstrap4.min.css') ?>">
+
   <!-- Custom Color Theme: Teal #0D9488 + White Navbar #FFFFFF + Dark Slate Sidebar #0F172A -->
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -206,6 +211,47 @@
     .btn-outline-primary:hover, .btn-outline-info:hover {
       background-color: #0D9488 !important;
       color: #FFFFFF !important;
+    }
+
+    /* Custom DataTables Styling */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.active .page-link {
+      background-color: #0D9488 !important;
+      border-color: #0D9488 !important;
+      color: #FFFFFF !important;
+      font-weight: bold !important;
+      box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3) !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button .page-link {
+      border-radius: 6px !important;
+      margin: 0 2px !important;
+      color: #1E293B !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover .page-link {
+      background-color: #E2E8F0 !important;
+      color: #0D9488 !important;
+    }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 8px !important;
+      border: 1px solid #CBD5E1 !important;
+      padding: 4px 10px !important;
+      font-size: 13px !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+      border-color: #0D9488 !important;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2) !important;
+      outline: none !important;
+    }
+
+    table.dataTable thead th {
+      background-color: #F8FAFC !important;
+      color: #1E293B !important;
+      font-weight: 700 !important;
+      border-bottom: 2px solid #E2E8F0 !important;
     }
   </style>
 </head>
