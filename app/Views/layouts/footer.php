@@ -1,9 +1,9 @@
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <strong>&copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
+    <strong>Copyright &copy; <?= date('Y') ?> <a href="<?= base_url('dashboard') ?>" style="color: #0D9488; font-weight: bold;">SDN Padamamur</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-      <b>Version</b> 3.2.0
+      <b>Sistem Informasi Tabungan Siswa</b> v2.0
     </div>
   </footer>
 
