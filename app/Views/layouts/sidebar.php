@@ -41,8 +41,8 @@ $avatarUrl = ($fotoProfile && file_exists(FCPATH . 'uploads/profile/' . $fotoPro
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="<?= base_url('dashboard') ?>" class="brand-link">
-        <img src="<?= base_url('dist/img/AdminLTELogo.png') ?>" alt="Logo" class="brand-image img-circle elevation-3">
-        <span class="brand-text font-weight-light">Tabungan Siswa</span>
+        <img src="<?= base_url('dist/img/logo_sekolah_dasar.png') ?>" alt="Logo Sekolah" class="brand-image elevation-3" style="width: 33px; height: 33px; object-fit: contain; background: #ffffff; padding: 2px; border-radius: 50%;">
+        <span class="brand-text font-weight-bold ml-1">Tabungan Siswa</span>
     </a>
 
     <div class="sidebar">

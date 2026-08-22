@@ -395,8 +395,8 @@
     <div class="login-card">
         <!-- Brand Header -->
         <div class="brand-header" id="brand-header">
-            <div class="brand-icon-wrapper" id="brand-icon-wrapper">
-                <i class="fas fa-wallet"></i>
+            <div class="brand-icon-wrapper" id="brand-icon-wrapper" style="background: rgba(255,255,255,0.15); padding: 8px; border-radius: 50%; width: 76px; height: 76px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
+                <img src="<?= base_url('dist/img/logo_sekolah_dasar.png') ?>" alt="Logo Sekolah" style="width: 56px; height: 56px; object-fit: contain;">
             </div>
             <h1 class="brand-title">Tabungan Siswa</h1>
             <p class="brand-subtitle">Masuk untuk Mengelola Tabungan Sekolah</p>
@@ -474,8 +474,8 @@
     <!-- Fullscreen Greeting & Motivation Overlay -->
     <div class="welcome-overlay" id="welcome-overlay">
         <div class="welcome-card">
-            <div class="welcome-icon-glow">
-                <i class="fas fa-heart text-white"></i>
+            <div class="welcome-icon-glow" style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2);">
+                <img src="<?= base_url('dist/img/logo_sekolah_dasar.png') ?>" alt="Logo Sekolah" style="width: 52px; height: 52px; object-fit: contain;">
             </div>
             <h2 class="welcome-title" id="welcome-greeting-text">Selamat Datang Kembali!</h2>
             <p class="welcome-subtitle" id="welcome-user-name">Pengguna Tabungan</p>

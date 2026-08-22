@@ -151,12 +151,17 @@
             <div class="card-body">
                 <!-- Header Kop Surat Resmi Sekolah (Hanya Muncul Saat Diprint) -->
                 <div class="print-header text-center mb-4 pb-2 border-bottom border-dark d-none d-print-block">
-                    <h3 class="font-weight-bold text-uppercase mb-1" style="font-size: 18pt; letter-spacing: 1px;">
-                        <?= esc($pengaturan['nama_sekolah'] ?? 'SEKOLAH / MADRASAH TABUNGAN SISWA') ?>
-                    </h3>
-                    <p class="mb-0 text-muted small">
-                        <?= esc($pengaturan['alamat_sekolah'] ?? 'Sistem Informasi Manajemen Tabungan Siswa') ?>
-                    </p>
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <img src="<?= base_url('dist/img/logo_sekolah_dasar.png') ?>" alt="Logo Sekolah" style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;">
+                        <div>
+                            <h3 class="font-weight-bold text-uppercase mb-0" style="font-size: 18pt; letter-spacing: 1px;">
+                                <?= esc($pengaturan['nama_sekolah'] ?? 'SEKOLAH / MADRASAH TABUNGAN SISWA') ?>
+                            </h3>
+                            <p class="mb-0 text-muted small">
+                                <?= esc($pengaturan['alamat_sekolah'] ?? 'Sistem Informasi Manajemen Tabungan Siswa') ?>
+                            </p>
+                        </div>
+                    </div>
                     <div style="border-top: 3px double #000; margin-top: 8px;"></div>
                 </div>
 
