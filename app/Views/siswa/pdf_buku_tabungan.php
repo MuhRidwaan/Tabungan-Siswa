@@ -86,10 +86,19 @@
                 <tr><td colspan="7" class="text-center">Belum ada transaksi.</td></tr>
             <?php else : ?>
                 <tr style="background-color: #f8fafc; font-weight: bold;">
-                    <td colspan="4" class="text-right">TOTAL MUTASI / SALDO AKHIR:</td>
-                    <td class="text-right text-success">+ Rp <?= number_format($totalSetor, 0, ',', '.') ?></td>
-                    <td class="text-right text-primary">Rp <?= number_format($siswa['saldo_akhir'], 0, ',', '.') ?></td>
-                    <td>Total Penarikan: <span class="text-danger">- Rp <?= number_format($totalTarik, 0, ',', '.') ?></span></td>
+                    <td colspan="4" class="text-right">TOTAL SETORAN (MASUK):</td>
+                    <td class="text-right text-success" style="font-size: 10px;">+ Rp <?= number_format($totalSetor, 0, ',', '.') ?></td>
+                    <td colspan="2"></td>
+                </tr>
+                <tr style="background-color: #f8fafc; font-weight: bold;">
+                    <td colspan="4" class="text-right">TOTAL PENARIKAN (KELUAR):</td>
+                    <td class="text-right text-danger" style="font-size: 10px;">- Rp <?= number_format($totalTarik, 0, ',', '.') ?></td>
+                    <td colspan="2"></td>
+                </tr>
+                <tr style="background-color: #e0f2fe; font-weight: bold;">
+                    <td colspan="4" class="text-right" style="color: #0369a1; font-size: 11px;">SALDO AKHIR SAAT INI:</td>
+                    <td class="text-right text-primary" style="font-size: 11px;">Rp <?= number_format($siswa['saldo_akhir'], 0, ',', '.') ?></td>
+                    <td colspan="2"></td>
                 </tr>
             <?php endif; ?>
         </tbody>

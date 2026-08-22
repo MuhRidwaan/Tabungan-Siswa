@@ -247,10 +247,19 @@
 
                         <?php if (!empty($transaksi)) : ?>
                             <tr class="bg-light font-weight-bold table-total-row">
-                                <td colspan="5" class="text-right">TOTAL MUTASI / SALDO:</td>
-                                <td class="text-right text-success">+ Rp <?= number_format($stats['total_setor'], 0, ',', '.') ?></td>
-                                <td class="text-right text-primary">Rp <?= number_format($stats['saldo_akhir'], 0, ',', '.') ?></td>
-                                <td colspan="2">Total Penarikan: <span class="text-danger">- Rp <?= number_format($stats['total_tarik'], 0, ',', '.') ?></span></td>
+                                <td colspan="5" class="text-right">TOTAL SETORAN (MASUK):</td>
+                                <td class="text-right text-success" style="font-size: 13px;">+ Rp <?= number_format($stats['total_setor'], 0, ',', '.') ?></td>
+                                <td colspan="3"></td>
+                            </tr>
+                            <tr class="bg-light font-weight-bold table-total-row">
+                                <td colspan="5" class="text-right">TOTAL PENARIKAN (KELUAR):</td>
+                                <td class="text-right text-danger" style="font-size: 13px;">- Rp <?= number_format($stats['total_tarik'], 0, ',', '.') ?></td>
+                                <td colspan="3"></td>
+                            </tr>
+                            <tr class="bg-info font-weight-bold table-total-row text-white">
+                                <td colspan="5" class="text-right text-white">SALDO AKHIR SAAT INI:</td>
+                                <td class="text-right text-white font-weight-bold" style="font-size: 14px;">Rp <?= number_format($stats['saldo_akhir'], 0, ',', '.') ?></td>
+                                <td colspan="3"></td>
                             </tr>
                         <?php else : ?>
                             <tr>
