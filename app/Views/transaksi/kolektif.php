@@ -83,13 +83,19 @@
 
       <!-- Table List Students Batch Entry -->
       <div class="card card-success card-outline">
-        <div class="card-header d-flex align-items-center justify-content-between">
-          <h3 class="card-title"><i class="fas fa-users mr-1"></i> Daftar Input Nominal Siswa</h3>
-          <div class="card-tools">
-            <span id="draftStatusBadge" class="badge badge-secondary p-2 mr-2"><i class="fas fa-sync-alt fa-spin"></i> Memuat...</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnFillAllModal" data-toggle="modal" data-target="#modalFillAll">
-              <i class="fas fa-calculator mr-1"></i> Isi Nominal Seragam
-            </button>
+        <div class="card-header py-3">
+          <div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
+            <h3 class="card-title font-weight-bold mb-2 mb-md-0">
+              <i class="fas fa-users text-success mr-2"></i>Daftar Input Nominal Siswa
+            </h3>
+            <div class="card-tools d-flex align-items-center flex-wrap ml-auto text-right">
+              <span id="draftStatusBadge" class="badge badge-secondary p-2 mr-2 mb-1">
+                <i class="fas fa-sync-alt fa-spin"></i> Memuat...
+              </span>
+              <button type="button" class="btn btn-sm btn-outline-secondary mb-1" id="btnFillAllModal" data-toggle="modal" data-target="#modalFillAll">
+                <i class="fas fa-calculator mr-1"></i> Isi Nominal Seragam
+              </button>
+            </div>
           </div>
         </div>
         <div class="card-body p-0">
