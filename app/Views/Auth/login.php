@@ -122,54 +122,6 @@
             font-weight: 500;
         }
 
-        /* Profile Avatar Display Header (Live Display) */
-        .user-profile-preview {
-            display: none;
-            text-align: center;
-            margin-bottom: 20px;
-            animation: fadeInDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .avatar-ring {
-            position: relative;
-            width: 88px;
-            height: 88px;
-            margin: 0 auto 12px;
-            border-radius: 50%;
-            padding: 4px;
-            background: linear-gradient(135deg, #6366f1, #06b6d4, #10b981);
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.6);
-        }
-        .avatar-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #1e293b;
-            border: 2px solid #0f172a;
-        }
-        .profile-name {
-            font-size: 17px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 4px;
-        }
-        .profile-role-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            background: rgba(99, 102, 241, 0.2);
-            border: 1px solid rgba(99, 102, 241, 0.4);
-            color: #818cf8;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
         /* Form Controls */
         .form-group {
             margin-bottom: 20px;
@@ -370,14 +322,18 @@
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
-        .welcome-avatar-img {
-            width: 96px;
-            height: 96px;
+        .welcome-icon-glow {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
             border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #6366f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #ffffff;
             box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.7);
-            margin-bottom: 16px;
         }
         .welcome-title {
             font-size: 24px;
@@ -442,18 +398,8 @@
             <div class="brand-icon-wrapper" id="brand-icon-wrapper">
                 <i class="fas fa-wallet"></i>
             </div>
-
-            <!-- Dynamic User Profile Preview Header (Live Display) -->
-            <div class="user-profile-preview" id="user-profile-preview">
-                <div class="avatar-ring">
-                    <img src="" alt="Avatar" class="avatar-img" id="user-avatar-img">
-                </div>
-                <div class="profile-name" id="user-profile-name">Nama Pengguna</div>
-                <span class="profile-role-badge" id="user-profile-role"><i class="fas fa-shield-alt mr-1"></i> Administrator</span>
-            </div>
-
-            <h1 class="brand-title" id="brand-title">Tabungan Siswa</h1>
-            <p class="brand-subtitle" id="brand-subtitle">Masuk untuk Mengelola Tabungan Sekolah</p>
+            <h1 class="brand-title">Tabungan Siswa</h1>
+            <p class="brand-subtitle">Masuk untuk Mengelola Tabungan Sekolah</p>
         </div>
 
         <!-- Alerts -->
@@ -528,8 +474,8 @@
     <!-- Fullscreen Greeting & Motivation Overlay -->
     <div class="welcome-overlay" id="welcome-overlay">
         <div class="welcome-card">
-            <div>
-                <img src="" alt="Avatar" class="welcome-avatar-img" id="welcome-avatar-img">
+            <div class="welcome-icon-glow">
+                <i class="fas fa-heart text-white"></i>
             </div>
             <h2 class="welcome-title" id="welcome-greeting-text">Selamat Datang Kembali!</h2>
             <p class="welcome-subtitle" id="welcome-user-name">Pengguna Tabungan</p>
@@ -553,20 +499,12 @@
         const formLogin = document.getElementById('form-login');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const userProfilePreview = document.getElementById('user-profile-preview');
-        const brandIconWrapper = document.getElementById('brand-icon-wrapper');
-        const brandTitle = document.getElementById('brand-title');
-        const brandSubtitle = document.getElementById('brand-subtitle');
-        const userAvatarImg = document.getElementById('user-avatar-img');
-        const userProfileName = document.getElementById('user-profile-name');
-        const userProfileRole = document.getElementById('user-profile-role');
         const btnTogglePassword = document.getElementById('btn-toggle-password');
         const eyeIcon = document.getElementById('eye-icon');
 
         const welcomeOverlay = document.getElementById('welcome-overlay');
         const welcomeGreetingText = document.getElementById('welcome-greeting-text');
         const welcomeUserName = document.getElementById('welcome-user-name');
-        const welcomeAvatarImg = document.getElementById('welcome-avatar-img');
         const motivationQuote = document.getElementById('motivation-quote');
         const progressFill = document.getElementById('progress-fill');
 
@@ -577,53 +515,6 @@
             '"Selamat datang kembali! Mari bersama wujudkan manajemen keuangan sekolah yang transparan dan akuntabel."',
             '"Menabung hari ini adalah jembatan menuju mimpi besar anak-anak bangsa di masa depan. Tetap semangat!"'
         ];
-
-        let debounceTimer;
-
-        function performAvatarLookup(val) {
-            const inputVal = val.trim();
-            if (!inputVal) {
-                userProfilePreview.style.display = 'none';
-                brandIconWrapper.style.display = 'flex';
-                brandTitle.innerText = 'Tabungan Siswa';
-                brandSubtitle.innerText = 'Masuk untuk Mengelola Tabungan Sekolah';
-                return;
-            }
-
-            fetch(`<?= base_url('check-user-avatar') ?>?login=${encodeURIComponent(inputVal)}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.found) {
-                    userAvatarImg.src = data.avatar;
-                    userProfileName.innerText = data.full_name;
-                    userProfileRole.innerHTML = `<i class="fas fa-shield-alt mr-1"></i> ${data.role}`;
-                    userProfilePreview.style.display = 'block';
-                    brandIconWrapper.style.display = 'none';
-                    brandTitle.innerText = 'Selamat Datang!';
-                    brandSubtitle.innerText = 'Silakan masukkan password untuk melanjutkan';
-                }
-            })
-            .catch(err => console.error('Avatar fetch error:', err));
-        }
-
-        // Live Real-Time Lookup as user types in username input
-        emailInput.addEventListener('input', function() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                performAvatarLookup(this.value);
-            }, 350);
-        });
-
-        emailInput.addEventListener('blur', function() {
-            performAvatarLookup(this.value);
-        });
-
-        // Trigger on page load if email has a value (e.g. remembered / old input)
-        if (emailInput.value.trim()) {
-            performAvatarLookup(emailInput.value);
-        } else {
-            emailInput.focus();
-        }
 
         // Toggle Password Visibility
         btnTogglePassword.addEventListener('click', function() {
@@ -659,11 +550,7 @@
             motivationQuote.innerText = randomQuote;
 
             welcomeGreetingText.innerText = timeGreeting;
-            welcomeUserName.innerText = (userProfileName.innerText && userProfileName.innerText !== 'Nama Pengguna') 
-                ? userProfileName.innerText 
-                : emailInput.value;
-                
-            welcomeAvatarImg.src = userAvatarImg.src || `https://ui-avatars.com/api/?name=${encodeURIComponent(emailInput.value)}&background=6366f1&color=ffffff&size=128&bold=true`;
+            welcomeUserName.innerText = emailInput.value.trim();
 
             welcomeOverlay.style.display = 'flex';
 
