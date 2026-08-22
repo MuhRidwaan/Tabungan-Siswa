@@ -767,7 +767,10 @@ class TransaksiController extends BaseController
         ];
 
         $transaksiId = $this->transaksiModel->insert($dataTransaksi);
-        $this->siswaModel->update($siswaId, ['saldo_akhir' => 0]);
+        $this->siswaModel->update($siswaId, [
+            'saldo_akhir'  => 0,
+            'status_siswa' => 'lulus'
+        ]);
 
         if ($includeAlokasi && $transaksiId) {
             $alokasiModel = new \App\Models\AlokasiBiayaAdmin();

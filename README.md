@@ -1,60 +1,118 @@
-# CodeIgniter 4 Framework
+# 🎒 Sistem Informasi Manajemen Tabungan Siswa (SIP-Tabungan)
 
-## What is CodeIgniter?
+![CodeIgniter 4](https://img.shields.io/badge/Framework-CodeIgniter%204.6-orange?style=for-the-badge&logo=codeigniter)
+![PHP 8.2](https://img.shields.io/badge/Language-PHP%208.2-blue?style=for-the-badge&logo=php)
+![MySQL](https://img.shields.io/badge/Database-MySQL-blue?style=for-the-badge&logo=mysql)
+![AdminLTE 3](https://img.shields.io/badge/UI-AdminLTE%203-green?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-brightgreen?style=for-the-badge)
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+**SIP-Tabungan** adalah aplikasi manajemen tabungan siswa berbasis web yang dirancang khusus untuk sekolah/madrasah guna mengelola setoran, penarikan, pembagian tabungan akhir tahun ajaran, alokasi komisi/bagi hasil admin kas (Sekolah & Guru), serta laporan siap cetak secara transparan, akuntabel, dan modern.
 
-This repository holds the distributable version of the framework.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+---
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## 🌟 Fitur Utama & Modul Sistem
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+### 1. 📊 Dashboard Analitis & Statistik Real-Time
+* **Ringkasan Kas Sekolah**: Total pemasokan setor, total penarikan, saldo kas bersih, dan rincian alokasi biaya admin.
+* **Informasi Rombel & Siswa**: Menampilkan jumlah siswa aktif, total kelas/rombel per Tahun Ajaran aktif, dan grafik transaksi bulanan.
 
-## Important Change with index.php
+### 2. 👨‍🎓 Manajemen Data Siswa
+* **Pengelolaan Lengkap**: Pencatatan NIS, Nama Lengkap, Jenis Kelamin, Tanggal Lahir, Alamat, dan Status Siswa (`Aktif`, `Lulus`, `Pindah`, `Non-Aktif`).
+* **Filtering Cepat**: Menyaring data siswa berdasarkan Kelas, Tahun Ajaran, dan Status Siswa.
+* **Import & Export Excel (.xls)**:
+  * Fitur unggah massal via file Excel.
+  * Fitur unduh template *Multi-Sheet* yang dilengkapi Sheet Referensi Nama Kelas Valid.
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+### 3. 🏫 Manajemen Data Kelas & Tahun Ajaran
+* **Pengikatan Kelas ke Tahun Ajaran (`tahun_ajaran_id`)**: Setiap kelas terikat secara spesifik pada Tahun Ajaran pembuatannya.
+* **Penempatan & Kenaikan Kelas Massal (`/manajemen-kelas`)**: Alat interaktif untuk menempatkan siswa baru ke kelas atau memproses kenaikan/kelulusan kelas massal dari tahun ke tahun.
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+### 4. 💵 Modul Transaksi Instan & Kolektif
+* **Transaksi Instan (Setor / Tarik)**: Pencatatan cepat dilengkapi pembuatan nomor transaksi unik otomatis (`TRX-YYYYMMDD-XXXX`) dan cetak struk kwitansi thermal.
+* **Setor / Tarik Kolektif**: Memudahkan guru/wali kelas memasukkan nominal tabungan satu kelas sekaligus dalam satu halaman.
+* **Setor Multi-Tanggal**: Memfasilitasi rekapitulasi setoran dari beberapa tanggal yang terlewat.
 
-**Please** read the user guide for a better explanation of how CI4 works!
+### 5. 🎓 Modul Penarikan Tabungan Akhir Tahun Ajaran (`/transaksi/akhir-tahun`)
+* **Pembagian Tabungan Lunas Per-Siswa**: Penarikan seluruh sisa saldo tabungan siswa pada akhir tahun ajaran (Saldo menjadi Rp 0).
+* **Otomatisasi Status Kelulusan**: Siswa yang telah ditarik lunas tabungannya secara otomatis diperbarui statusnya menjadi `Lulus`, sehingga tidak lagi mengotori form transaksi aktif sehari-hari.
+* **Bagi Hasil Alokasi Biaya Admin Kas**: Otomatis menghitung dan mencatat potongan alokasi komisi untuk **Sekolah (%)** dan **Guru / Wali Kelas (%)**.
+* **Eksekusi Kelulusan Massal**: Tombol 1-klik untuk menetapkan seluruh siswa di suatu kelas menjadi status `Lulus`.
 
-## Repository Management
+### 6. 🖨️ Modul Laporan & Siap Cetak (`/laporan`)
+* **Penyaringan Berkelanjutan**: Filter laporan berdasarkan Periode Tanggal, Kelas, dan Tahun Ajaran.
+* **Visual Siap Cetak (Print Stylesheet `@media print`)**: Secara otomatis menyembunyikan sidebar, navbar, dan tombol web UI saat dicetak atau disimpan sebagai PDF.
+* **Kop Surat Resmi & Blok Tanda Tangan**: Dilengkapi Kop Surat Sekolah resmi dan kolom pengesahan Tanda Tangan Kepala Sekolah & Bendahara/Pengelola Tabungan.
+* **Export Excel**: Fitur unduh laporan ke format Excel lengkap dengan rincian alokasi komisi sekolah dan guru.
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### 7. ⚙️ Pengaturan Komisi Admin & Profil
+* **Persentase Bagi Hasil**: Pengaturan fleksibel untuk persentase alokasi komisi guru (contoh: 1.0%) dan sekolah (contoh: 1.5%).
+* **Manajemen Profil Pengguna**: Update username, email, password, dan foto profil pengguna.
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+### 8. 🎨 Halaman Login Ultra Modern & Animated Greeting
+* **Desain Glassmorphism**: Tampilan modern berlatar *animated gradient mesh* dengan font *Plus Jakarta Sans*.
+* **Fullscreen Welcome Overlay**: Animasi sapaan ramah berbasis waktu (*Selamat Pagi / Siang / Sore / Malam*) dan **Kartu Kata-Kata Semangat Motivasi Inspiratif** (4 detik jeda sebelum diarahkan masuk ke Dashboard).
 
-## Contributing
+---
 
-We welcome contributions from the community.
+## 🗄️ Struktur Tabel Utama Database
 
-Please read the [*Contributing to CodeIgniter*](https://github.com/codeigniter4/CodeIgniter4/blob/develop/CONTRIBUTING.md) section in the development repository.
+| Nama Tabel | Deskripsi |
+| :--- | :--- |
+| `users` & `auth_identities` | Tabel autentikasi pengguna bawaan CodeIgniter Shield |
+| `pengguna` | Data profil tambahan pengguna (Guru, Wali Kelas, Admin) |
+| `tahun_ajaran` | Master data Tahun Ajaran (contoh: 2024/2025, 2025/2026) |
+| `kelas` | Master data Kelas yang terikat pada `tahun_ajaran_id` |
+| `siswa` | Data siswa, saldo akhir, dan `status_siswa` (`aktif`, `lulus`, `pindah`, `nonaktif`) |
+| `riwayat_kelas_siswa` | Tabel pivot penempatan siswa pada kelas & tahun ajaran tertentu |
+| `transaksi_tabungan` | Log transaksi setor dan tarik tabungan siswa |
+| `alokasi_biaya_admin` | Rincian pembagian nominal komisi bagi hasil untuk Sekolah dan Guru |
+| `pengaturan` | Konfigurasi sistem (Nama Sekolah, Alamat, % Komisi) |
 
-## Server Requirements
+---
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+## 🚀 Panduan Instalasi & Run Local
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+### 1. Persyaratan Sistem
+* PHP versi `>= 8.1` (Disarankan PHP 8.2)
+* Extension PHP yang wajib aktif: `intl`, `mbstring`, `mysqli`, `curl`, `json`
+* Database Engine: MySQL / MariaDB (Laragon / XAMPP)
+* Composer
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+### 2. Langkah-Langkah Instalasi
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/MuhRidwaan/Tabungan-Siswa.git
+   cd tabungan_siswa
+   ```
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+2. **Instalasi Dependency Composer**:
+   ```bash
+   composer install
+   ```
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+3. **Konfigurasi Environment (`.env`)**:
+   Salin file `env` menjadi `.env`, lalu atur konfigurasi database Anda:
+   ```ini
+   database.default.hostname = 127.0.0.1
+   database.default.database = db_tabungan_siswa
+   database.default.username = root
+   database.default.password = 
+   database.default.DBDriver = MySQLi
+   ```
+
+4. **Jalankan Migrasi Database**:
+   ```bash
+   php spark migrate
+   ```
+
+5. **Jalankan Server Lokal**:
+   ```bash
+   php spark serve
+   ```
+   Atau buka via web server Laragon: `http://127.0.0.1/tabungan_siswa/public/`
+
+---
+
+## 📄 Lisensi
+
+Dikembangkan oleh **Google DeepMind Advanced Agentic Coding Team** bersama **MuhRidwaan**. Hak Cipta &copy; <?= date('Y') ?>. Bebas digunakan dan dikembangkan untuk kepentingan pendidikan.
