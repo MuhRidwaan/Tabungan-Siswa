@@ -299,6 +299,10 @@
       table.dataTable tbody tr {
         display: table-row !important;
       }
+
+      tfoot, table.dataTable tfoot {
+        display: table-row-group !important;
+      }
     }
   </style>
 </head>

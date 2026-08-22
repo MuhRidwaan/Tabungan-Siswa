@@ -242,7 +242,14 @@
                             </tr>
                         <?php endforeach; ?>
 
-                        <?php if (empty($transaksi)) : ?>
+                        <?php if (!empty($transaksi)) : ?>
+                            <tr class="bg-light font-weight-bold table-total-row">
+                                <td colspan="5" class="text-right">TOTAL MUTASI / SALDO:</td>
+                                <td class="text-right text-success">+ Rp <?= number_format($stats['total_setor'], 0, ',', '.') ?></td>
+                                <td class="text-right text-primary">Rp <?= number_format($stats['saldo_akhir'], 0, ',', '.') ?></td>
+                                <td colspan="2">Total Penarikan: <span class="text-danger">- Rp <?= number_format($stats['total_tarik'], 0, ',', '.') ?></span></td>
+                            </tr>
+                        <?php else : ?>
                             <tr>
                                 <td colspan="9" class="text-center text-muted py-4">
                                     <i class="fas fa-info-circle mr-1"></i> Belum ada riwayat transaksi tabungan untuk siswa ini.
@@ -250,14 +257,6 @@
                             </tr>
                         <?php endif; ?>
                     </tbody>
-                    <tfoot class="bg-light font-weight-bold">
-                        <tr>
-                            <td colspan="5" class="text-right">TOTAL MUTASI / SALDO:</td>
-                            <td class="text-right text-success">+ Rp <?= number_format($stats['total_setor'], 0, ',', '.') ?></td>
-                            <td class="text-right text-primary">Rp <?= number_format($stats['saldo_akhir'], 0, ',', '.') ?></td>
-                            <td colspan="2">Total Penarikan: <span class="text-danger">- Rp <?= number_format($stats['total_tarik'], 0, ',', '.') ?></span></td>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
 
