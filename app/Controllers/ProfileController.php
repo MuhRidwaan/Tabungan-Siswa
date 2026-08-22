@@ -95,13 +95,16 @@ class ProfileController extends BaseController
                      ->update($updateData);
         }
 
-        // 3. Sync dengan tabel guru jika user adalah guru
-        $guru = $this->guruModel->where('email', $user->email)->orWhere('username', $user->username)->first();
+        // 3. Sync dengan tabel pengguna (Guru Model) jika data ditemukan
+        $guru = $this->guruModel->where('username', $user->username)->first();
+        if (!$guru) {
+            $guru = $this->guruModel->find($userId);
+        }
+
         if ($guru) {
             $guruData = [
-                'nama_guru' => $namaLengkap,
-                'username'  => $username,
-                'email'     => $email
+                'nama_lengkap' => $namaLengkap,
+                'username'     => $username,
             ];
             if (!empty($password)) {
                 $guruData['password'] = password_hash($password, PASSWORD_DEFAULT);
@@ -116,8 +119,12 @@ class ProfileController extends BaseController
         $fileNameFoto = session()->get('foto_profil');
 
         if ($fileFoto && $fileFoto->isValid() && !$fileFoto->hasMoved()) {
+            $uploadDir = FCPATH . 'uploads/profile/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
             $newName = 'user_' . $userId . '_' . time() . '.' . $fileFoto->getExtension();
-            $fileFoto->move(FCPATH . 'uploads/profile', $newName);
+            $fileFoto->move($uploadDir, $newName);
             $fileNameFoto = $newName;
         }
 
