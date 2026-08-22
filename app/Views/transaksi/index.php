@@ -159,7 +159,11 @@
                                 </td>
                                 <td><span class="badge badge-secondary"><?= esc($item['kode_transaksi']) ?></span></td>
                                 <td><span class="badge badge-light border"><?= esc($item['nis']) ?></span></td>
-                                <td class="font-weight-bold"><?= esc($item['nama_siswa']) ?></td>
+                                <td class="font-weight-bold">
+                                    <a href="<?= base_url('siswa/' . $item['siswa_id'] . '/detail') ?>" class="text-dark" title="Lihat Buku Tabungan Siswa">
+                                        <?= esc($item['nama_siswa']) ?>
+                                    </a>
+                                </td>
                                 <td class="text-center">
                                     <?php if ($item['jenis_transaksi'] == 'setor') : ?>
                                         <span class="badge badge-success px-2 py-1"><i class="fas fa-arrow-down mr-1"></i>Setor</span>

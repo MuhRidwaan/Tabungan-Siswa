@@ -556,4 +556,99 @@ class SiswaController extends BaseController
         echo "</body></html>";
         exit;
     }
+
+    /**
+     * Menampilkan Halaman Detail Buku Tabungan Siswa
+     */
+    public function detail($id)
+    {
+        $siswa = $this->siswa->find($id);
+        if (!$siswa) {
+            return redirect()->to('/siswa')->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        // Ambil data penempatan kelas & tahun ajaran terbaru / aktif
+        $tahunAktif = $this->tahunAjaranModel->where('status', 'aktif')->first();
+        $selectedTahunId = $this->request->getGet('tahun_ajaran_id') ?: ($tahunAktif['id'] ?? null);
+
+        $riwayatQuery = $this->db->table('riwayat_kelas_siswa')
+            ->select('kelas.nama_kelas, kelas.tingkat, tahun_ajaran.nama_tahun_ajaran, pengguna.nama_lengkap as nama_wali_kelas')
+            ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left')
+            ->join('tahun_ajaran', 'tahun_ajaran.id = riwayat_kelas_siswa.tahun_ajaran_id', 'left')
+            ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left')
+            ->where('riwayat_kelas_siswa.siswa_id', $id);
+
+        if ($selectedTahunId) {
+            $riwayatQuery->where('riwayat_kelas_siswa.tahun_ajaran_id', $selectedTahunId);
+        }
+
+        $riwayatKelas = $riwayatQuery->get()->getRowArray();
+
+        // Jika tidak ada di tahun ajaran terpilih, ambil penempatan kelas paling akhir
+        if (!$riwayatKelas) {
+            $riwayatKelas = $this->db->table('riwayat_kelas_siswa')
+                ->select('kelas.nama_kelas, kelas.tingkat, tahun_ajaran.nama_tahun_ajaran, pengguna.nama_lengkap as nama_wali_kelas')
+                ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left')
+                ->join('tahun_ajaran', 'tahun_ajaran.id = riwayat_kelas_siswa.tahun_ajaran_id', 'left')
+                ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left')
+                ->where('riwayat_kelas_siswa.siswa_id', $id)
+                ->orderBy('riwayat_kelas_siswa.id', 'DESC')
+                ->get()->getRowArray();
+        }
+
+        // Filter rentang tanggal transaksi jika ada
+        $tglAwal  = $this->request->getGet('tgl_awal');
+        $tglAkhir = $this->request->getGet('tgl_akhir');
+        $jenisFilter = $this->request->getGet('jenis_transaksi');
+
+        $trxBuilder = $this->db->table('transaksi_tabungan')
+            ->select('transaksi_tabungan.*, pengguna.nama_lengkap as nama_petugas')
+            ->join('pengguna', 'pengguna.id = transaksi_tabungan.pengguna_id', 'left')
+            ->where('transaksi_tabungan.siswa_id', $id);
+
+        if ($tglAwal) {
+            $trxBuilder->where('DATE(transaksi_tabungan.tanggal_transaksi) >=', $tglAwal);
+        }
+        if ($tglAkhir) {
+            $trxBuilder->where('DATE(transaksi_tabungan.tanggal_transaksi) <=', $tglAkhir);
+        }
+        if ($jenisFilter && in_array($jenisFilter, ['setor', 'tarik'])) {
+            $trxBuilder->where('transaksi_tabungan.jenis_transaksi', $jenisFilter);
+        }
+
+        $transaksiList = $trxBuilder->orderBy('transaksi_tabungan.tanggal_transaksi', 'ASC')
+                                   ->orderBy('transaksi_tabungan.id', 'ASC')
+                                   ->get()->getResultArray();
+
+        // Hitung Ringkasan Total
+        $totalSetor = 0;
+        $totalTarik = 0;
+        foreach ($transaksiList as $t) {
+            if ($t['jenis_transaksi'] === 'setor') {
+                $totalSetor += (float)$t['jumlah'];
+            } else {
+                $totalTarik += (float)$t['jumlah'];
+            }
+        }
+
+        $data = [
+            'title'           => 'Detail Buku Tabungan Siswa',
+            'siswa'           => $siswa,
+            'riwayatKelas'    => $riwayatKelas,
+            'transaksi'       => $transaksiList,
+            'stats'           => [
+                'total_setor'     => $totalSetor,
+                'total_tarik'     => $totalTarik,
+                'saldo_akhir'     => (float)$siswa['saldo_akhir'],
+                'total_transaksi' => count($transaksiList)
+            ],
+            'tahunAjaran'     => $this->tahunAjaranModel->orderBy('tahun_mulai', 'DESC')->findAll(),
+            'selectedTahunId' => $selectedTahunId,
+            'tglAwal'         => $tglAwal,
+            'tglAkhir'        => $tglAkhir,
+            'jenisFilter'     => $jenisFilter
+        ];
+
+        return view('siswa/detail', $data);
+    }
 }

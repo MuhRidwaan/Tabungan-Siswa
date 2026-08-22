@@ -198,7 +198,9 @@
                                         <div class="avatar-circle <?= $avatarBg ?> text-white font-weight-bold mr-2 text-center rounded-circle" style="width: 32px; height: 32px; line-height: 32px; font-size: 12px; flex-shrink: 0;">
                                             <?= esc($initials) ?>
                                         </div>
-                                        <span class="font-weight-bold text-dark"><?= esc($item['nama_lengkap']) ?></span>
+                                        <a href="<?= base_url('siswa/' . $item['id'] . '/detail') ?>" class="font-weight-bold text-dark" title="Lihat Detail Buku Tabungan">
+                                            <?= esc($item['nama_lengkap']) ?>
+                                        </a>
                                     </div>
                                 </td>
                                 <td>
@@ -222,6 +224,9 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
+                                    <a href="<?= base_url('siswa/' . $item['id'] . '/detail') ?>" class="btn btn-xs btn-info mr-1" title="Lihat Detail Buku Tabungan Siswa">
+                                        <i class="fas fa-wallet mr-1"></i> Detail
+                                    </a>
                                     <button type="button" class="btn btn-xs btn-success btn-quick-setor mr-1" 
                                             data-siswa-id="<?= $item['id'] ?>" 
                                             data-nama="<?= esc($item['nama_lengkap']) ?>" 
