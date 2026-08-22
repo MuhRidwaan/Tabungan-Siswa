@@ -24,7 +24,7 @@ class TransaksiController extends BaseController
         $perPage = $this->request->getGet('per_page') ?: 10;
         $search = $this->request->getGet('q');
 
-        $statsData = $this->db->table('transaksi')
+        $statsData = $this->db->table('transaksi_tabungan')
             ->select('
                 COUNT(id) as total_transaksi,
                 COALESCE(SUM(CASE WHEN jenis_transaksi = "setor" THEN jumlah ELSE 0 END), 0) as total_setor,

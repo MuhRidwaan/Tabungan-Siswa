@@ -252,7 +252,7 @@ class SiswaController extends BaseController
      */
     public function delete($id)
     {
-        $transaksiCount = $this->db->table('transaksi')->where('siswa_id', $id)->countAllResults();
+        $transaksiCount = $this->db->table('transaksi_tabungan')->where('siswa_id', $id)->countAllResults();
         if ($transaksiCount > 0) {
             session()->setFlashdata('error', "Gagal menghapus! Siswa ini memiliki {$transaksiCount} record transaksi tabungan. Silakan ubah status siswa menjadi 'Nonaktif' atau 'Lulus' alih-alih menghapusnya.");
             return redirect()->to('/siswa');
