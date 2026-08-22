@@ -122,24 +122,30 @@ class CustomLoginController extends ShieldLoginController
         }
 
         // Get User details
-        $username = $user->username;
+        $username  = $user->username;
         $guruModel = new \App\Models\Guru();
-        $guru = $guruModel->where('username', $username)->orWhere('email', $user->email)->first();
+        $guru      = $guruModel->where('username', $username)->first();
 
-        $fullName = $guru['nama_guru'] ?? ($username ?: 'Pengguna Tabungan');
-        $groups = $user->getGroups();
+        $fullName = $guru['nama_lengkap'] ?? ($guru['nama_guru'] ?? ($username ?: 'Pengguna Tabungan'));
+        $groups   = $user->getGroups();
         $roleName = !empty($groups) ? ucfirst($groups[0]) : 'Pengelola Tabungan';
         if (in_array('admin', $groups)) {
             $roleName = 'Administrator Sekolah';
         }
 
-        // Check custom uploaded photo
+        // Check custom uploaded photo in uploads/profile/
         $avatarUrl = null;
+        $hasCustomPhoto = false;
         $uploadDir = FCPATH . 'uploads/profile/';
         if (is_dir($uploadDir)) {
             $files = glob($uploadDir . 'user_' . $user->id . '_*');
             if (!empty($files)) {
+                // Sort files by newest modified time
+                usort($files, function($a, $b) {
+                    return filemtime($b) - filemtime($a);
+                });
                 $avatarUrl = base_url('uploads/profile/' . basename($files[0]));
+                $hasCustomPhoto = true;
             }
         }
 
@@ -148,11 +154,12 @@ class CustomLoginController extends ShieldLoginController
         }
 
         return $this->response->setJSON([
-            'found'     => true,
-            'username'  => $username,
-            'full_name' => $fullName,
-            'role'      => $roleName,
-            'avatar'    => $avatarUrl
+            'found'            => true,
+            'username'         => $username,
+            'full_name'        => $fullName,
+            'role'             => $roleName,
+            'avatar'           => $avatarUrl,
+            'has_custom_photo' => $hasCustomPhoto
         ]);
     }
 }
