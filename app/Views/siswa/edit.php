@@ -72,9 +72,9 @@
                     </select>
                 </div>
             </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-warning"><i class="fas fa-save mr-1"></i> Update Data Siswa</button>
+            <div class="card-footer d-flex justify-content-between align-items-center">
                 <a href="<?= base_url('siswa') ?>" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Batal</a>
+                <button type="submit" class="btn btn-warning font-weight-bold shadow-sm"><i class="fas fa-save mr-1"></i> Update Data Siswa</button>
             </div>
         </form>
     </div>

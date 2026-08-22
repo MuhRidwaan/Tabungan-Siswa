@@ -124,9 +124,9 @@ $avatarUrl = ($fotoProfile && file_exists(FCPATH . 'uploads/profile/' . $fotoPro
                         </div>
 
                     </div>
-                    <div class="card-footer d-flex justify-content-between">
+                    <div class="card-footer d-flex justify-content-between align-items-center">
                         <a href="<?= base_url('dashboard') ?>" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Simpan Perubahan Profil</button>
+                        <button type="submit" class="btn text-white font-weight-bold shadow-sm" style="background-color: #0D9488; border-color: #0D9488;"><i class="fas fa-save mr-1"></i> Simpan Perubahan Profil</button>
                     </div>
                 </form>
             </div>
