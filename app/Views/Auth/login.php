@@ -23,7 +23,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(-45deg, #0f172a, #1e3a8a, #dc2626, #1d4ed8, #991b1b);
+            background: linear-gradient(-45deg, #0f172a, #0d9488, #1e293b, #0f766e, #115e59);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             position: relative;
@@ -49,14 +49,14 @@
         .blob-1 {
             width: 320px;
             height: 320px;
-            background: #6366f1;
+            background: #0d9488;
             top: -50px;
             left: -50px;
         }
         .blob-2 {
             width: 350px;
             height: 350px;
-            background: #06b6d4;
+            background: #2dd4bf;
             bottom: -50px;
             right: -50px;
             animation-delay: -5s;
@@ -434,9 +434,9 @@
 
             <!-- Username / Email Input -->
             <div class="form-group">
-                <label for="email" class="form-label">Username atau Email</label>
+                <label for="login" class="form-label">Username atau Email</label>
                 <div class="input-wrapper">
-                    <input type="text" name="email" id="email" class="form-control-custom" placeholder="Masukkan username atau email Anda" value="<?= old('email') ?>" required autocomplete="username">
+                    <input type="text" name="login" id="login" class="form-control-custom" placeholder="Masukkan username atau email Anda" value="<?= old('login') ?? old('email') ?>" required autocomplete="username">
                     <i class="fas fa-user-circle input-icon"></i>
                 </div>
             </div>
@@ -466,7 +466,13 @@
             </button>
         </form>
 
-        <div class="footer-text">
+        <?php if (setting('Auth.allowRegistration')) : ?>
+            <div style="text-align: center; margin-top: 20px; font-size: 13.5px; color: #94a3b8;">
+                Belum memiliki akun? <a href="<?= url_to('register') ?>" style="color: #2dd4bf; font-weight: 700; text-decoration: none; transition: all 0.2s ease;">Daftar Akun Baru <i class="fas fa-arrow-right ml-1 text-xs"></i></a>
+            </div>
+        <?php endif; ?>
+
+        <div class="footer-text" style="margin-top: 15px;">
             Sistem Informasi Manajemen Tabungan Siswa &copy; <?= date('Y') ?>
         </div>
     </div>
