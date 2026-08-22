@@ -157,8 +157,8 @@ class TransaksiController extends BaseController
             }
         }
 
-        // Fallback: Jika belum ada riwayat kelas, ambil seluruh siswa aktif dari master
-        if (empty($siswaList)) {
+        // Fallback: Jika belum memilih kelas spesifik atau kelasId === 'all'
+        if (empty($siswaList) && ($kelasId === 'all' || !$kelasId)) {
             $rawSiswa = $this->siswaModel->where('status_siswa', 'aktif')->orderBy('nama_lengkap', 'ASC')->findAll();
             foreach ($rawSiswa as $s) {
                 $siswaList[] = [

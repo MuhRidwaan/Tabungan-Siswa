@@ -20,10 +20,12 @@ class RiwayatKelasSiswa extends Model
      */
     public function getSiswaByKelasTahun($kelasId, $tahunAjaranId)
     {
-        return $this->select('riwayat_kelas_siswa.*, siswa.nis, siswa.nama_lengkap, siswa.saldo_akhir')
+        return $this->select('riwayat_kelas_siswa.id as riwayat_id, riwayat_kelas_siswa.siswa_id, riwayat_kelas_siswa.kelas_id, riwayat_kelas_siswa.tahun_ajaran_id, siswa.nis, siswa.nama_lengkap, siswa.saldo_akhir')
             ->join('siswa', 'siswa.id = riwayat_kelas_siswa.siswa_id')
             ->where('riwayat_kelas_siswa.kelas_id', $kelasId)
             ->where('riwayat_kelas_siswa.tahun_ajaran_id', $tahunAjaranId)
+            ->where('siswa.status_siswa', 'aktif')
+            ->orderBy('siswa.nama_lengkap', 'ASC')
             ->findAll();
     }
 }

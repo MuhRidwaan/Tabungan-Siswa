@@ -24,7 +24,7 @@ class Kelas extends Model
      */
     public function getAllKelasWithWali($tahunAjaranId = null)
     {
-        $builder = $this->select('kelas.*, pengguna.nama_lengkap as nama_wali_kelas, COUNT(DISTINCT riwayat_kelas_siswa.siswa_id) as total_siswa')
+        $builder = $this->select('kelas.*, pengguna.nama_lengkap as nama_wali_kelas, pengguna.nama_lengkap as nama_wali, COUNT(DISTINCT riwayat_kelas_siswa.siswa_id) as total_siswa')
                     ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left');
 
         if ($tahunAjaranId) {

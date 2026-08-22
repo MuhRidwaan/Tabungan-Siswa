@@ -45,7 +45,7 @@
                 <select name="kelas_id" id="kelas_id" class="form-control select2" required>
                   <option value="">-- Pilih Kelas --</option>
                   <?php foreach ($kelas as $k) : ?>
-                    <option value="<?= $k['id'] ?>"><?= esc($k['nama_kelas']) ?> (Wali: <?= esc($k['nama_wali'] ?? 'Belum Ditentukan') ?>)</option>
+                    <option value="<?= $k['id'] ?>"><?= esc($k['nama_kelas']) ?> (Wali: <?= esc(!empty($k['nama_wali_kelas']) ? $k['nama_wali_kelas'] : (!empty($k['nama_wali']) ? $k['nama_wali'] : 'Belum Ditentukan')) ?>)</option>
                   <?php endforeach; ?>
                 </select>
               </div>
@@ -242,19 +242,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load Students by Class AJAX
     function loadSiswaList(kelasId, callback) {
-        const targetId = kelasId || 'all';
+        if (!kelasId) {
+            siswaContainer.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5"><i class="fas fa-arrow-up text-primary fa-2x mb-2 d-block"></i>Silakan pilih <strong>Kelas</strong> di atas untuk memuat daftar siswa.</td></tr>`;
+            tableFooter.classList.add('d-none');
+            btnSimpan.disabled = true;
+            return;
+        }
+
+        const targetId = kelasId;
         siswaContainer.innerHTML = `<tr><td colspan="7" class="text-center text-primary py-4"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Memuat daftar siswa...</td></tr>`;
 
-        fetch(`<?= base_url('transaksi/get-siswa-by-kelas') ?>/${targetId}`)
-            .then(res => res.json())
+        fetch(`<?= base_url('transaksi/get-siswa-by-kelas') ?>/${targetId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('HTTP Status ' + res.status);
+                }
+                return res.json();
+            })
             .then(data => {
                 currentSiswaList = data;
                 renderSiswaRows(data);
                 if (callback) callback();
             })
             .catch(err => {
-                console.error(err);
-                siswaContainer.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4"><i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>Gagal memuat daftar siswa kelas.</td></tr>`;
+                console.error('Fetch error:', err);
+                siswaContainer.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4"><i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>Gagal memuat daftar siswa kelas. (${err.message})</td></tr>`;
             });
     }
 
@@ -473,7 +489,9 @@ document.addEventListener('DOMContentLoaded', function() {
             recalculateTotals();
         });
     } else {
-        loadSiswaList('all');
+        siswaContainer.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5"><i class="fas fa-arrow-up text-primary fa-2x mb-2 d-block"></i>Silakan pilih <strong>Kelas</strong> di atas untuk memuat daftar siswa.</td></tr>`;
+        tableFooter.classList.add('d-none');
+        btnSimpan.disabled = true;
     }
 
     // Submit Collective Batch
