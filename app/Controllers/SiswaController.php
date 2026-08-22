@@ -34,6 +34,7 @@ class SiswaController extends BaseController
         $search  = $this->request->getGet('q');
         $selectedKelasId = $this->request->getGet('kelas_id');
         $selectedTahunId = $this->request->getGet('tahun_ajaran_id');
+        $statusFilter    = $this->request->getGet('status_siswa') ?? 'aktif';
 
         $tahunAktif = $this->tahunAjaranModel->where('status', 'aktif')->first();
         if (!$selectedTahunId && $tahunAktif) {
@@ -44,6 +45,10 @@ class SiswaController extends BaseController
                               ->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.siswa_id = siswa.id AND riwayat_kelas_siswa.tahun_ajaran_id = ' . $this->db->escape($selectedTahunId), 'left')
                               ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left')
                               ->join('tahun_ajaran', 'tahun_ajaran.id = riwayat_kelas_siswa.tahun_ajaran_id', 'left');
+
+        if ($statusFilter && $statusFilter !== 'semua') {
+            $builder->where('siswa.status_siswa', $statusFilter);
+        }
 
         if ($selectedKelasId) {
             $builder->where('riwayat_kelas_siswa.kelas_id', $selectedKelasId);
@@ -65,6 +70,10 @@ class SiswaController extends BaseController
                 COUNT(CASE WHEN siswa.jenis_kelamin = "P" THEN 1 END) as total_perempuan
             ')
             ->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.siswa_id = siswa.id AND riwayat_kelas_siswa.tahun_ajaran_id = ' . $this->db->escape($selectedTahunId), 'left');
+
+        if ($statusFilter && $statusFilter !== 'semua') {
+            $statsBuilder->where('siswa.status_siswa', $statusFilter);
+        }
 
         if ($selectedKelasId) {
             $statsBuilder->where('riwayat_kelas_siswa.kelas_id', $selectedKelasId);
@@ -90,7 +99,8 @@ class SiswaController extends BaseController
             'selectedTahunId' => $selectedTahunId,
             'selectedKelasId' => $selectedKelasId,
             'tahunAktif'      => $tahunAktif,
-            'stats'           => $statsData
+            'stats'           => $statsData,
+            'statusFilter'    => $statusFilter
         ];
 
         return view('siswa/index', $data);

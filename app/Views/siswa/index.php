@@ -136,7 +136,18 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4 mb-2">
+                    <div class="col-md-2 mb-2">
+                        <label for="status_siswa" class="small font-weight-bold">Status Siswa</label>
+                        <select name="status_siswa" id="status_siswa" class="form-control form-control-sm select2">
+                            <option value="aktif" <?= ($statusFilter == 'aktif') ? 'selected' : '' ?>>🟢 Aktif (Default)</option>
+                            <option value="lulus" <?= ($statusFilter == 'lulus') ? 'selected' : '' ?>>🎓 Lulus</option>
+                            <option value="pindah" <?= ($statusFilter == 'pindah') ? 'selected' : '' ?>>🚨 Pindah</option>
+                            <option value="nonaktif" <?= ($statusFilter == 'nonaktif') ? 'selected' : '' ?>>🔴 Nonaktif</option>
+                            <option value="semua" <?= ($statusFilter == 'semua') ? 'selected' : '' ?>>📋 Semua Status</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
                         <label for="q" class="small font-weight-bold">Cari Siswa</label>
                         <div class="input-group input-group-sm">
                             <input type="text" name="q" id="q" class="form-control" placeholder="Cari NIS / Nama Siswa..." value="<?= esc($search ?? '') ?>">
@@ -337,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
             theme: 'bootstrap4',
             width: '100%'
         });
-        $('#tahun_ajaran_id, #kelas_id').on('change', function() {
+        $('#tahun_ajaran_id, #kelas_id, #status_siswa').on('change', function() {
             document.getElementById('formFilterSiswa').submit();
         });
     }
@@ -390,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.status) {
+            if (data.status || data.success) {
                 alert(data.message || 'Transaksi berhasil disimpan!');
                 $('#modalQuickTrans').modal('hide');
                 location.reload();
