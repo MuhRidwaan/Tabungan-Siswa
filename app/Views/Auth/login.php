@@ -122,11 +122,11 @@
             font-weight: 500;
         }
 
-        /* Profile Avatar Display Header (Step 2) */
+        /* Profile Avatar Display Header (Live Display) */
         .user-profile-preview {
             display: none;
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             animation: fadeInDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         @keyframes fadeInDown {
@@ -168,23 +168,6 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-        .btn-change-user {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        .btn-change-user:hover {
-            color: #38bdf8;
-            text-decoration: underline;
         }
 
         /* Form Controls */
@@ -351,24 +334,6 @@
             font-size: 12px;
             color: #64748b;
         }
-        .footer-text a {
-            color: #38bdf8;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .footer-text a:hover {
-            text-decoration: underline;
-        }
-
-        /* Step transitions */
-        #step-password {
-            display: none;
-            animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
@@ -380,25 +345,21 @@
     <div class="login-card">
         <!-- Brand Header -->
         <div class="brand-header" id="brand-header">
-            <div class="brand-icon-wrapper">
+            <div class="brand-icon-wrapper" id="brand-icon-wrapper">
                 <i class="fas fa-wallet"></i>
             </div>
-            <h1 class="brand-title">Tabungan Siswa</h1>
-            <p class="brand-subtitle">Masuk untuk Mengelola Tabungan Sekolah</p>
-        </div>
 
-        <!-- Dynamic User Profile Preview Header (Step 2) -->
-        <div class="user-profile-preview" id="user-profile-preview">
-            <div class="avatar-ring">
-                <img src="" alt="Avatar" class="avatar-img" id="user-avatar-img">
+            <!-- Dynamic User Profile Preview Header (Live Display) -->
+            <div class="user-profile-preview" id="user-profile-preview">
+                <div class="avatar-ring">
+                    <img src="" alt="Avatar" class="avatar-img" id="user-avatar-img">
+                </div>
+                <div class="profile-name" id="user-profile-name">Nama Pengguna</div>
+                <span class="profile-role-badge" id="user-profile-role"><i class="fas fa-shield-alt mr-1"></i> Administrator</span>
             </div>
-            <div class="profile-name" id="user-profile-name">Nama Pengguna</div>
-            <span class="profile-role-badge" id="user-profile-role"><i class="fas fa-shield-alt mr-1"></i> Administrator</span>
-            <div>
-                <button type="button" class="btn-change-user" id="btn-change-user">
-                    <i class="fas fa-arrow-left"></i> Ganti Akun
-                </button>
-            </div>
+
+            <h1 class="brand-title" id="brand-title">Tabungan Siswa</h1>
+            <p class="brand-subtitle" id="brand-subtitle">Masuk untuk Mengelola Tabungan Sekolah</p>
         </div>
 
         <!-- Alerts -->
@@ -431,47 +392,38 @@
         <form action="<?= url_to('login') ?>" method="post" id="form-login">
             <?= csrf_field() ?>
 
-            <!-- Step 1: Input Email / Username -->
-            <div id="step-username">
-                <div class="form-group">
-                    <label for="email" class="form-label">Username atau Email</label>
-                    <div class="input-wrapper">
-                        <input type="text" name="email" id="email" class="form-control-custom" placeholder="Masukkan username atau email Anda" value="<?= old('email') ?>" required autocomplete="username">
-                        <i class="fas fa-user-circle input-icon"></i>
-                    </div>
+            <!-- Username / Email Input -->
+            <div class="form-group">
+                <label for="email" class="form-label">Username atau Email</label>
+                <div class="input-wrapper">
+                    <input type="text" name="email" id="email" class="form-control-custom" placeholder="Masukkan username atau email Anda" value="<?= old('email') ?>" required autocomplete="username">
+                    <i class="fas fa-user-circle input-icon"></i>
                 </div>
-
-                <button type="button" class="btn-submit" id="btn-next-step">
-                    <span>Lanjutkan</span>
-                    <i class="fas fa-arrow-right"></i>
-                </button>
             </div>
 
-            <!-- Step 2: Password Input (Revealed after Username) -->
-            <div id="step-password">
-                <div class="form-group">
-                    <label for="password" class="form-label">Kata Sandi (Password)</label>
-                    <div class="input-wrapper">
-                        <input type="password" name="password" id="password" class="form-control-custom" placeholder="Masukkan password Anda" autocomplete="current-password">
-                        <i class="fas fa-lock input-icon"></i>
-                        <button type="button" class="password-toggle-btn" id="btn-toggle-password" title="Tampilkan Password">
-                            <i class="far fa-eye" id="eye-icon"></i>
-                        </button>
-                    </div>
+            <!-- Password Input -->
+            <div class="form-group">
+                <label for="password" class="form-label">Kata Sandi (Password)</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" id="password" class="form-control-custom" placeholder="Masukkan password Anda" required autocomplete="current-password">
+                    <i class="fas fa-lock input-icon"></i>
+                    <button type="button" class="password-toggle-btn" id="btn-toggle-password" title="Tampilkan Password">
+                        <i class="far fa-eye" id="eye-icon"></i>
+                    </button>
                 </div>
-
-                <div class="remember-row">
-                    <label class="remember-label">
-                        <input type="checkbox" name="remember" id="remember" class="custom-checkbox" <?php if (old('remember')) : ?> checked <?php endif ?>>
-                        <span>Ingat Saya</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn-submit" id="btn-login-submit">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Masuk ke Sistem</span>
-                </button>
             </div>
+
+            <div class="remember-row">
+                <label class="remember-label">
+                    <input type="checkbox" name="remember" id="remember" class="custom-checkbox" <?php if (old('remember')) : ?> checked <?php endif ?>>
+                    <span>Ingat Saya</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btn-login-submit">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Masuk ke Sistem</span>
+            </button>
         </form>
 
         <div class="footer-text">
@@ -483,102 +435,62 @@
     document.addEventListener('DOMContentLoaded', function() {
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const btnNextStep = document.getElementById('btn-next-step');
-        const stepUsername = document.getElementById('step-username');
-        const stepPassword = document.getElementById('step-password');
         const userProfilePreview = document.getElementById('user-profile-preview');
-        const brandHeader = document.getElementById('brand-header');
-        const btnChangeUser = document.getElementById('btn-change-user');
+        const brandIconWrapper = document.getElementById('brand-icon-wrapper');
+        const brandTitle = document.getElementById('brand-title');
+        const brandSubtitle = document.getElementById('brand-subtitle');
         const userAvatarImg = document.getElementById('user-avatar-img');
         const userProfileName = document.getElementById('user-profile-name');
         const userProfileRole = document.getElementById('user-profile-role');
         const btnTogglePassword = document.getElementById('btn-toggle-password');
         const eyeIcon = document.getElementById('eye-icon');
 
-        let isLookupDone = false;
+        let debounceTimer;
 
-        // Auto focus email on load
-        emailInput.focus();
+        function performAvatarLookup(val) {
+            const inputVal = val.trim();
+            if (!inputVal) {
+                userProfilePreview.style.display = 'none';
+                brandIconWrapper.style.display = 'flex';
+                brandTitle.innerText = 'Tabungan Siswa';
+                brandSubtitle.innerText = 'Masuk untuk Mengelola Tabungan Sekolah';
+                return;
+            }
 
-        function checkUserAvatar(inputVal) {
-            if (!inputVal.trim()) return;
-
-            btnNextStep.disabled = true;
-            btnNextStep.querySelector('span').innerText = 'Memeriksa...';
-            btnNextStep.querySelector('i').className = 'fas fa-spinner fa-spin';
-
-            fetch(`<?= base_url('check-user-avatar') ?>?login=${encodeURIComponent(inputVal.trim())}`)
+            fetch(`<?= base_url('check-user-avatar') ?>?login=${encodeURIComponent(inputVal)}`)
             .then(res => res.json())
             .then(data => {
-                btnNextStep.disabled = false;
-                btnNextStep.querySelector('span').innerText = 'Lanjutkan';
-                btnNextStep.querySelector('i').className = 'fas fa-arrow-right';
-
                 if (data.found) {
                     userAvatarImg.src = data.avatar;
                     userProfileName.innerText = data.full_name;
                     userProfileRole.innerHTML = `<i class="fas fa-shield-alt mr-1"></i> ${data.role}`;
                     userProfilePreview.style.display = 'block';
-                    brandHeader.style.display = 'none';
-                } else {
-                    // Fallback avatar if user not found explicitly
-                    userAvatarImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(inputVal)}&background=6366f1&color=ffffff&size=128&bold=true`;
-                    userProfileName.innerText = inputVal;
-                    userProfileRole.innerHTML = `<i class="fas fa-user mr-1"></i> Pengguna Tabungan`;
-                    userProfilePreview.style.display = 'block';
-                    brandHeader.style.display = 'none';
+                    brandIconWrapper.style.display = 'none';
+                    brandTitle.innerText = 'Selamat Datang!';
+                    brandSubtitle.innerText = 'Silakan masukkan password untuk melanjutkan';
                 }
-
-                // Transition to Password Step
-                stepUsername.style.display = 'none';
-                stepPassword.style.display = 'block';
-                passwordInput.setAttribute('required', 'required');
-                passwordInput.focus();
-                isLookupDone = true;
             })
-            .catch(err => {
-                console.error('Avatar lookup error:', err);
-                btnNextStep.disabled = false;
-                btnNextStep.querySelector('span').innerText = 'Lanjutkan';
-                btnNextStep.querySelector('i').className = 'fas fa-arrow-right';
-
-                // Fallback transition even if network lookup error
-                stepUsername.style.display = 'none';
-                stepPassword.style.display = 'block';
-                passwordInput.setAttribute('required', 'required');
-                passwordInput.focus();
-            });
+            .catch(err => console.error('Avatar fetch error:', err));
         }
 
-        btnNextStep.addEventListener('click', function() {
-            if (emailInput.value.trim()) {
-                checkUserAvatar(emailInput.value);
-            } else {
-                emailInput.focus();
-            }
+        // Live Real-Time Lookup as user types in username input
+        emailInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performAvatarLookup(this.value);
+            }, 350);
         });
 
-        // Trigger on Enter key in username input
-        emailInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (emailInput.value.trim()) {
-                    checkUserAvatar(emailInput.value);
-                }
-            }
+        emailInput.addEventListener('blur', function() {
+            performAvatarLookup(this.value);
         });
 
-        // Change account / Switch back to Step 1
-        btnChangeUser.addEventListener('click', function() {
-            stepPassword.style.display = 'none';
-            stepUsername.style.display = 'block';
-            userProfilePreview.style.display = 'none';
-            brandHeader.style.display = 'block';
-            passwordInput.removeAttribute('required');
+        // Trigger on page load if email has a value (e.g. remembered / old input)
+        if (emailInput.value.trim()) {
+            performAvatarLookup(emailInput.value);
+        } else {
             emailInput.focus();
-            emailInput.select();
-            isLookupDone = false;
-        });
+        }
 
         // Toggle Password Visibility
         btnTogglePassword.addEventListener('click', function() {
@@ -590,11 +502,6 @@
                 eyeIcon.className = 'far fa-eye';
             }
         });
-
-        // If old input was provided (e.g. after failed login submission with validation error), auto-advance to step 2
-        if (emailInput.value.trim() && '<?= session("error") || session("errors") ?>') {
-            checkUserAvatar(emailInput.value);
-        }
     });
     </script>
 </body>
