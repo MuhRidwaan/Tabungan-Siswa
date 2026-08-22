@@ -334,6 +334,100 @@
             font-size: 12px;
             color: #64748b;
         }
+
+        /* Fullscreen Greeting & Motivation Overlay */
+        .welcome-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInOverlay 0.4s ease forwards;
+        }
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .welcome-card {
+            width: 90%;
+            max-width: 480px;
+            padding: 40px 32px;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+            animation: scaleUpCard 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes scaleUpCard {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .welcome-avatar-img {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #6366f1;
+            box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.7);
+            margin-bottom: 16px;
+        }
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        .welcome-subtitle {
+            font-size: 16px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 20px;
+        }
+        .quote-card {
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 4px solid #38bdf8;
+            border-radius: 14px;
+            padding: 18px 20px;
+            position: relative;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+        .quote-icon {
+            color: #38bdf8;
+            font-size: 20px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        .quote-text {
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .progress-bar-glow {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #38bdf8, #10b981);
+            border-radius: 10px;
+            transition: width 2.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body>
@@ -431,8 +525,32 @@
         </div>
     </div>
 
+    <!-- Fullscreen Greeting & Motivation Overlay -->
+    <div class="welcome-overlay" id="welcome-overlay">
+        <div class="welcome-card">
+            <div>
+                <img src="" alt="Avatar" class="welcome-avatar-img" id="welcome-avatar-img">
+            </div>
+            <h2 class="welcome-title" id="welcome-greeting-text">Selamat Datang Kembali!</h2>
+            <p class="welcome-subtitle" id="welcome-user-name">Pengguna Tabungan</p>
+            
+            <div class="quote-card">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p class="quote-text" id="motivation-quote">
+                    "Pendidikan adalah senjata paling mematikan untuk mengubah dunia. Selamat bertugas!"
+                </p>
+            </div>
+
+            <div class="progress-bar-glow">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; font-weight: 600;"><i class="fas fa-shield-alt text-info mr-1"></i> Membuka Dashboard Sistem Tabungan...</p>
+        </div>
+    </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const formLogin = document.getElementById('form-login');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const userProfilePreview = document.getElementById('user-profile-preview');
@@ -444,6 +562,21 @@
         const userProfileRole = document.getElementById('user-profile-role');
         const btnTogglePassword = document.getElementById('btn-toggle-password');
         const eyeIcon = document.getElementById('eye-icon');
+
+        const welcomeOverlay = document.getElementById('welcome-overlay');
+        const welcomeGreetingText = document.getElementById('welcome-greeting-text');
+        const welcomeUserName = document.getElementById('welcome-user-name');
+        const welcomeAvatarImg = document.getElementById('welcome-avatar-img');
+        const motivationQuote = document.getElementById('motivation-quote');
+        const progressFill = document.getElementById('progress-fill');
+
+        const quotes = [
+            '"Pendidikan adalah investasi terbaik untuk masa depan. Selamat bertugas mengelola tabungan siswa!"',
+            '"Kesabaran dan ketelitian Anda dalam mengelola tabungan hari ini adalah bukti pengabdian mulia."',
+            '"Setiap rupiah tabungan siswa yang Anda jaga adalah wujud komitmen membangun generasi cerdas."',
+            '"Selamat datang kembali! Mari bersama wujudkan manajemen keuangan sekolah yang transparan dan akuntabel."',
+            '"Menabung hari ini adalah jembatan menuju mimpi besar anak-anak bangsa di masa depan. Tetap semangat!"'
+        ];
 
         let debounceTimer;
 
@@ -501,6 +634,46 @@
                 passwordInput.type = 'password';
                 eyeIcon.className = 'far fa-eye';
             }
+        });
+
+        // Form Submit: Show Welcome Greeting & Motivational Words Overlay
+        let isSubmitting = false;
+        formLogin.addEventListener('submit', function(e) {
+            if (isSubmitting) return;
+
+            if (!emailInput.value.trim() || !passwordInput.value) {
+                return;
+            }
+
+            e.preventDefault();
+            isSubmitting = true;
+
+            const hour = new Date().getHours();
+            let timeGreeting = 'Selamat Datang Kembali!';
+            if (hour >= 5 && hour < 11) timeGreeting = 'Selamat Pagi! 🌅';
+            else if (hour >= 11 && hour < 15) timeGreeting = 'Selamat Siang! ☀️';
+            else if (hour >= 15 && hour < 18) timeGreeting = 'Selamat Sore! 🌇';
+            else timeGreeting = 'Selamat Malam! 🌙';
+
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            motivationQuote.innerText = randomQuote;
+
+            welcomeGreetingText.innerText = timeGreeting;
+            welcomeUserName.innerText = (userProfileName.innerText && userProfileName.innerText !== 'Nama Pengguna') 
+                ? userProfileName.innerText 
+                : emailInput.value;
+                
+            welcomeAvatarImg.src = userAvatarImg.src || `https://ui-avatars.com/api/?name=${encodeURIComponent(emailInput.value)}&background=6366f1&color=ffffff&size=128&bold=true`;
+
+            welcomeOverlay.style.display = 'flex';
+
+            setTimeout(() => {
+                progressFill.style.width = '100%';
+            }, 50);
+
+            setTimeout(() => {
+                formLogin.submit();
+            }, 2200);
         });
     });
     </script>
