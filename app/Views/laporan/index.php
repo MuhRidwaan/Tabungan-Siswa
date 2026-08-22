@@ -55,9 +55,13 @@
                         <label class="small font-weight-bold">Jenis Laporan</label>
                         <select name="jenis_laporan" id="jenis_laporan" class="form-control select2" required>
                             <option value="">-- Pilih Jenis Laporan --</option>
-                            <option value="per_siswa" <?= ($jenisLaporan == 'per_siswa') ? 'selected' : '' ?>>📊 Laporan per Siswa</option>
+                            <option value="per_siswa" <?= ($jenisLaporan == 'per_siswa') ? 'selected' : '' ?>>📊 Laporan Mutasi per Siswa</option>
                             <option value="per_kelas" <?= ($jenisLaporan == 'per_kelas') ? 'selected' : '' ?>>🏫 Rekapitulasi per Kelas</option>
-                            <option value="pemasukan" <?= ($jenisLaporan == 'pemasukan') ? 'selected' : '' ?>>💰 Laporan Pemasukan Kas</option>
+                            <option value="rekap_semua_kelas" <?= ($jenisLaporan == 'rekap_semua_kelas') ? 'selected' : '' ?>>🏛️ Rekapitulasi Total Seluruh Kelas</option>
+                            <option value="bagi_hasil" <?= ($jenisLaporan == 'bagi_hasil') ? 'selected' : '' ?>>💰 Rekap Bagi Hasil Kas Komisi Admin</option>
+                            <option value="top_savers" <?= ($jenisLaporan == 'top_savers') ? 'selected' : '' ?>>🏆 Ranking Siswa Terajin Menabung (Top Savers)</option>
+                            <option value="penarikan_akhir_tahun" <?= ($jenisLaporan == 'penarikan_akhir_tahun') ? 'selected' : '' ?>>🎓 Rekap Penutupan Buku & Penarikan Akhir Tahun</option>
+                            <option value="pemasukan" <?= ($jenisLaporan == 'pemasukan') ? 'selected' : '' ?>>📥 Laporan Pemasukan & Bagi Hasil Kas</option>
                         </select>
                     </div>
                     
@@ -170,6 +174,14 @@
                     <?= $this->include('laporan/per_siswa') ?>
                 <?php elseif ($jenisLaporan == 'per_kelas') : ?>
                     <?= $this->include('laporan/per_kelas') ?>
+                <?php elseif ($jenisLaporan == 'rekap_semua_kelas') : ?>
+                    <?= $this->include('laporan/rekap_semua_kelas') ?>
+                <?php elseif ($jenisLaporan == 'bagi_hasil') : ?>
+                    <?= $this->include('laporan/bagi_hasil') ?>
+                <?php elseif ($jenisLaporan == 'top_savers') : ?>
+                    <?= $this->include('laporan/top_savers') ?>
+                <?php elseif ($jenisLaporan == 'penarikan_akhir_tahun') : ?>
+                    <?= $this->include('laporan/penarikan_akhir_tahun') ?>
                 <?php elseif ($jenisLaporan == 'pemasukan') : ?>
                     <?= $this->include('laporan/pemasukan') ?>
                 <?php else: ?>
@@ -205,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#filter-per-kelas').hide();
         $('#filter-per-siswa').hide();
         $('#filter-tanggal').hide();
+        $('#filter-tahun-ajaran').show();
         
         if (jenis === 'per_siswa') {
             $('#filter-per-kelas').show();
@@ -212,7 +225,9 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#filter-tanggal').show();
         } else if (jenis === 'per_kelas') {
             $('#filter-per-kelas').show();
-        } else if (jenis === 'pemasukan') {
+        } else if (jenis === 'top_savers') {
+            $('#filter-per-kelas').show();
+        } else if (jenis === 'pemasukan' || jenis === 'bagi_hasil' || jenis === 'penarikan_akhir_tahun') {
             $('#filter-tanggal').show();
         }
     }

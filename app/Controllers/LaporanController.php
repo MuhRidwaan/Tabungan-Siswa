@@ -104,6 +104,74 @@ class LaporanController extends BaseController
                     $data['reportData'] = $alokasiModel->getLaporanPemasukan($startDate, $endDate);
                     $data['reportDetails'] = $alokasiModel->getDetailPemasukan($startDate, $endDate);
                     break;
+
+                case 'rekap_semua_kelas':
+                    $targetTahun = $selectedTahunId ?: ($tahunAktif['id'] ?? null);
+                    $db = \Config\Database::connect();
+                    $builder = $db->table('kelas k')
+                        ->select('k.id, k.nama_kelas, k.tingkat, g.nama_lengkap as nama_wali, COUNT(DISTINCT rks.siswa_id) as total_siswa, COALESCE(SUM(s.saldo_akhir), 0) as total_saldo')
+                        ->join('guru g', 'g.id = k.wali_kelas_id', 'left')
+                        ->join('riwayat_kelas_siswa rks', 'rks.kelas_id = k.id' . ($targetTahun ? ' AND rks.tahun_ajaran_id = ' . $db->escape($targetTahun) : ''), 'left')
+                        ->join('siswa s', 's.id = rks.siswa_id', 'left')
+                        ->groupBy('k.id')
+                        ->orderBy('k.nama_kelas', 'ASC');
+                    if ($targetTahun) {
+                        $builder->where('k.tahun_ajaran_id', $targetTahun);
+                    }
+                    $data['reportData'] = $builder->get()->getResultArray();
+                    break;
+
+                case 'bagi_hasil':
+                    $db = \Config\Database::connect();
+                    $data['reportData'] = $db->table('transaksi_tabungan t')
+                        ->select('DATE(t.tanggal_transaksi) as tgl, COUNT(t.id) as total_trx, SUM(t.jumlah) as total_setor, k.nama_kelas')
+                        ->join('siswa s', 's.id = t.siswa_id', 'left')
+                        ->join('riwayat_kelas_siswa rks', 'rks.siswa_id = s.id' . ($selectedTahunId ? ' AND rks.tahun_ajaran_id = ' . $db->escape($selectedTahunId) : ''), 'left')
+                        ->join('kelas k', 'k.id = rks.kelas_id', 'left')
+                        ->where('t.jenis_transaksi', 'setor')
+                        ->where('t.tanggal_transaksi >=', $startDate . ' 00:00:00')
+                        ->where('t.tanggal_transaksi <=', $endDate . ' 23:59:59')
+                        ->groupBy('DATE(t.tanggal_transaksi), k.id')
+                        ->orderBy('tgl', 'DESC')
+                        ->get()->getResultArray();
+                    break;
+
+                case 'top_savers':
+                    $db = \Config\Database::connect();
+                    $targetTahun = $selectedTahunId ?: ($tahunAktif['id'] ?? null);
+                    $builder = $db->table('siswa s')
+                        ->select('s.id, s.nis, s.nama_lengkap, s.jenis_kelamin, s.saldo_akhir, s.status_siswa, k.nama_kelas')
+                        ->join('riwayat_kelas_siswa rks', 'rks.siswa_id = s.id' . ($targetTahun ? ' AND rks.tahun_ajaran_id = ' . $db->escape($targetTahun) : ''), 'left')
+                        ->join('kelas k', 'k.id = rks.kelas_id', 'left')
+                        ->orderBy('s.saldo_akhir', 'DESC')
+                        ->limit(20);
+                    if ($selectedKelasId && $selectedKelasId !== 'semua') {
+                        $builder->where('rks.kelas_id', $selectedKelasId);
+                    }
+                    $data['reportData'] = $builder->get()->getResultArray();
+                    break;
+
+                case 'penarikan_akhir_tahun':
+                    $db = \Config\Database::connect();
+                    $targetTahun = $selectedTahunId ?: ($tahunAktif['id'] ?? null);
+                    $data['reportData'] = $db->table('transaksi_tabungan t')
+                        ->select('t.*, s.nis, s.nama_lengkap, s.status_siswa, k.nama_kelas, p.username as nama_petugas')
+                        ->join('siswa s', 's.id = t.siswa_id', 'left')
+                        ->join('riwayat_kelas_siswa rks', 'rks.siswa_id = s.id' . ($targetTahun ? ' AND rks.tahun_ajaran_id = ' . $db->escape($targetTahun) : ''), 'left')
+                        ->join('kelas k', 'k.id = rks.kelas_id', 'left')
+                        ->join('users p', 'p.id = t.pengguna_id', 'left')
+                        ->where('t.jenis_transaksi', 'tarik')
+                        ->groupStart()
+                            ->like('t.keterangan', 'akhir tahun')
+                            ->orLike('t.keterangan', 'penutupan')
+                            ->orLike('t.keterangan', 'lunas')
+                            ->orWhere('s.status_siswa', 'lulus')
+                        ->groupEnd()
+                        ->where('t.tanggal_transaksi >=', $startDate . ' 00:00:00')
+                        ->where('t.tanggal_transaksi <=', $endDate . ' 23:59:59')
+                        ->orderBy('t.tanggal_transaksi', 'DESC')
+                        ->get()->getResultArray();
+                    break;
             }
         }
 
