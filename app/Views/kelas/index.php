@@ -5,12 +5,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0"><?= $title ?></h1>
+                <h1 class="m-0"><i class="fas fa-school text-primary mr-2"></i><?= esc($title) ?></h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active"><?= $title ?></li>
+                    <li class="breadcrumb-item"><a href="<?= base_url('dashboard') ?>">Home</a></li>
+                    <li class="breadcrumb-item active">Data Kelas</li>
                 </ol>
             </div>
         </div>
@@ -18,55 +18,123 @@
 </div>
 
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-header">
-            <a href="<?= base_url('kelas/new') ?>" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Kelas
-            </a>
+
+    <!-- Small Stat Cards Ringkasan -->
+    <div class="row">
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3><?= number_format($stats['total_kelas'] ?? 0) ?></h3>
+                    <p>Total Rombel / Kelas</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-school"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3><?= number_format($stats['total_wali'] ?? 0) ?> / <?= number_format($stats['total_kelas'] ?? 0) ?></h3>
+                    <p>Wali Kelas Terisi</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-12">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3><?= number_format($stats['total_siswa'] ?? 0) ?></h3>
+                    <p>Total Siswa Terdaftar (<?= esc($tahunAktif['nama_tahun_ajaran'] ?? 'Aktif') ?>)</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-primary card-outline">
+        <div class="card-header border-0 py-3">
+            <div class="row w-100 align-items-center m-0">
+                <div class="col-md-8 p-0 mb-2 mb-md-0">
+                    <a href="<?= base_url('kelas/new') ?>" class="btn btn-primary mr-2">
+                        <i class="fas fa-plus-circle mr-1"></i> Tambah Kelas Baru
+                    </a>
+                    <a href="<?= base_url('manajemen-kelas') ?>" class="btn btn-purple">
+                        <i class="fas fa-random mr-1"></i> Penempatan & Kenaikan Kelas
+                    </a>
+                </div>
+                <div class="col-md-4 p-0 text-md-right text-left">
+                    <span class="badge badge-light border p-2"><i class="fas fa-calendar-alt text-primary mr-1"></i> TA Aktif: <strong><?= esc($tahunAktif['nama_tahun_ajaran'] ?? 'Aktif') ?></strong></span>
+                </div>
+            </div>
         </div>
         <div class="card-body">
-            <?php if (session()->getFlashdata('success')) : ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <?= session()->getFlashdata('success') ?>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            <?php endif; ?>
-
-            <table id="example1" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Kelas</th>
-                        <th>Tingkat</th>
-                        <th>Wali Kelas</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($kelas as $key => $item) : ?>
+            <div class="table-responsive">
+                <table id="tableKelas" class="table table-bordered table-striped table-hover mb-0">
+                    <thead class="bg-light">
                         <tr>
-                            <td><?= $key + 1 ?></td>
-                            <td><?= esc($item['nama_kelas']) ?></td>
-                            <td><?= esc($item['tingkat']) ?></td>
-                            <td><?= esc($item['nama_wali_kelas'] ?? '<em>Belum diatur</em>') ?></td>
-                            <td>
-                                <a href="<?= base_url('kelas/' . $item['id'] . '/edit') ?>" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <form action="<?= base_url('kelas/' . $item['id']) ?>" method="post" class="d-inline">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="button" class="btn btn-sm btn-danger btn-delete-swal">
-                                        <i class="fas fa-trash"></i> Hapus
-                                    </button>
-                                </form>
-                            </td>
+                            <th width="50" class="text-center">No</th>
+                            <th>Nama Kelas</th>
+                            <th width="120" class="text-center">Tingkat</th>
+                            <th>Wali Kelas</th>
+                            <th width="140" class="text-center">Total Murid</th>
+                            <th width="200" class="text-center">Aksi</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($kelas as $key => $item) : ?>
+                            <tr>
+                                <td class="text-center font-weight-bold"><?= $key + 1 ?></td>
+                                <td>
+                                    <span class="badge badge-info p-2 font-weight-bold" style="font-size: 13px;">
+                                        <i class="fas fa-school mr-1"></i><?= esc($item['nama_kelas']) ?>
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-light border font-weight-bold">Tingkat <?= esc($item['tingkat']) ?></span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($item['nama_wali_kelas'])) : ?>
+                                        <div class="d-flex align-items-center text-dark font-weight-bold">
+                                            <i class="fas fa-user-tie text-success mr-2"></i>
+                                            <?= esc($item['nama_wali_kelas']) ?>
+                                        </div>
+                                    <?php else : ?>
+                                        <span class="badge badge-warning text-dark"><i class="fas fa-exclamation-triangle mr-1"></i>Belum Diatur</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-success px-3 py-2 font-weight-bold" style="font-size: 12px;">
+                                        <i class="fas fa-user-graduate mr-1"></i><?= number_format($item['total_siswa'] ?? 0) ?> Siswa
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="<?= base_url('manajemen-kelas?kelas_id=' . $item['id']) ?>" class="btn btn-xs btn-info mr-1" title="Atur Siswa di Kelas Ini">
+                                        <i class="fas fa-user-cog mr-1"></i> Kelola Murid
+                                    </a>
+                                    <a href="<?= base_url('kelas/' . $item['id'] . '/edit') ?>" class="btn btn-xs btn-warning mr-1" title="Edit Data Kelas">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <form action="<?= base_url('kelas/' . $item['id']) ?>" method="post" class="d-inline">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="button" class="btn btn-xs btn-danger btn-delete-swal" title="Hapus Data Kelas">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($kelas)) : ?>
+                            <tr><td colspan="6" class="text-center text-muted py-4"><i class="fas fa-info-circle mr-1"></i> Belum ada data kelas yang terdaftar.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

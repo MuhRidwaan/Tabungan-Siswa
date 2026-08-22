@@ -22,9 +22,32 @@ class KelasController extends BaseController
      */
     public function index()
     {
+        $tahunAjaranModel = new \App\Models\TahunAjaran();
+        $tahunAktif = $tahunAjaranModel->where('status', 'aktif')->first();
+        $tahunId = $tahunAktif['id'] ?? null;
+
+        $kelases = $this->kelas->getAllKelasWithWali($tahunId);
+
+        $totalKelas = count($kelases);
+        $totalWali = 0;
+        $totalSiswa = 0;
+
+        foreach ($kelases as $k) {
+            if (!empty($k['wali_kelas_id'])) {
+                $totalWali++;
+            }
+            $totalSiswa += (int) ($k['total_siswa'] ?? 0);
+        }
+
         $data = [
-            'title' => 'Data Kelas',
-            'kelas' => $this->kelas->getAllKelasWithWali()
+            'title'      => 'Manajemen Data Kelas',
+            'kelas'      => $kelases,
+            'tahunAktif' => $tahunAktif,
+            'stats'      => [
+                'total_kelas' => $totalKelas,
+                'total_wali'  => $totalWali,
+                'total_siswa' => $totalSiswa
+            ]
         ];
         return view('kelas/index', $data);
     }
