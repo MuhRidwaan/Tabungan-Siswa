@@ -38,7 +38,7 @@
                     <select name="kelas_id" id="kelas_id" class="form-control select2">
                         <option value="">-- Pilih Kelas --</option>
                         <?php foreach ($kelas as $k) : ?>
-                            <option value="<?= $k['id'] ?>" <?= (old('kelas_id') == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?></option>
+                            <option value="<?= $k['id'] ?>" <?= (old('kelas_id') == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?> <?= !empty($k['nama_wali']) ? '(Wali: ' . esc($k['nama_wali']) . ')' : '' ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

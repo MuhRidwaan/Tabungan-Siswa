@@ -248,7 +248,9 @@ class SiswaController extends BaseController
     }
 
     /**
-     * Download Template Upload Native Microsoft Excel (.xls)
+     * Download Template Upload Native Microsoft Excel (.xls) Multi-Sheet
+     * Sheet 1: Form Import Siswa
+     * Sheet 2: REFERENSI KELAS (PETUNJUK)
      */
     public function downloadTemplate()
     {
@@ -256,15 +258,90 @@ class SiswaController extends BaseController
         header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $filename);
 
-        echo "<html><head><meta charset='utf-8'></head><body>";
-        echo "<table border='1'>";
-        echo "<tr style='background-color:#4CAF50; color:#FFFFFF; font-weight:bold;'>";
-        echo "<th>nis</th><th>nama_lengkap</th><th>jenis_kelamin</th><th>tanggal_lahir</th><th>alamat</th><th>nama_kelas</th>";
-        echo "</tr>";
-        echo "<tr><td>1001</td><td>Ahmad Dani</td><td>L</td><td>2010-05-15</td><td>Jl. Merdeka No. 10</td><td>Kelas 1</td></tr>";
-        echo "<tr><td>1002</td><td>Siti Rahma</td><td>P</td><td>2010-08-20</td><td>Jl. Mawar No. 5</td><td>Kelas 1</td></tr>";
-        echo "</table>";
-        echo "</body></html>";
+        $kelases = $this->kelasModel->orderBy('tingkat', 'ASC')->findAll();
+        $tahunAktif = $this->tahunAjaranModel->where('status', 'aktif')->first();
+
+        echo '<?xml version="1.0"?>' . "\n";
+        echo '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        ?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="HeaderStyle">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
+   <Interior ss:Color="#2E7D32" ss:Pattern="Solid"/>
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="HeaderRefStyle">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
+   <Interior ss:Color="#0277BD" ss:Pattern="Solid"/>
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="TitleStyle">
+   <Font ss:FontName="Calibri" ss:Size="13" ss:Bold="1" ss:Color="#0277BD"/>
+  </Style>
+ </Styles>
+
+ <!-- TAB 1: FORM TEMPLATE -->
+ <Worksheet ss:Name="Form Import Siswa">
+  <Table>
+   <Row ss:Height="25" ss:StyleID="HeaderStyle">
+    <Cell><Data ss:Type="String">nis</Data></Cell>
+    <Cell><Data ss:Type="String">nama_lengkap</Data></Cell>
+    <Cell><Data ss:Type="String">jenis_kelamin</Data></Cell>
+    <Cell><Data ss:Type="String">tanggal_lahir</Data></Cell>
+    <Cell><Data ss:Type="String">alamat</Data></Cell>
+    <Cell><Data ss:Type="String">nama_kelas</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1001</Data></Cell>
+    <Cell><Data ss:Type="String">Ahmad Dani</Data></Cell>
+    <Cell><Data ss:Type="String">L</Data></Cell>
+    <Cell><Data ss:Type="String">2010-05-15</Data></Cell>
+    <Cell><Data ss:Type="String">Jl. Merdeka No. 10</Data></Cell>
+    <Cell><Data ss:Type="String"><?= !empty($kelases[0]) ? esc($kelases[0]['nama_kelas']) : 'Kelas 1' ?></Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1002</Data></Cell>
+    <Cell><Data ss:Type="String">Siti Rahma</Data></Cell>
+    <Cell><Data ss:Type="String">P</Data></Cell>
+    <Cell><Data ss:Type="String">2010-08-20</Data></Cell>
+    <Cell><Data ss:Type="String">Jl. Mawar No. 5</Data></Cell>
+    <Cell><Data ss:Type="String"><?= !empty($kelases[0]) ? esc($kelases[0]['nama_kelas']) : 'Kelas 1' ?></Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <!-- TAB 2: DAFTAR REFERENSI KELAS -->
+ <Worksheet ss:Name="REFERENSI KELAS (PETUNJUK)">
+  <Table>
+   <Row ss:Height="25" ss:StyleID="TitleStyle">
+    <Cell><Data ss:Type="String">DAFTAR NAMA KELAS VALID (Tahun Ajaran: <?= esc($tahunAktif['nama_tahun_ajaran'] ?? 'Aktif') ?>)</Data></Cell>
+   </Row>
+   <Row ss:Height="20">
+    <Cell><Data ss:Type="String">Petunjuk: Salin (Copy-Paste) Nama Kelas dari daftar di bawah ke kolom nama_kelas pada Tab 1.</Data></Cell>
+   </Row>
+   <Row ss:Height="25" ss:StyleID="HeaderRefStyle">
+    <Cell><Data ss:Type="String">No</Data></Cell>
+    <Cell><Data ss:Type="String">Nama Kelas (Salin Teks Ini)</Data></Cell>
+    <Cell><Data ss:Type="String">Tingkat</Data></Cell>
+    <Cell><Data ss:Type="String">Wali Kelas</Data></Cell>
+   </Row>
+   <?php foreach ($kelases as $idx => $k) : ?>
+   <Row>
+    <Cell><Data ss:Type="Number"><?= $idx + 1 ?></Data></Cell>
+    <Cell><Data ss:Type="String"><?= esc($k['nama_kelas']) ?></Data></Cell>
+    <Cell><Data ss:Type="String">Tingkat <?= esc($k['tingkat']) ?></Data></Cell>
+    <Cell><Data ss:Type="String"><?= esc($k['nama_wali'] ?? 'Belum Ada Wali') ?></Data></Cell>
+   </Row>
+   <?php endforeach; ?>
+  </Table>
+ </Worksheet>
+</Workbook>
+        <?php
         exit;
     }
 
@@ -287,18 +364,43 @@ class SiswaController extends BaseController
         $content = file_get_contents($filePath);
         $rows = [];
 
-        // Parsing jika format HTML Table (.xls native template)
-        if (strpos($content, '<table') !== false && strpos($content, '<tr') !== false) {
-            preg_match_all('/<tr[^>]*>(.*?)<\/tr>/is', $content, $trMatches);
-            if (!empty($trMatches[1])) {
-                foreach ($trMatches[1] as $idx => $tr) {
-                    if ($idx === 0) continue; // Skip header
-                    preg_match_all('/<td[^>]*>(.*?)<\/td>/is', $tr, $tdMatches);
-                    if (!empty($tdMatches[1])) {
-                        $row = array_map(function($val) {
-                            return trim(strip_tags($val));
-                        }, $tdMatches[1]);
-                        $rows[] = $row;
+        // 1. Parsing Excel XML Format (<Worksheet ss:Name="Form Import Siswa"> or <Row>)
+        if (strpos($content, '<Row') !== false || strpos($content, '<tr') !== false) {
+            // Check for XML Row elements
+            if (strpos($content, '<Row') !== false) {
+                // Isolate first worksheet if multi-sheet XML
+                if (strpos($content, '<Worksheet') !== false) {
+                    preg_match('/<Worksheet[^>]*>(.*?)<\/Worksheet>/is', $content, $sheetMatch);
+                    if (!empty($sheetMatch[1])) {
+                        $content = $sheetMatch[1];
+                    }
+                }
+                preg_match_all('/<Row[^>]*>(.*?)<\/Row>/is', $content, $rowMatches);
+                if (!empty($rowMatches[1])) {
+                    foreach ($rowMatches[1] as $idx => $rXml) {
+                        if ($idx === 0) continue; // Skip header
+                        preg_match_all('/<Data[^>]*>(.*?)<\/Data>/is', $rXml, $cellMatches);
+                        if (!empty($cellMatches[1])) {
+                            $row = array_map(function($val) {
+                                return trim(strip_tags($val));
+                            }, $cellMatches[1]);
+                            $rows[] = $row;
+                        }
+                    }
+                }
+            } else {
+                // HTML Table format
+                preg_match_all('/<tr[^>]*>(.*?)<\/tr>/is', $content, $trMatches);
+                if (!empty($trMatches[1])) {
+                    foreach ($trMatches[1] as $idx => $tr) {
+                        if ($idx === 0) continue; // Skip header
+                        preg_match_all('/<td[^>]*>(.*?)<\/td>/is', $tr, $tdMatches);
+                        if (!empty($tdMatches[1])) {
+                            $row = array_map(function($val) {
+                                return trim(strip_tags($val));
+                            }, $tdMatches[1]);
+                            $rows[] = $row;
+                        }
                     }
                 }
             }

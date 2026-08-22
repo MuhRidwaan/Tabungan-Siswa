@@ -130,7 +130,7 @@
                             <option value="">-- Semua Kelas --</option>
                             <?php foreach ($kelas as $k) : ?>
                                 <option value="<?= $k['id'] ?>" <?= ($selectedKelasId == $k['id']) ? 'selected' : '' ?>>
-                                    <?= esc($k['nama_kelas']) ?>
+                                    <?= esc($k['nama_kelas']) ?> <?= !empty($k['nama_wali']) ? '(Wali: ' . esc($k['nama_wali']) . ')' : '' ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
