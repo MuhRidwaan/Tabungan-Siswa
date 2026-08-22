@@ -135,11 +135,17 @@
           </div>
         </form>
       </div>
-      <div class="card-footer d-flex justify-content-between align-items-center">
-        <span class="text-muted"><i class="fas fa-info-circle mr-1"></i> Tekan <strong>Enter</strong> atau <strong>Panah Bawah (↓)</strong> untuk berpindah tanggal dengan cepat.</span>
-        <button type="button" class="btn btn-success btn-lg px-4" id="btnSimpanMulti" disabled>
-          <i class="fas fa-save mr-2"></i> Simpan Setoran Multi-Tanggal
-        </button>
+      <div class="card-footer bg-light py-3">
+        <div class="row w-100 align-items-center m-0">
+          <div class="col-md-7 p-0 mb-2 mb-md-0">
+            <span class="text-muted small"><i class="fas fa-info-circle mr-1"></i> Tekan <strong>Enter</strong> atau <strong>Panah Bawah (↓)</strong> untuk berpindah tanggal dengan cepat.</span>
+          </div>
+          <div class="col-md-5 p-0 text-md-right text-left">
+            <button type="button" class="btn btn-success btn-lg px-4 shadow-sm" id="btnSimpanMulti" disabled>
+              <i class="fas fa-save mr-2"></i> Simpan Setoran Multi-Tanggal
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
