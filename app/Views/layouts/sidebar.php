@@ -86,8 +86,15 @@ $avatarUrl = ($fotoProfile && file_exists(FCPATH . 'uploads/profile/' . $fotoPro
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?= base_url('transaksi') ?>" class="nav-link <?= (url_is('transaksi') || (url_is('transaksi*') && !url_is('transaksi/kolektif*') && !url_is('transaksi/multi-tanggal*'))) ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-history text-warning"></i>
+                    <a href="<?= base_url('transaksi/akhir-tahun') ?>" class="nav-link <?= (url_is('transaksi/akhir-tahun*')) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-hand-holding-usd text-warning"></i>
+                        <p>Penarikan Akhir Tahun</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="<?= base_url('transaksi') ?>" class="nav-link <?= (url_is('transaksi') && !url_is('transaksi/kolektif*') && !url_is('transaksi/multi-tanggal*') && !url_is('transaksi/akhir-tahun*')) ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-history text-info"></i>
                         <p>Riwayat Transaksi</p>
                     </a>
                 </li>

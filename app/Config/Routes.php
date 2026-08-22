@@ -37,12 +37,15 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get   ('transaksi',        'TransaksiController::index');
     $routes->get   ('transaksi/kolektif', 'TransaksiController::kolektif');
     $routes->get   ('transaksi/multi-tanggal', 'TransaksiController::multiTanggal');
+    $routes->get   ('transaksi/akhir-tahun', 'TransaksiController::akhirTahun');
     $routes->get   ('transaksi/download-template-multi', 'TransaksiController::downloadTemplateMulti');
     $routes->post  ('transaksi/import-multi', 'TransaksiController::importMulti');
     $routes->get   ('transaksi/get-siswa-by-kelas', 'TransaksiController::getSiswaByKelas');
     $routes->get   ('transaksi/get-siswa-by-kelas/(:segment)', 'TransaksiController::getSiswaByKelas/$1');
     $routes->post  ('transaksi/save-kolektif', 'TransaksiController::saveKolektif');
     $routes->post  ('transaksi/save-multi-tanggal', 'TransaksiController::saveMultiTanggal');
+    $routes->post  ('transaksi/save-tarik-lunas', 'TransaksiController::saveTarikLunas');
+    $routes->post  ('transaksi/set-lulus-kelas', 'TransaksiController::setLulusKelas');
     $routes->post  ('transaksi/save',   'TransaksiController::save');
     $routes->delete('transaksi/(:num)', 'TransaksiController::delete/$1');
 

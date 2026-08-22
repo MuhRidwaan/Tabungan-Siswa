@@ -615,6 +615,161 @@ class TransaksiController extends BaseController
     }
 
     /**
+     * Menampilkan Halaman Penarikan Tabungan Akhir Tahun Ajaran
+     */
+    public function akhirTahun()
+    {
+        $kelasModel       = new \App\Models\Kelas();
+        $tahunAjaranModel = new \App\Models\TahunAjaran();
+        $riwayatModel     = new \App\Models\RiwayatKelasSiswa();
+
+        $tahunAjaranList = $tahunAjaranModel->orderBy('id', 'DESC')->findAll();
+        $tahunAktif      = $tahunAjaranModel->where('status', 'aktif')->first();
+
+        $selectedTahunId = $this->request->getGet('tahun_ajaran_id');
+        if (!$selectedTahunId && $tahunAktif) {
+            $selectedTahunId = $tahunAktif['id'];
+        }
+
+        $selectedKelasId = $this->request->getGet('kelas_id');
+        
+        $siswaList = [];
+        $selectedKelas = null;
+        $totalSiswa = 0;
+        $countLunas = 0;
+        $totalBelumDitarik = 0;
+        $isClassLunas = false;
+        $selectedTahunInfo = $tahunAjaranModel->find($selectedTahunId);
+
+        if ($selectedKelasId && $selectedTahunId) {
+            $selectedKelas = $kelasModel->find($selectedKelasId);
+            $siswaList = $riwayatModel->getSiswaByKelasTahun($selectedKelasId, $selectedTahunId);
+            $totalSiswa = count($siswaList);
+
+            foreach ($siswaList as $s) {
+                $saldo = (float)$s['saldo_akhir'];
+                if ($saldo <= 0) {
+                    $countLunas++;
+                } else {
+                    $totalBelumDitarik += $saldo;
+                }
+            }
+
+            if ($totalSiswa > 0 && $countLunas === $totalSiswa) {
+                $isClassLunas = true;
+            }
+        }
+
+        $allKelas = $kelasModel->getAllKelasWithWali($selectedTahunId);
+
+        $data = [
+            'title'             => 'Penarikan Tabungan Akhir Tahun Ajaran',
+            'tahunAjaran'       => $tahunAjaranList,
+            'selectedTahunId'   => $selectedTahunId,
+            'selectedTahunInfo' => $selectedTahunInfo,
+            'tahunAktif'        => $tahunAktif,
+            'kelas'             => $allKelas,
+            'selectedKelasId'   => $selectedKelasId,
+            'selectedKelas'     => $selectedKelas,
+            'siswaList'         => $siswaList,
+            'totalSiswa'        => $totalSiswa,
+            'countLunas'        => $countLunas,
+            'totalBelumDitarik' => $totalBelumDitarik,
+            'isClassLunas'      => $isClassLunas
+        ];
+
+        return view('transaksi/akhir_tahun', $data);
+    }
+
+    /**
+     * AJAX Endpoint untuk menarik lunas saldo 1 siswa di akhir tahun (Saldo -> Rp 0)
+     */
+    public function saveTarikLunas()
+    {
+        $siswaId = $this->request->getPost('siswa_id');
+        $tahunId = $this->request->getPost('tahun_ajaran_id');
+
+        if (!$siswaId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Siswa tidak valid.']);
+        }
+
+        $siswa = $this->siswaModel->find($siswaId);
+        if (!$siswa) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Data siswa tidak ditemukan.']);
+        }
+
+        $saldoAwal = (float)$siswa['saldo_akhir'];
+        if ($saldoAwal <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Saldo siswa sudah Rp 0 / lunas.']);
+        }
+
+        $tahunAjaranModel = new \App\Models\TahunAjaran();
+        $tahunInfo = $tahunAjaranModel->find($tahunId);
+        $taNama = $tahunInfo['nama_tahun_ajaran'] ?? date('Y');
+
+        $this->db->transStart();
+
+        $dataTransaksi = [
+            'kode_transaksi'    => $this->transaksiModel->generateKodeTransaksi(),
+            'siswa_id'          => $siswaId,
+            'jenis_transaksi'   => 'tarik',
+            'jumlah'            => $saldoAwal,
+            'keterangan'        => "Penarikan Tabungan Akhir Tahun Ajaran {$taNama}",
+            'saldo_sebelum'     => $saldoAwal,
+            'saldo_sesudah'     => 0,
+            'tanggal_transaksi' => date('Y-m-d H:i:s'),
+            'pengguna_id'       => $this->getPenggunaId(),
+            'created_at'        => date('Y-m-d H:i:s'),
+        ];
+
+        $this->transaksiModel->insert($dataTransaksi);
+        $this->siswaModel->update($siswaId, ['saldo_akhir' => 0]);
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Gagal memproses penarikan akhir tahun.']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => "Penarikan akhir tahun sebesar Rp " . number_format($saldoAwal, 0, ',', '.') . " untuk " . esc($siswa['nama_lengkap']) . " berhasil diproses (Saldo menjadi Rp 0)."
+        ]);
+    }
+
+    /**
+     * AJAX Endpoint untuk set status seluruh siswa kelas menjadi 'lulus'
+     */
+    public function setLulusKelas()
+    {
+        $kelasId = $this->request->getPost('kelas_id');
+        $tahunId = $this->request->getPost('tahun_ajaran_id');
+
+        if (!$kelasId || !$tahunId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Parameter kelas atau tahun ajaran tidak valid.']);
+        }
+
+        $riwayatModel = new \App\Models\RiwayatKelasSiswa();
+        $siswaInKelas = $riwayatModel->getSiswaByKelasTahun($kelasId, $tahunId);
+
+        if (empty($siswaInKelas)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Tidak ada siswa pada kelas ini.']);
+        }
+
+        $countUpdated = 0;
+        foreach ($siswaInKelas as $s) {
+            $sId = $s['siswa_id'];
+            $this->siswaModel->update($sId, ['status_siswa' => 'lulus']);
+            $countUpdated++;
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => "Status kelulusan berhasil diperbarui! {$countUpdated} siswa telah diset menjadi LULUS."
+        ]);
+    }
+
+    /**
      * Helper privat untuk mendapatkan ID pengguna (petugas/guru/admin) yang sedang login.
      */
     private function getPenggunaId()
