@@ -63,6 +63,16 @@
               <i class="fas fa-search mr-1"></i> Tampilkan
             </button>
           </div>
+
+          <!-- Checkbox Include Alokasi Bagi Hasil Kas -->
+          <div class="col-12 mt-3">
+            <div class="custom-control custom-checkbox bg-white p-2 border rounded">
+              <input type="checkbox" class="custom-control-input" id="include_alokasi_global" value="1" checked>
+              <label class="custom-control-label font-weight-bold text-dark mb-0" for="include_alokasi_global">
+                <i class="fas fa-coins text-warning mr-1"></i> Hitung & Catat Potongan Bagi Hasil Kas (Sekolah <?= esc($persenSekolah ?? '1.5') ?>% & Guru <?= esc($persenGuru ?? '1.0') ?>%)
+              </label>
+            </div>
+          </div>
         </div>
       </form>
     </div>
@@ -189,10 +199,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const nama = this.dataset.nama;
             const saldoStr = this.dataset.saldo;
             const tahunId = document.getElementById('tahun_ajaran_id').value;
+            const isAlokasi = document.getElementById('include_alokasi_global').checked ? 1 : 0;
 
             Swal.fire({
                 title: 'Konfirmasi Penarikan Akhir Tahun',
-                html: `Apakah Anda yakin ingin menarik lunas sisa tabungan sebesar <strong>${saldoStr}</strong> milik siswa <strong>${nama}</strong>?<br><br><span class="text-muted small">Saldo akhir siswa akan menjadi <strong>Rp 0</strong>.</span>`,
+                html: `Apakah Anda yakin ingin menarik lunas sisa tabungan sebesar <strong>${saldoStr}</strong> milik siswa <strong>${nama}</strong>?<br><br>` +
+                      (isAlokasi ? `<div class="alert alert-warning py-2 mb-2 small text-left"><i class="fas fa-coins mr-1"></i> Potongan Alokasi Bagi Hasil Kas (Sekolah <?= esc($persenSekolah) ?>% & Guru <?= esc($persenGuru) ?>%) <strong>AKAN DICATAT</strong>.</div>` : '') +
+                      `<span class="text-muted small">Saldo akhir siswa akan menjadi <strong>Rp 0</strong>.</span>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ffc107',
@@ -213,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: new URLSearchParams({
                             siswa_id: siswaId,
                             tahun_ajaran_id: tahunId,
+                            include_alokasi: isAlokasi,
                             '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
                         })
                     })

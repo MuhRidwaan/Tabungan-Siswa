@@ -136,8 +136,29 @@ class TransaksiController extends BaseController
             // return $this->response->setJSON(['success' => false, 'message' => $message]);
         } else { // Create
             $dataTransaksi['kode_transaksi'] = $this->transaksiModel->generateKodeTransaksi();
-            $this->transaksiModel->insert($dataTransaksi);
+            $transaksiId = $this->transaksiModel->insert($dataTransaksi);
             $message = 'Transaksi berhasil ditambahkan.';
+
+            $includeAlokasi = (int)$this->request->getPost('include_alokasi');
+            if ($includeAlokasi && $transaksiId) {
+                $pengaturanModel = new \App\Models\Pengaturan();
+                $pengaturan      = $pengaturanModel->getPengaturanAsArray();
+                $persenGuru      = isset($pengaturan['persen_admin_guru']) ? (float)$pengaturan['persen_admin_guru'] : 1.0;
+                $persenSekolah   = isset($pengaturan['persen_admin_sekolah']) ? (float)$pengaturan['persen_admin_sekolah'] : 1.5;
+
+                $alokGuru    = $jumlah * ($persenGuru / 100);
+                $alokSekolah = $jumlah * ($persenSekolah / 100);
+
+                $alokasiModel = new \App\Models\AlokasiBiayaAdmin();
+                $alokasiModel->insert([
+                    'transaksi_id'         => $transaksiId,
+                    'persen_guru'          => $persenGuru,
+                    'jumlah_untuk_guru'    => $alokGuru,
+                    'persen_sekolah'       => $persenSekolah,
+                    'jumlah_untuk_sekolah'  => $alokSekolah,
+                    'created_at'           => date('Y-m-d H:i:s')
+                ]);
+            }
         }
         
         // Update saldo akhir siswa
@@ -660,6 +681,11 @@ class TransaksiController extends BaseController
             }
         }
 
+        $pengaturanModel  = new \App\Models\Pengaturan();
+        $pengaturan       = $pengaturanModel->getPengaturanAsArray();
+        $persenGuru       = isset($pengaturan['persen_admin_guru']) ? (float)$pengaturan['persen_admin_guru'] : 1.0;
+        $persenSekolah    = isset($pengaturan['persen_admin_sekolah']) ? (float)$pengaturan['persen_admin_sekolah'] : 1.5;
+
         $allKelas = $kelasModel->getAllKelasWithWali($selectedTahunId);
 
         $data = [
@@ -675,7 +701,9 @@ class TransaksiController extends BaseController
             'totalSiswa'        => $totalSiswa,
             'countLunas'        => $countLunas,
             'totalBelumDitarik' => $totalBelumDitarik,
-            'isClassLunas'      => $isClassLunas
+            'isClassLunas'      => $isClassLunas,
+            'persenGuru'        => $persenGuru,
+            'persenSekolah'     => $persenSekolah
         ];
 
         return view('transaksi/akhir_tahun', $data);
@@ -686,8 +714,9 @@ class TransaksiController extends BaseController
      */
     public function saveTarikLunas()
     {
-        $siswaId = $this->request->getPost('siswa_id');
-        $tahunId = $this->request->getPost('tahun_ajaran_id');
+        $siswaId        = $this->request->getPost('siswa_id');
+        $tahunId        = $this->request->getPost('tahun_ajaran_id');
+        $includeAlokasi = (int)$this->request->getPost('include_alokasi');
 
         if (!$siswaId) {
             return $this->response->setJSON(['success' => false, 'message' => 'Siswa tidak valid.']);
@@ -704,8 +733,23 @@ class TransaksiController extends BaseController
         }
 
         $tahunAjaranModel = new \App\Models\TahunAjaran();
-        $tahunInfo = $tahunAjaranModel->find($tahunId);
-        $taNama = $tahunInfo['nama_tahun_ajaran'] ?? date('Y');
+        $tahunInfo        = $tahunAjaranModel->find($tahunId);
+        $taNama           = $tahunInfo['nama_tahun_ajaran'] ?? date('Y');
+
+        $pengaturanModel = new \App\Models\Pengaturan();
+        $pengaturan      = $pengaturanModel->getPengaturanAsArray();
+        $persenGuru      = isset($pengaturan['persen_admin_guru']) ? (float)$pengaturan['persen_admin_guru'] : 1.0;
+        $persenSekolah   = isset($pengaturan['persen_admin_sekolah']) ? (float)$pengaturan['persen_admin_sekolah'] : 1.5;
+
+        $alokGuru    = 0;
+        $alokSekolah = 0;
+        $ket         = "Penarikan Tabungan Akhir Tahun Ajaran {$taNama}";
+
+        if ($includeAlokasi) {
+            $alokGuru    = $saldoAwal * ($persenGuru / 100);
+            $alokSekolah = $saldoAwal * ($persenSekolah / 100);
+            $ket        .= " (Bagi Hasil: Guru Rp " . number_format($alokGuru, 0, ',', '.') . ", Sekolah Rp " . number_format($alokSekolah, 0, ',', '.') . ")";
+        }
 
         $this->db->transStart();
 
@@ -714,7 +758,7 @@ class TransaksiController extends BaseController
             'siswa_id'          => $siswaId,
             'jenis_transaksi'   => 'tarik',
             'jumlah'            => $saldoAwal,
-            'keterangan'        => "Penarikan Tabungan Akhir Tahun Ajaran {$taNama}",
+            'keterangan'        => $ket,
             'saldo_sebelum'     => $saldoAwal,
             'saldo_sesudah'     => 0,
             'tanggal_transaksi' => date('Y-m-d H:i:s'),
@@ -722,8 +766,20 @@ class TransaksiController extends BaseController
             'created_at'        => date('Y-m-d H:i:s'),
         ];
 
-        $this->transaksiModel->insert($dataTransaksi);
+        $transaksiId = $this->transaksiModel->insert($dataTransaksi);
         $this->siswaModel->update($siswaId, ['saldo_akhir' => 0]);
+
+        if ($includeAlokasi && $transaksiId) {
+            $alokasiModel = new \App\Models\AlokasiBiayaAdmin();
+            $alokasiModel->insert([
+                'transaksi_id'         => $transaksiId,
+                'persen_guru'          => $persenGuru,
+                'jumlah_untuk_guru'    => $alokGuru,
+                'persen_sekolah'       => $persenSekolah,
+                'jumlah_untuk_sekolah'  => $alokSekolah,
+                'created_at'           => date('Y-m-d H:i:s')
+            ]);
+        }
 
         $this->db->transComplete();
 

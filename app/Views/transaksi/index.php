@@ -227,9 +227,17 @@
                         <input type="text" name="jumlah" id="jumlah" class="form-control form-control-lg text-right font-weight-bold" placeholder="0" required>
                         <div class="invalid-feedback" id="error-jumlah"></div>
                     </div>
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                         <label for="keterangan">Keterangan / Catatan</label>
                         <textarea name="keterangan" id="keterangan" class="form-control" rows="2" placeholder="Contoh: Setoran Mingguan"></textarea>
+                    </div>
+                    <div class="form-group mb-0">
+                        <div class="custom-control custom-checkbox bg-light p-2 border rounded">
+                            <input type="checkbox" class="custom-control-input" id="include_alokasi" name="include_alokasi" value="1">
+                            <label class="custom-control-label font-weight-bold text-dark mb-0" for="include_alokasi">
+                                <i class="fas fa-coins text-warning mr-1"></i> Catat Potongan Alokasi Bagi Hasil Kas (Sekolah & Guru)
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
