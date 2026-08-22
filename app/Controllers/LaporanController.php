@@ -39,6 +39,25 @@ class LaporanController extends BaseController
             $selectedTahunId = $tahunAktif['id'];
         }
 
+        $selectedKelasId   = $this->request->getGet('kelas_id');
+        $riwayatKelasModel = new RiwayatKelasSiswa();
+
+        $listSiswa = [];
+        if ($selectedKelasId && $selectedKelasId !== 'semua') {
+            $rawSiswaInKelas = $riwayatKelasModel->getSiswaByKelasTahun($selectedKelasId, $selectedTahunId);
+            foreach ($rawSiswaInKelas as $s) {
+                $listSiswa[] = [
+                    'id'           => $s['siswa_id'],
+                    'nis'          => $s['nis'],
+                    'nama_lengkap' => $s['nama_lengkap']
+                ];
+            }
+        }
+        
+        if (empty($listSiswa)) {
+            $listSiswa = $siswaModel->orderBy('nama_lengkap', 'ASC')->findAll();
+        }
+
         $data = [
             'title'           => 'Laporan Tabungan',
             'jenisLaporan'    => $jenisLaporan,
@@ -48,10 +67,11 @@ class LaporanController extends BaseController
             'persenGuru'      => $persenGuru,
             'persenSekolah'   => $persenSekolah,
             'pengaturan'      => $pengaturan,
-            'listSiswa'       => $siswaModel->orderBy('nama_lengkap', 'ASC')->findAll(),
+            'listSiswa'       => $listSiswa,
             'listKelas'       => $kelasModel->orderBy('nama_kelas', 'ASC')->findAll(),
             'tahunAjaran'     => $tahunAjaranList,
             'selectedTahunId' => $selectedTahunId,
+            'selectedKelasId' => $selectedKelasId,
             'tahunAktif'      => $tahunAktif,
             'reportData'      => null,
             'reportDetails'   => null

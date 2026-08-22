@@ -74,22 +74,22 @@
                     </div>
 
                     <!-- Dynamic Filters -->
-                    <div id="filter-per-siswa" class="col-lg-3 col-md-6 mb-2" style="display: none;">
-                        <label class="small font-weight-bold">Pilih Siswa</label>
-                        <select name="siswa_id" class="form-control select2">
-                            <option value="">-- Cari NIS / Nama Siswa --</option>
-                            <?php if(isset($listSiswa)): foreach ($listSiswa as $s) : ?>
-                                <option value="<?= $s['id'] ?>" <?= (isset($_GET['siswa_id']) && $_GET['siswa_id'] == $s['id']) ? 'selected' : '' ?>><?= esc($s['nis']) ?> - <?= esc($s['nama_lengkap']) ?></option>
+                    <div id="filter-per-kelas" class="col-lg-3 col-md-6 mb-2" style="display: none;">
+                        <label class="small font-weight-bold">Filter Kelas</label>
+                        <select name="kelas_id" id="kelas_id" class="form-control select2">
+                            <option value="">-- Pilih Kelas --</option>
+                            <?php if(isset($listKelas)): foreach ($listKelas as $k) : ?>
+                                <option value="<?= $k['id'] ?>" <?= (isset($selectedKelasId) && $selectedKelasId == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?></option>
                             <?php endforeach; endif; ?>
                         </select>
                     </div>
 
-                    <div id="filter-per-kelas" class="col-lg-3 col-md-6 mb-2" style="display: none;">
-                        <label class="small font-weight-bold">Pilih Kelas</label>
-                        <select name="kelas_id" class="form-control select2">
-                            <option value="">-- Pilih Kelas --</option>
-                            <?php if(isset($listKelas)): foreach ($listKelas as $k) : ?>
-                                <option value="<?= $k['id'] ?>" <?= (isset($_GET['kelas_id']) && $_GET['kelas_id'] == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?></option>
+                    <div id="filter-per-siswa" class="col-lg-3 col-md-6 mb-2" style="display: none;">
+                        <label class="small font-weight-bold">Pilih Siswa</label>
+                        <select name="siswa_id" id="siswa_id" class="form-control select2">
+                            <option value="">-- Pilih Siswa --</option>
+                            <?php if(isset($listSiswa)): foreach ($listSiswa as $s) : ?>
+                                <option value="<?= $s['id'] ?>" <?= (isset($_GET['siswa_id']) && $_GET['siswa_id'] == $s['id']) ? 'selected' : '' ?>><?= esc($s['nis']) ?> - <?= esc($s['nama_lengkap']) ?></option>
                             <?php endforeach; endif; ?>
                         </select>
                     </div>
@@ -195,30 +195,65 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const jenisLaporanSelect = document.getElementById('jenis_laporan');
-
     function toggleFilters() {
-        const selectedValue = jenisLaporanSelect.value;
-        document.getElementById('filter-per-siswa').style.display = 'none';
-        document.getElementById('filter-per-kelas').style.display = 'none';
-        document.getElementById('filter-tanggal').style.display = 'none';
+        const jenis = $('#jenis_laporan').val();
+        $('#filter-per-kelas').hide();
+        $('#filter-per-siswa').hide();
+        $('#filter-tanggal').hide();
         
-        if (selectedValue === 'per_siswa') {
-            document.getElementById('filter-per-siswa').style.display = 'block';
-            document.getElementById('filter-tanggal').style.display = 'block';
-        } else if (selectedValue === 'per_kelas') {
-            document.getElementById('filter-per-kelas').style.display = 'block';
-        } else if (selectedValue === 'pemasukan') {
-            document.getElementById('filter-tanggal').style.display = 'block';
+        if (jenis === 'per_siswa') {
+            $('#filter-per-kelas').show();
+            $('#filter-per-siswa').show();
+            $('#filter-tanggal').show();
+        } else if (jenis === 'per_kelas') {
+            $('#filter-per-kelas').show();
+        } else if (jenis === 'pemasukan') {
+            $('#filter-tanggal').show();
         }
     }
 
-    if (typeof $ !== 'undefined' && $.fn.select2) {
-        $('#jenis_laporan').on('change', function() {
+    function updateSiswaByKelas() {
+        const jenis = $('#jenis_laporan').val();
+        if (jenis !== 'per_siswa') return;
+
+        const kelasId = $('#kelas_id').val();
+        const tahunId = $('#tahun_ajaran_id').val();
+        const siswaSelect = $('#siswa_id');
+
+        if (!kelasId) return;
+
+        siswaSelect.html('<option value="">Memuat daftar siswa...</option>');
+
+        fetch(`<?= base_url('transaksi/get-siswa-by-kelas') ?>/${kelasId}?tahun_ajaran_id=${tahunId}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            let options = '<option value="">-- Pilih Siswa Kelas --</option>';
+            const currentSelected = '<?= $_GET['siswa_id'] ?? '' ?>';
+            data.forEach(s => {
+                const sId = s.siswa_id || s.id;
+                const isSelected = (sId == currentSelected) ? 'selected' : '';
+                options += `<option value="${sId}" ${isSelected}>${s.nis} - ${s.nama_lengkap}</option>`;
+            });
+            siswaSelect.html(options);
+            if ($.fn.select2) {
+                siswaSelect.trigger('change.select2');
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching siswa:', err);
+        });
+    }
+
+    if (typeof $ !== 'undefined') {
+        $('#jenis_laporan').on('change select2:select', function() {
             toggleFilters();
         });
-    } else {
-        jenisLaporanSelect.addEventListener('change', toggleFilters);
+
+        $('#kelas_id, #tahun_ajaran_id').on('change select2:select', function() {
+            updateSiswaByKelas();
+        });
     }
 
     toggleFilters();
