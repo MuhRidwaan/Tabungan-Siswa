@@ -63,6 +63,7 @@ class CustomLoginController extends ShieldLoginController
             return redirect()->route('auth-action-show')->withCookies();
         }
 
-        return redirect()->to(config('Auth')->loginRedirect())->withCookies();
+        session()->removeTempdata('beforeLoginUrl');
+        return redirect()->to(base_url('dashboard'))->withCookies();
     }
 }
