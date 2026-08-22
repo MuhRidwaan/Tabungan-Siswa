@@ -90,7 +90,7 @@
                                 <td><span class="badge badge-secondary"><?= esc($sdk['nis']) ?></span></td>
                                 <td class="font-weight-bold"><?= esc($sdk['nama_lengkap']) ?></td>
                                 <td class="text-center">
-                                    <a href="<?= base_url('manajemen-kelas/unassign/' . $sdk['id']) ?>" class="btn btn-xs btn-danger btn-unassign-swal" title="Keluarkan dari kelas">
+                                    <a href="<?= base_url('manajemen-kelas/unassign/' . ($sdk['id'] ?? $sdk['riwayat_id'])) ?>" class="btn btn-xs btn-danger btn-unassign-swal" title="Keluarkan dari kelas">
                                         <i class="fas fa-arrow-right mr-1"></i> Keluarkan
                                     </a>
                                 </td>
