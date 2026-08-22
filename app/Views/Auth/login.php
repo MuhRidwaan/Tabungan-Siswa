@@ -382,7 +382,7 @@
             height: 100%;
             background: linear-gradient(90deg, #6366f1, #38bdf8, #10b981);
             border-radius: 10px;
-            transition: width 2.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 4s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
@@ -560,7 +560,7 @@
 
             setTimeout(() => {
                 formLogin.submit();
-            }, 2200);
+            }, 4000);
         });
     });
     </script>
