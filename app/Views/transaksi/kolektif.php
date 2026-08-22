@@ -30,13 +30,13 @@
     </div>
 
     <!-- Main Card Header Controls -->
-    <div class="card card-primary card-outline">
-      <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filter & Pengaturan Setoran Kolektif</h3>
-      </div>
-      <div class="card-body">
-        <form id="formKolektif">
-          <?= csrf_field() ?>
+    <form id="formKolektif">
+      <?= csrf_field() ?>
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filter & Pengaturan Setoran Kolektif</h3>
+        </div>
+        <div class="card-body">
           <div class="row">
             <!-- Pilih Kelas -->
             <div class="col-md-4">
@@ -78,60 +78,60 @@
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
 
-    <!-- Table List Students Batch Entry -->
-    <div class="card card-success card-outline">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <h3 class="card-title"><i class="fas fa-users mr-1"></i> Daftar Input Nominal Siswa</h3>
-        <div class="card-tools">
-          <span id="draftStatusBadge" class="badge badge-secondary p-2 mr-2"><i class="fas fa-sync-alt fa-spin"></i> Memuat...</span>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="btnFillAllModal" data-toggle="modal" data-target="#modalFillAll">
-            <i class="fas fa-calculator mr-1"></i> Isi Nominal Seragam
+      <!-- Table List Students Batch Entry -->
+      <div class="card card-success card-outline">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h3 class="card-title"><i class="fas fa-users mr-1"></i> Daftar Input Nominal Siswa</h3>
+          <div class="card-tools">
+            <span id="draftStatusBadge" class="badge badge-secondary p-2 mr-2"><i class="fas fa-sync-alt fa-spin"></i> Memuat...</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnFillAllModal" data-toggle="modal" data-target="#modalFillAll">
+              <i class="fas fa-calculator mr-1"></i> Isi Nominal Seragam
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover mb-0" id="tableSiswa">
+              <thead class="bg-light">
+                <tr>
+                  <th width="50" class="text-center">No</th>
+                  <th width="120">NIS</th>
+                  <th>Nama Siswa</th>
+                  <th width="180" class="text-right">Saldo Saat Ini</th>
+                  <th width="220" class="text-center">Nominal (Rp)</th>
+                  <th width="200">Keterangan Khusus</th>
+                  <th width="180" class="text-right">Estimasi Saldo Baru</th>
+                </tr>
+              </thead>
+              <tbody id="siswaContainer">
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-5">
+                    <i class="fas fa-arrow-up text-primary fa-2x mb-2 d-block"></i>
+                    Silakan pilih <strong>Kelas</strong> di atas untuk memuat daftar siswa.
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-light font-weight-bold d-none" id="tableFooter">
+                <tr>
+                  <td colspan="4" class="text-right">TOTAL REKAPITULASI KOLEKTIF:</td>
+                  <td class="text-right text-success h5 mb-0" id="totalKolektifDisplay">Rp 0</td>
+                  <td colspan="2"><span id="siswaTerisiDisplay" class="badge badge-info p-2">0 Siswa Terisi</span></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted"><i class="fas fa-info-circle mr-1"></i> Input nominal 0 atau kosong akan otomatis dilewati saat penyimpanan.</span>
+          <button type="button" class="btn btn-success btn-lg px-4" id="btnSimpanKolektif" disabled>
+            <i class="fas fa-save mr-2"></i> Simpan Semua Transaksi Kolektif
           </button>
         </div>
       </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-striped table-bordered table-hover mb-0" id="tableSiswa">
-            <thead class="bg-light">
-              <tr>
-                <th width="50" class="text-center">No</th>
-                <th width="120">NIS</th>
-                <th>Nama Siswa</th>
-                <th width="180" class="text-right">Saldo Saat Ini</th>
-                <th width="220" class="text-center">Nominal (Rp)</th>
-                <th width="200">Keterangan Khusus</th>
-                <th width="180" class="text-right">Estimasi Saldo Baru</th>
-              </tr>
-            </thead>
-            <tbody id="siswaContainer">
-              <tr>
-                <td colspan="7" class="text-center text-muted py-5">
-                  <i class="fas fa-arrow-up text-primary fa-2x mb-2 d-block"></i>
-                  Silakan pilih <strong>Kelas</strong> di atas untuk memuat daftar siswa.
-                </td>
-              </tr>
-            </tbody>
-            <tfoot class="bg-light font-weight-bold d-none" id="tableFooter">
-              <tr>
-                <td colspan="4" class="text-right">TOTAL REKAPITULASI KOLEKTIF:</td>
-                <td class="text-right text-success h5 mb-0" id="totalKolektifDisplay">Rp 0</td>
-                <td colspan="2"><span id="siswaTerisiDisplay" class="badge badge-info p-2">0 Siswa Terisi</span></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-      <div class="card-footer d-flex justify-content-between align-items-center">
-        <span class="text-muted"><i class="fas fa-info-circle mr-1"></i> Input nominal 0 atau kosong akan otomatis dilewati saat penyimpanan.</span>
-        <button type="button" class="btn btn-success btn-lg px-4" id="btnSimpanKolektif" disabled>
-          <i class="fas fa-save mr-2"></i> Simpan Semua Transaksi Kolektif
-        </button>
-      </div>
-    </div>
+    </form>
 
   </div>
 </section>
@@ -496,12 +496,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses Penyimpanan...';
 
         const formData = new FormData(document.getElementById('formKolektif'));
-        document.querySelectorAll('.input-nominal').forEach(inp => {
-            formData.append('nominal[]', inp.value);
-        });
-        document.querySelectorAll('.input-ket').forEach(inp => {
-            formData.append('keterangan[]', inp.value);
-        });
 
         fetch('<?= base_url('transaksi/save-kolektif') ?>', {
             method: 'POST',
@@ -513,7 +507,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(getDraftKey());
+                alert(data.message);
+                window.location.href = '<?= base_url('transaksi') ?>';
+            } else {
                 alert(data.message);
                 window.location.href = '<?= base_url('transaksi') ?>';
             } else {
