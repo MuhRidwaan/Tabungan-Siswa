@@ -23,7 +23,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a, #0369a1);
+            background: linear-gradient(-45deg, #0f172a, #1e3a8a, #dc2626, #1d4ed8, #991b1b);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             position: relative;

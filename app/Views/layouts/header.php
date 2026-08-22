@@ -42,7 +42,7 @@
   <!-- SweetAlert2 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
-  <!-- Custom Color Theme for Vibrant Navbar & Sidebar -->
+  <!-- Custom Color Theme for Vibrant Blue & Red Navbar & Sidebar -->
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
@@ -50,17 +50,17 @@
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    /* 1. VIBRANT TOP NAVBAR */
+    /* 1. VIBRANT ROYAL BLUE & CRIMSON RED NAVBAR */
     .main-header.navbar {
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%) !important;
-      border-bottom: 2px solid rgba(129, 140, 248, 0.4) !important;
-      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.25) !important;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%) !important;
+      border-bottom: 3px solid #ef4444 !important;
+      box-shadow: 0 4px 20px rgba(220, 38, 38, 0.25) !important;
       padding: 0.5rem 1rem !important;
     }
 
     .main-header.navbar .nav-link {
-      color: #f1f5f9 !important;
-      font-weight: 500 !important;
+      color: #f8fafc !important;
+      font-weight: 600 !important;
       border-radius: 8px !important;
       padding: 0.5rem 0.85rem !important;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -68,49 +68,49 @@
     }
 
     .main-header.navbar .nav-link:hover {
-      background: rgba(255, 255, 255, 0.15) !important;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.4) 100%) !important;
       color: #ffffff !important;
-      transform: translateY(-1px) !important;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+      transform: translateY(-1.5px) !important;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4) !important;
     }
 
     .main-header.navbar .user-menu .nav-link:hover {
-      background: rgba(99, 102, 241, 0.25) !important;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(220, 38, 38, 0.3) 100%) !important;
     }
 
-    /* 2. VIBRANT SIDEBAR */
+    /* 2. VIBRANT ROYAL BLUE & CRIMSON RED SIDEBAR */
     .main-sidebar {
-      background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%) !important;
-      box-shadow: 4px 0 25px rgba(15, 23, 42, 0.3) !important;
-      border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+      background: linear-gradient(180deg, #0f172a 0%, #172554 60%, #0f172a 100%) !important;
+      box-shadow: 4px 0 25px rgba(15, 23, 42, 0.4) !important;
+      border-right: 1px solid rgba(239, 68, 68, 0.2) !important;
     }
 
-    /* Brand Logo Area */
+    /* Brand Logo Area (Blue to Crimson Red Gradient) */
     .main-sidebar .brand-link {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+      background: linear-gradient(135deg, #1d4ed8 0%, #dc2626 100%) !important;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
       padding: 0.85rem 1rem !important;
       transition: all 0.3s ease !important;
     }
 
     .main-sidebar .brand-link:hover {
-      background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%) !important;
-      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.2) !important;
+      background: linear-gradient(135deg, #1e40af 0%, #b91c1c 100%) !important;
+      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.25) !important;
     }
 
     .main-sidebar .brand-link .brand-text {
       color: #ffffff !important;
-      font-weight: 700 !important;
+      font-weight: 800 !important;
       letter-spacing: 0.5px !important;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
     }
 
     /* User Profile Box on Sidebar */
     .sidebar .user-panel {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
       padding: 0.85rem 0.5rem !important;
       margin-bottom: 0.85rem !important;
-      background: rgba(255, 255, 255, 0.03) !important;
+      background: rgba(255, 255, 255, 0.04) !important;
       border-radius: 12px !important;
     }
 
@@ -121,7 +121,7 @@
     }
 
     .sidebar .user-panel .info a:hover {
-      color: #818cf8 !important;
+      color: #f87171 !important;
     }
 
     /* Sidebar Navigation Links */
@@ -138,32 +138,33 @@
       border-left: 3px solid transparent !important;
     }
 
-    /* Sidebar Nav Link HOVER State */
+    /* Sidebar Nav Link HOVER State (Blue-Crimson Gradient Glow & Crimson Red Indicator) */
     .sidebar .nav-sidebar .nav-link:hover:not(.active) {
-      background: linear-gradient(90deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.15) 100%) !important;
+      background: linear-gradient(90deg, rgba(30, 64, 175, 0.35) 0%, rgba(220, 38, 38, 0.25) 100%) !important;
       color: #ffffff !important;
       transform: translateX(4px) !important;
-      border-left-color: #818cf8 !important;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+      border-left-color: #ef4444 !important;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25) !important;
     }
 
     .sidebar .nav-sidebar .nav-link:hover:not(.active) i {
-      transform: scale(1.15) rotate(-3deg) !important;
+      transform: scale(1.18) rotate(-3deg) !important;
       transition: transform 0.2s ease !important;
+      color: #f87171 !important;
     }
 
-    /* Sidebar Nav Link ACTIVE State */
+    /* Sidebar Nav Link ACTIVE State (Royal Blue to Crimson Red Gradient with Gold Border) */
     .sidebar .nav-sidebar .nav-link.active {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+      background: linear-gradient(135deg, #2563eb 0%, #dc2626 100%) !important;
       color: #ffffff !important;
       font-weight: 700 !important;
-      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.45) !important;
+      box-shadow: 0 4px 18px rgba(220, 38, 38, 0.45) !important;
       border-left-color: #facc15 !important;
     }
 
     .sidebar .nav-sidebar .nav-link.active i {
       color: #ffffff !important;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
     }
 
     /* Sidebar Category Headers */
