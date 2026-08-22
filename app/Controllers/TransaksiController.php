@@ -98,7 +98,7 @@ class TransaksiController extends BaseController
             'keterangan'      => $this->request->getPost('keterangan'),
             'saldo_sebelum'   => $saldo_sebelum,
             'saldo_sesudah'   => $saldo_sesudah,
-            'pengguna_id'     => session()->get('id'), // Ambil dari session login (pastikan key session benar)
+            'pengguna_id'     => $this->getPenggunaId(),
         ];
 
         if ($id) { // Update
@@ -232,7 +232,7 @@ class TransaksiController extends BaseController
                 'keterangan'      => $ket,
                 'saldo_sebelum'   => $saldo_sebelum,
                 'saldo_sesudah'   => $saldo_sesudah,
-                'pengguna_id'     => session()->get('id') ?? 1,
+                'pengguna_id'     => $this->getPenggunaId(),
                 'created_at'      => $tanggalInput . ' ' . date('H:i:s'),
             ];
 
@@ -332,7 +332,7 @@ class TransaksiController extends BaseController
                 'keterangan'      => $ket,
                 'saldo_sebelum'   => $saldo_sebelum,
                 'saldo_sesudah'   => $saldo_sesudah,
-                'pengguna_id'     => session()->get('id') ?? 1,
+                'pengguna_id'     => $this->getPenggunaId(),
                 'created_at'      => $tgl . ' ' . date('H:i:s'),
             ];
 
@@ -451,7 +451,7 @@ class TransaksiController extends BaseController
                 'keterangan'      => $ket,
                 'saldo_sebelum'   => $saldo_sebelum,
                 'saldo_sesudah'   => $saldo_sesudah,
-                'pengguna_id'     => session()->get('id') ?? 1,
+                'pengguna_id'     => $this->getPenggunaId(),
                 'created_at'      => $tanggal . ' ' . date('H:i:s'),
             ];
 
@@ -469,5 +469,28 @@ class TransaksiController extends BaseController
 
         session()->setFlashdata('success', "Import Transaksi Selesai: {$countSuccess} transaksi berhasil dicatat, {$countFailed} baris dilewati (NIS tidak ditemukan/nominal 0/saldo kurang).");
         return redirect()->to('/transaksi');
+    }
+
+    /**
+     * Helper privat untuk mendapatkan ID pengguna (petugas/guru/admin) yang sedang login.
+     */
+    private function getPenggunaId()
+    {
+        if (session()->get('id')) {
+            return session()->get('id');
+        }
+        if (session()->get('pengguna_id')) {
+            return session()->get('pengguna_id');
+        }
+        if (function_exists('auth') && auth()->user()) {
+            $username = auth()->user()->username;
+            $penggunaModel = new \App\Models\Guru();
+            $p = $penggunaModel->where('username', $username)->first();
+            if ($p) {
+                return $p['id'];
+            }
+        }
+        $firstPengguna = (new \App\Models\Guru())->first();
+        return $firstPengguna['id'] ?? 1;
     }
 }

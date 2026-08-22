@@ -177,6 +177,7 @@
                 </button>
             </div>
             <form id="transaksi-form" method="post">
+                <?= csrf_field() ?>
                 <div class="modal-body">
                     <input type="hidden" name="id" id="id">
                     <div class="form-group">
@@ -224,10 +225,17 @@ $(document).ready(function() {
         $('#transaksi-form')[0].reset();
         $('#id').val('');
         $('.is-invalid').removeClass('is-invalid');
-        if ($.fn.select2) {
-            $('#siswa_id, #jenis_transaksi').trigger('change');
-        }
         $('#transaksiModal').modal('show');
+    });
+
+    $('#transaksiModal').on('shown.bs.modal', function() {
+        if ($.fn.select2) {
+            $('#siswa_id, #jenis_transaksi').select2({
+                theme: 'bootstrap4',
+                width: '100%',
+                dropdownParent: $('#transaksiModal')
+            });
+        }
     });
 
     $('#transaksi-form').on('submit', function(e) {
