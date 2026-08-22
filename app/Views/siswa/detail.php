@@ -34,8 +34,11 @@
             <a href="<?= base_url('siswa/' . $siswa['id'] . '/export-detail') ?>" class="btn btn-outline-success font-weight-bold shadow-sm mb-2 mr-2">
                 <i class="fas fa-file-excel mr-1"></i> Export Excel
             </a>
+            <a href="<?= base_url('siswa/' . $siswa['id'] . '/export-pdf') ?>" class="btn btn-outline-danger font-weight-bold shadow-sm mb-2 mr-2" title="Download File PDF Buku Tabungan">
+                <i class="fas fa-file-pdf mr-1"></i> Download PDF
+            </a>
             <button onclick="window.print()" class="btn btn-info font-weight-bold shadow-sm mb-2 mr-2">
-                <i class="fas fa-file-pdf mr-1"></i> Cetak PDF / Print
+                <i class="fas fa-print mr-1"></i> Cetak PDF / Print
             </button>
             <button type="button" class="btn text-white font-weight-bold shadow-sm mb-2" data-toggle="modal" data-target="#modalWA" style="background-color: #25D366; border-color: #25D366;">
                 <i class="fab fa-whatsapp mr-1"></i> Kirim ke WhatsApp
@@ -296,6 +299,10 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-success border py-2 small mb-3">
+                    <i class="fas fa-file-pdf text-danger mr-1"></i> <strong>Otomatis Unduh PDF:</strong> File PDF Laporan Buku Tabungan (<code>buku_tabungan_<?= esc($siswa['nis']) ?>.pdf</code>) akan otomatis terunduh saat Anda mengklik tombol di bawah ini. Tinggal Anda lampirkan/drag ke ruang obrolan WhatsApp!
+                </div>
+
                 <div class="form-group">
                     <label for="no_wa_tujuan" class="font-weight-bold">Nomor WhatsApp Tujuan / Wali Siswa</label>
                     <input type="text" id="no_wa_tujuan" class="form-control" placeholder="Contoh: 628123456789 atau 08123456789">
@@ -320,6 +327,7 @@
                         $rawMsg .= "📤 Total Penarikan : Rp " . number_format($stats['total_tarik'], 0, ',', '.') . "\n";
                         $rawMsg .= "💰 *SALDO AKHIR SAAT INI : Rp " . number_format($stats['saldo_akhir'], 0, ',', '.') . "*\n";
                         $rawMsg .= "---------------------------------------------\n";
+                        $rawMsg .= "_Lampiran: File PDF Rekap Buku Tabungan Siswa (buku_tabungan_" . esc($siswa['nis']) . ".pdf)_\n";
                         $rawMsg .= "_Pesan resmi dikirim dari Sistem Informasi Tabungan Siswa pada " . date('d-m-Y H:i') . "_";
                     ?>
                     <textarea id="pesan_wa_preview" class="form-control font-weight-bold" rows="9" style="font-family: monospace; font-size: 13px; background-color: #F4F6F9;" readonly><?= esc($rawMsg) ?></textarea>
@@ -328,7 +336,7 @@
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                 <button type="button" id="btnKirimWASubmit" class="btn text-white font-weight-bold" style="background-color: #25D366;">
-                    <i class="fab fa-whatsapp mr-1"></i> Buka WhatsApp & Kirim
+                    <i class="fab fa-whatsapp mr-1"></i> Download PDF & Buka WhatsApp
                 </button>
             </div>
         </div>
@@ -356,7 +364,7 @@
     body { background-color: #fff !important; }
     .main-sidebar, .main-header, .main-footer, .no-print, .content-header { display: none !important; }
     .content-wrapper { margin-left: 0 !important; padding: 0 !important; background: #fff !important; }
-    .card { border: none !important; box-shadow: none !important; }
+    .card { border: none !important; shadow: none !important; }
     .card-header { display: none !important; }
     .print-header, .print-footer { display: block !important; }
     .table-responsive { overflow: visible !important; }
@@ -373,6 +381,15 @@ document.addEventListener('DOMContentLoaded', function() {
             let phone = document.getElementById('no_wa_tujuan').value.trim();
             const text = document.getElementById('pesan_wa_preview').value;
 
+            // Trigger PDF Download automatically
+            const pdfUrl = '<?= base_url('siswa/' . $siswa['id'] . '/export-pdf') ?>';
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
             // Format phone number to international 62 format
             if (phone.startsWith('0')) {
                 phone = '62' + phone.substring(1);
@@ -386,7 +403,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
             }
 
-            window.open(url, '_blank');
+            // Open WhatsApp Web/App after 500ms delay
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 500);
         });
     }
 });

@@ -14,6 +14,7 @@
         "ext-intl": "*",
         "ext-mbstring": "*",
         "codeigniter4/shield": "^1.2",
+        "dompdf/dompdf": "*",
         "fakerphp/faker": "^1.24",
         "laminas/laminas-escaper": "^2.14",
         "psr/log": "^3.0"

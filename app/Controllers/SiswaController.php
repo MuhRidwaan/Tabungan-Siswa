@@ -756,4 +756,51 @@ class SiswaController extends BaseController
         echo "</body></html>";
         exit;
     }
+
+    /**
+     * Download Buku Tabungan Siswa sebagai File PDF Resmi (.pdf)
+     */
+    public function exportPdf($id)
+    {
+        $siswa = $this->siswa->find($id);
+        if (!$siswa) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Siswa tidak ditemukan');
+        }
+
+        $tahunAktif = $this->tahunAjaranModel->where('status', 'aktif')->first();
+        $riwayatKelas = $this->riwayatKelasModel->getRiwayatAktifSiswa($id, $tahunAktif['id'] ?? null);
+
+        $tglAwal       = $this->request->getGet('tgl_awal');
+        $tglAkhir      = $this->request->getGet('tgl_akhir');
+        $jenisFilter   = $this->request->getGet('jenis_transaksi');
+
+        $transaksiModel  = new \App\Models\Transaksi();
+        $transaksiList   = $transaksiModel->getLedgerSiswa($id, $tglAwal, $tglAkhir, $jenisFilter);
+        $pengaturanModel = new \App\Models\Pengaturan();
+        $pengaturan       = $pengaturanModel->getPengaturanAsArray();
+
+        $html = view('siswa/pdf_buku_tabungan', [
+            'siswa'         => $siswa,
+            'riwayatKelas'  => $riwayatKelas,
+            'transaksiList' => $transaksiList,
+            'pengaturan'    => $pengaturan,
+            'tglAwal'       => $tglAwal,
+            'tglAkhir'      => $tglAkhir
+        ]);
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $cleanNis  = preg_replace('/[^a-zA-Z0-9]/', '_', $siswa['nis']);
+        $cleanNama = preg_replace('/[^a-zA-Z0-9]/', '_', $siswa['nama_lengkap']);
+        $filename  = "buku_tabungan_{$cleanNis}_{$cleanNama}.pdf";
+
+        $dompdf->stream($filename, ["Attachment" => true]);
+        exit;
+    }
 }

@@ -27,6 +27,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get ('siswa/(:num)/detail',        'SiswaController::detail/$1');
     $routes->get ('siswa/detail/(:num)',        'SiswaController::detail/$1');
     $routes->get ('siswa/(:num)/export-detail', 'SiswaController::exportDetail/$1');
+    $routes->get ('siswa/(:num)/export-pdf',    'SiswaController::exportPdf/$1');
     $routes->resource('siswa',           ['controller' => 'SiswaController']);
     $routes->resource('guru',         ['controller' => 'GuruController']);
     $routes->resource('kelas',        ['controller' => 'KelasController']);
