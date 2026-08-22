@@ -56,6 +56,15 @@ class SiswaController extends BaseController
                     ->groupEnd();
         }
 
+        // Hitung Statistik Ringkasan Siswa (Filtered)
+        $statsBuilder = clone $builder;
+        $statsData = $statsBuilder->select('
+            COUNT(siswa.id) as total_siswa,
+            COALESCE(SUM(siswa.saldo_akhir), 0) as total_saldo,
+            COUNT(CASE WHEN siswa.jenis_kelamin = "L" THEN 1 END) as total_laki,
+            COUNT(CASE WHEN siswa.jenis_kelamin = "P" THEN 1 END) as total_perempuan
+        ')->get()->getRowArray();
+
         $data = [
             'title'           => 'Daftar Data Siswa',
             'siswa'           => $builder->paginate($perPage),
@@ -66,7 +75,8 @@ class SiswaController extends BaseController
             'kelas'           => $this->kelasModel->orderBy('tingkat', 'ASC')->findAll(),
             'selectedTahunId' => $selectedTahunId,
             'selectedKelasId' => $selectedKelasId,
-            'tahunAktif'      => $tahunAktif
+            'tahunAktif'      => $tahunAktif,
+            'stats'           => $statsData
         ];
 
         return view('siswa/index', $data);
