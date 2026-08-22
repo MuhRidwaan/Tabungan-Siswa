@@ -38,22 +38,26 @@
     <?php endif; ?>
 
     <div class="card card-primary card-outline">
-        <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
-            <div class="btn-group mb-2 mb-md-0" role="group">
-                <a href="<?= base_url('siswa/new') ?>" class="btn btn-primary">
-                    <i class="fas fa-user-plus mr-1"></i> Tambah Siswa Baru
-                </a>
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalImport">
-                    <i class="fas fa-file-excel mr-1"></i> Import Excel / CSV
-                </button>
-                <a href="<?= base_url('siswa/download-template') ?>" class="btn btn-outline-success">
-                    <i class="fas fa-file-download mr-1"></i> Download Template Excel (.xls)
-                </a>
-            </div>
-            <div>
-                <a href="<?= base_url('siswa/export?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $selectedKelasId) ?>" class="btn btn-info">
-                    <i class="fas fa-file-export mr-1"></i> Export Data Siswa (Excel)
-                </a>
+        <div class="card-header border-0 py-3">
+            <div class="row w-100 align-items-center m-0">
+                <div class="col-md-8 p-0 mb-2 mb-md-0">
+                    <div class="btn-group" role="group">
+                        <a href="<?= base_url('siswa/new') ?>" class="btn btn-primary">
+                            <i class="fas fa-user-plus mr-1"></i> Tambah Siswa Baru
+                        </a>
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalImport">
+                            <i class="fas fa-file-excel mr-1"></i> Import Excel / CSV
+                        </button>
+                        <a href="<?= base_url('siswa/download-template') ?>" class="btn btn-outline-success">
+                            <i class="fas fa-file-download mr-1"></i> Download Template Excel (.xls)
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4 p-0 text-md-right text-left">
+                    <a href="<?= base_url('siswa/export?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $selectedKelasId) ?>" class="btn btn-info">
+                        <i class="fas fa-file-export mr-1"></i> Export Data Siswa (Excel)
+                    </a>
+                </div>
             </div>
         </div>
         <div class="card-body">
