@@ -381,16 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let phone = document.getElementById('no_wa_tujuan').value.trim();
             const text = document.getElementById('pesan_wa_preview').value;
 
-            // Trigger PDF Download automatically
-            const pdfUrl = '<?= base_url('siswa/' . $siswa['id'] . '/export-pdf') ?>';
-            const link = document.createElement('a');
-            link.href = pdfUrl;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Format phone number to international 62 format
+            // 1. Format phone number to international 62 format
             if (phone.startsWith('0')) {
                 phone = '62' + phone.substring(1);
             }
@@ -403,10 +394,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
             }
 
-            // Open WhatsApp Web/App after 500ms delay
-            setTimeout(() => {
-                window.open(url, '_blank');
-            }, 500);
+            // 2. Trigger PDF Download in a new tab synchronously
+            const pdfUrl = '<?= base_url('siswa/' . $siswa['id'] . '/export-pdf') ?>';
+            window.open(pdfUrl, '_blank');
+
+            // 3. Immediately redirect active window directly to WhatsApp
+            window.location.href = url;
         });
     }
 });

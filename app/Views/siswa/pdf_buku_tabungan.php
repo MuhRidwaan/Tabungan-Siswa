@@ -27,8 +27,8 @@
     <div class="kop-surat">
         <div class="kop-title">
             <h2>BUKU TABUNGAN SISWA</h2>
-            <h3><?= esc($pengaturan['nama_sekolah'] ?? 'SD / MADRASAH TABUNGAN SISWA') ?></h3>
-            <p><?= esc($pengaturan['alamat_sekolah'] ?? 'Sistem Informasi Manajemen Tabungan Siswa') ?></p>
+            <h3><?= esc(!empty($pengaturan['nama_sekolah']) ? $pengaturan['nama_sekolah'] : 'SDN PADAMAMUR') ?></h3>
+            <p><?= esc(!empty($pengaturan['alamat_sekolah']) ? $pengaturan['alamat_sekolah'] : 'SDN Padamamur - Sistem Informasi Manajemen Tabungan Siswa') ?></p>
         </div>
     </div>
 
