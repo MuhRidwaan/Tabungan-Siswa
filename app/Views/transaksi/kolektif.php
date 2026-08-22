@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadSiswaList('all');
     }
 
-    // Submit Collective Batch Form
+    // Submit Collective Batch
     btnSimpan.addEventListener('click', function() {
         let countFilled = 0;
         document.querySelectorAll('.input-nominal').forEach(inp => {
@@ -484,46 +484,71 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         if (countFilled === 0) {
-            alert('Silakan isi setidaknya 1 nominal siswa untuk disimpan!');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Nominal Kosong!',
+                text: 'Silakan isi setidaknya 1 nominal setoran/penarikan siswa untuk disimpan.'
+            });
             return;
         }
 
-        if (!confirm(`Apakah Anda yakin ingin menyimpan ${countFilled} transaksi kolektif ini?`)) {
-            return;
-        }
+        Swal.fire({
+            title: 'Konfirmasi Penyimpanan',
+            text: `Apakah Anda yakin ingin menyimpan ${countFilled} transaksi kolektif ini?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-check mr-1"></i> Ya, Simpan Transaksi!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                btnSimpan.disabled = true;
+                btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses Penyimpanan...';
 
-        btnSimpan.disabled = true;
-        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses Penyimpanan...';
+                const formData = new FormData(document.getElementById('formKolektif'));
 
-        const formData = new FormData(document.getElementById('formKolektif'));
-
-        fetch('<?= base_url('transaksi/save-kolektif') ?>', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                fetch('<?= base_url('transaksi/save-kolektif') ?>', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success || data.status) {
+                        localStorage.removeItem(getDraftKey());
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Transaksi Kolektif Berhasil!',
+                            text: data.message || 'Seluruh transaksi kolektif berhasil disimpan.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = '<?= base_url('transaksi') ?>';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal Menyimpan!',
+                            text: data.message || 'Terjadi kesalahan saat menyimpan.'
+                        });
+                        btnSimpan.disabled = false;
+                        btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Semua Transaksi Kolektif';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Koneksi Terputus!',
+                        text: 'Terjadi kesalahan jaringan/server saat menyimpan.'
+                    });
+                    btnSimpan.disabled = false;
+                    btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Semua Transaksi Kolektif';
+                });
             }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                localStorage.removeItem(getDraftKey());
-                alert(data.message);
-                window.location.href = '<?= base_url('transaksi') ?>';
-            } else {
-                alert(data.message);
-                window.location.href = '<?= base_url('transaksi') ?>';
-            } else {
-                alert('Gagal: ' + data.message);
-                btnSimpan.disabled = false;
-                btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Semua Transaksi Kolektif';
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Terjadi kesalahan jaringan/server saat menyimpan transaksi.');
-            btnSimpan.disabled = false;
-            btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Semua Transaksi Kolektif';
         });
     });
 });

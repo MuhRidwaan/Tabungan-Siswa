@@ -236,7 +236,7 @@
                                     <form action="<?= base_url('siswa/' . $item['id']) ?>" method="post" class="d-inline">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-xs btn-danger" title="Hapus Data Siswa" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                        <button type="button" class="btn btn-xs btn-danger btn-delete-swal" title="Hapus Data Siswa">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -353,6 +353,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // SweetAlert2 Delete Confirmation
+    document.querySelectorAll('.btn-delete-swal').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = this.closest('form');
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: "Data siswa ini akan dihapus secara permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash mr-1"></i> Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
     // Format Rupiah Input
     const quickJumlah = document.getElementById('quick_jumlah');
     quickJumlah.addEventListener('keyup', function(e) {
@@ -383,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Submit Quick Transaction AJAX
+    // Submit Quick Transaction AJAX with SweetAlert2
     document.getElementById('formQuickTrans').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnSubmitQuick');
@@ -402,18 +424,33 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
             if (data.status || data.success) {
-                alert(data.message || 'Transaksi berhasil disimpan!');
                 $('#modalQuickTrans').modal('hide');
-                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Transaksi Berhasil!',
+                    text: data.message || 'Setoran/penarikan tabungan berhasil disimpan.',
+                    timer: 1800,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
             } else {
-                alert('Gagal: ' + (data.message || 'Terjadi kesalahan.'));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Menyimpan!',
+                    text: data.message || 'Terjadi kesalahan sistem.'
+                });
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-save mr-1"></i> Simpan Transaksi';
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Terjadi kesalahan jaringan.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Koneksi Terputus!',
+                text: 'Terjadi kesalahan jaringan.'
+            });
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save mr-1"></i> Simpan Transaksi';
         });

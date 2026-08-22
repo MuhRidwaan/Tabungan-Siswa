@@ -43,5 +43,45 @@
 <script src="<?= base_url('plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') ?>"></script>
 <!-- AdminLTE App -->
 <script src="<?= base_url('dist/js/adminlte.js') ?>"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  <?php if (session()->getFlashdata('success')) : ?>
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      text: <?= json_encode(session()->getFlashdata('success')) ?>,
+      timer: 3000,
+      showConfirmButton: false
+    });
+  <?php endif; ?>
+
+  <?php if (session()->getFlashdata('error')) : ?>
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal!',
+      text: <?= json_encode(session()->getFlashdata('error')) ?>
+    });
+  <?php endif; ?>
+
+  <?php if (session()->getFlashdata('warning')) : ?>
+    Swal.fire({
+      icon: 'warning',
+      title: 'Perhatian!',
+      text: <?= json_encode(session()->getFlashdata('warning')) ?>
+    });
+  <?php endif; ?>
+
+  <?php if (session()->getFlashdata('info')) : ?>
+    Swal.fire({
+      icon: 'info',
+      title: 'Informasi',
+      text: <?= json_encode(session()->getFlashdata('info')) ?>
+    });
+  <?php endif; ?>
+});
+</script>
 </body>
 </html>
