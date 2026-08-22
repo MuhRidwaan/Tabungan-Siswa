@@ -43,10 +43,21 @@
 <script src="<?= base_url('plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') ?>"></script>
 <!-- AdminLTE App -->
 <script src="<?= base_url('dist/js/adminlte.js') ?>"></script>
+<!-- Select2 -->
+<script src="<?= base_url('plugins/select2/js/select2.full.min.js') ?>"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+$(function() {
+  if ($.fn.select2) {
+    $('.select2').select2({
+      theme: 'bootstrap4',
+      width: '100%'
+    });
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
   <?php if (session()->getFlashdata('success')) : ?>
     Swal.fire({

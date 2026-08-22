@@ -35,6 +35,10 @@
   <!-- Summernote -->
   <link rel="stylesheet" href="<?= base_url('plugins/summernote/summernote-bs4.min.css') ?>">
 
+  <!-- Select2 -->
+  <link rel="stylesheet" href="<?= base_url('plugins/select2/css/select2.min.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') ?>">
+
   <!-- SweetAlert2 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
