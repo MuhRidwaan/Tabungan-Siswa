@@ -22,6 +22,7 @@
         .text-primary { color: #0284c7; font-weight: bold; }
         .footer-ttd { width: 100%; margin-top: 20px; page-break-inside: avoid; }
         .footer-ttd td { text-align: center; vertical-align: top; font-size: 10px; }
+        #debug-icon-env, .debug-bar, #toolbarContainer, [id*="debug"], [class*="debug"], img[src*="flame"], svg[id*="debug"] { display: none !important; opacity: 0 !important; visibility: hidden !important; width: 0 !important; height: 0 !important; }
     </style>
 </head>
 <body>

@@ -779,6 +779,11 @@ class SiswaController extends BaseController
         $pengaturanModel = new \App\Models\Pengaturan();
         $pengaturan       = $pengaturanModel->getPengaturanAsArray();
 
+        // Stop Debug Toolbar injection for PDF output
+        if (service('toolbar')) {
+            service('toolbar')->stop();
+        }
+
         $html = view('siswa/pdf_buku_tabungan', [
             'siswa'         => $siswa,
             'riwayatKelas'  => $riwayatKelas,
