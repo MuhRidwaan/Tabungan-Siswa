@@ -381,7 +381,7 @@
         <!-- Brand Header -->
         <div class="brand-header" id="brand-header">
             <div class="brand-icon-wrapper">
-                <i class="fas fa-piggy-bank"></i>
+                <i class="fas fa-wallet"></i>
             </div>
             <h1 class="brand-title">Tabungan Siswa</h1>
             <p class="brand-subtitle">Masuk untuk Mengelola Tabungan Sekolah</p>
