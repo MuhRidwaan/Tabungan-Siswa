@@ -133,25 +133,44 @@
           <table class="table table-bordered table-striped table-hover mb-0">
             <thead class="bg-light">
               <tr class="text-center">
-                <th width="50">No</th>
-                <th width="130">NIS</th>
+                <th width="40">No</th>
+                <th width="110">NIS</th>
                 <th>Nama Lengkap Siswa</th>
-                <th width="180" class="text-right">Saldo Tabungan (Rp)</th>
-                <th width="160" class="text-center">Status Kelunasan</th>
-                <th width="220" class="text-center">Aksi Bagi Tabungan</th>
+                <th width="150" class="text-right">Saldo Tabungan (Gross)</th>
+                <th class="col-alokasi text-right text-info" style="width: 135px;">Kas Sekolah (<?= esc($persenSekolah ?? '1.5') ?>%)</th>
+                <th class="col-alokasi text-right text-primary" style="width: 125px;">Kas Guru (<?= esc($persenGuru ?? '1.0') ?>%)</th>
+                <th class="col-alokasi text-right text-success" style="width: 155px;">Bersih Diterima Siswa</th>
+                <th width="140" class="text-center">Status Kelunasan</th>
+                <th width="200" class="text-center">Aksi Bagi Tabungan</th>
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($siswaList as $idx => $s) : 
+              <?php 
+              $pSekolah = (float)($persenSekolah ?? 1.5);
+              $pGuru    = (float)($persenGuru ?? 1.0);
+
+              foreach ($siswaList as $idx => $s) : 
                 $saldo = (float)$s['saldo_akhir'];
-                $isLunas = ($saldo <= 0);
+                $potSekolah = round($saldo * ($pSekolah / 100));
+                $potGuru    = round($saldo * ($pGuru / 100));
+                $bersih     = $saldo - $potSekolah - $potGuru;
+                $isLunas    = ($saldo <= 0);
               ?>
                 <tr>
                   <td class="text-center font-weight-bold"><?= $idx + 1 ?></td>
                   <td class="text-center"><span class="badge badge-light border"><?= esc($s['nis']) ?></span></td>
                   <td class="font-weight-bold text-dark"><?= esc($s['nama_lengkap']) ?></td>
-                  <td class="text-right font-weight-bold <?= $isLunas ? 'text-muted' : 'text-success' ?>" style="font-size: 15px;">
+                  <td class="text-right font-weight-bold <?= $isLunas ? 'text-muted' : 'text-dark' ?>" style="font-size: 14px;">
                     Rp <?= number_format($saldo, 0, ',', '.') ?>
+                  </td>
+                  <td class="col-alokasi text-right font-weight-bold text-info" style="font-size: 14px;">
+                    Rp <?= number_format($potSekolah, 0, ',', '.') ?>
+                  </td>
+                  <td class="col-alokasi text-right font-weight-bold text-primary" style="font-size: 14px;">
+                    Rp <?= number_format($potGuru, 0, ',', '.') ?>
+                  </td>
+                  <td class="col-alokasi text-right font-weight-bold text-success" style="font-size: 15px;">
+                    Rp <?= number_format($bersih, 0, ',', '.') ?>
                   </td>
                   <td class="text-center">
                     <?php if ($isLunas) : ?>
@@ -162,7 +181,7 @@
                   </td>
                   <td class="text-center">
                     <?php if (!$isLunas) : ?>
-                      <button type="button" class="btn btn-sm btn-warning font-weight-bold btn-tarik-lunas shadow-sm" data-id="<?= $s['siswa_id'] ?>" data-nama="<?= esc($s['nama_lengkap']) ?>" data-saldo="Rp <?= number_format($saldo, 0, ',', '.') ?>">
+                      <button type="button" class="btn btn-sm btn-warning font-weight-bold btn-tarik-lunas shadow-sm" data-id="<?= $s['siswa_id'] ?>" data-nama="<?= esc($s['nama_lengkap']) ?>" data-saldo="Rp <?= number_format($saldo, 0, ',', '.') ?>" data-sekolah="Rp <?= number_format($potSekolah, 0, ',', '.') ?>" data-guru="Rp <?= number_format($potGuru, 0, ',', '.') ?>" data-bersih="Rp <?= number_format($bersih, 0, ',', '.') ?>">
                         <i class="fas fa-hand-holding-usd mr-1"></i> Tarik Lunas (Bagi Tabungan)
                       </button>
                     <?php else : ?>
@@ -174,7 +193,7 @@
 
               <?php if (empty($siswaList)) : ?>
                 <tr>
-                  <td colspan="6" class="text-center text-muted py-4"><i class="fas fa-info-circle mr-1"></i> Belum ada data siswa terdaftar pada kelas dan tahun ajaran ini.</td>
+                  <td colspan="9" class="text-center text-muted py-4"><i class="fas fa-info-circle mr-1"></i> Belum ada data siswa terdaftar pada kelas dan tahun ajaran ini.</td>
                 </tr>
               <?php endif; ?>
             </tbody>
@@ -192,25 +211,51 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Live toggle alokasi columns based on checkbox
+    const chkAlokasi = document.getElementById('include_alokasi_global');
+    function toggleAlokasiColumns() {
+        const isChecked = chkAlokasi ? chkAlokasi.checked : false;
+        document.querySelectorAll('.col-alokasi').forEach(el => {
+            el.style.display = isChecked ? '' : 'none';
+        });
+    }
+    if (chkAlokasi) {
+        chkAlokasi.addEventListener('change', toggleAlokasiColumns);
+        toggleAlokasiColumns();
+    }
+
     // Tombol Tarik Lunas Per Siswa
     document.querySelectorAll('.btn-tarik-lunas').forEach(btn => {
         btn.addEventListener('click', function() {
             const siswaId = this.dataset.id;
             const nama = this.dataset.nama;
             const saldoStr = this.dataset.saldo;
+            const sekolahStr = this.dataset.sekolah;
+            const guruStr = this.dataset.guru;
+            const bersihStr = this.dataset.bersih;
             const tahunId = document.getElementById('tahun_ajaran_id').value;
-            const isAlokasi = document.getElementById('include_alokasi_global').checked ? 1 : 0;
+            const isAlokasi = chkAlokasi && chkAlokasi.checked ? 1 : 0;
+
+            let detailMsg = `<div class="alert alert-light border text-left p-3 small mb-2">`;
+            detailMsg += `<strong>Saldo Bruto:</strong> ${saldoStr}<br>`;
+            if (isAlokasi) {
+                detailMsg += `<span class="text-info"><strong>Potongan Kas Sekolah (<?= esc($persenSekolah) ?>%):</strong> ${sekolahStr}</span><br>`;
+                detailMsg += `<span class="text-primary"><strong>Potongan Kas Guru (<?= esc($persenGuru) ?>%):</strong> ${guruStr}</span><br>`;
+                detailMsg += `<hr class="my-1"><span class="text-success font-weight-bold" style="font-size: 14px;"><strong>Uang Diterima Siswa (Net):</strong> ${bersihStr}</span>`;
+            } else {
+                detailMsg += `<span class="text-success font-weight-bold" style="font-size: 14px;"><strong>Uang Diterima Siswa (100%):</strong> ${saldoStr}</span>`;
+            }
+            detailMsg += `</div>`;
 
             Swal.fire({
                 title: 'Konfirmasi Penarikan Akhir Tahun',
-                html: `Apakah Anda yakin ingin menarik lunas sisa tabungan sebesar <strong>${saldoStr}</strong> milik siswa <strong>${nama}</strong>?<br><br>` +
-                      (isAlokasi ? `<div class="alert alert-warning py-2 mb-2 small text-left"><i class="fas fa-coins mr-1"></i> Potongan Alokasi Bagi Hasil Kas (Sekolah <?= esc($persenSekolah) ?>% & Guru <?= esc($persenGuru) ?>%) <strong>AKAN DICATAT</strong>.</div>` : '') +
-                      `<span class="text-muted small">Saldo akhir siswa akan menjadi <strong>Rp 0</strong>.</span>`,
+                html: `Apakah Anda yakin ingin melakukan penarikan tabungan akhir tahun untuk siswa <strong>${nama}</strong>?<br><br>` + detailMsg +
+                      `<span class="text-muted small">Setelah diproses, saldo tabungan siswa akan menjadi <strong>Rp 0 (Lunas)</strong>.</span>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ffc107',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: '<i class="fas fa-hand-holding-usd mr-1"></i> Ya, Tarik Lunas Sekarang',
+                confirmButtonText: '<i class="fas fa-hand-holding-usd mr-1"></i> Ya, Proses Penarikan Lunas',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
