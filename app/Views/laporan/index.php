@@ -36,6 +36,17 @@
                         </select>
                     </div>
                     
+                    <div id="filter-tahun-ajaran" class="col-lg-3 col-md-6 mb-2">
+                        <label class="small font-weight-bold">Tahun Ajaran</label>
+                        <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-control select2">
+                            <?php if (isset($tahunAjaran)) : foreach ($tahunAjaran as $t) : ?>
+                                <option value="<?= $t['id'] ?>" <?= (isset($selectedTahunId) && $selectedTahunId == $t['id']) ? 'selected' : '' ?>>
+                                    <?= esc($t['nama_tahun_ajaran']) ?> <?= ($t['status'] == 'aktif') ? '(Aktif)' : '' ?>
+                                </option>
+                            <?php endforeach; endif; ?>
+                        </select>
+                    </div>
+
                     <!-- Dynamic Filters -->
                     <div id="filter-per-siswa" class="col-lg-3 col-md-6 mb-2" style="display: none;">
                         <label class="small font-weight-bold">Pilih Siswa</label>

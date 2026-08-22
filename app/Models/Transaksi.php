@@ -31,11 +31,21 @@ class Transaksi extends Model
     /**
      * Mengambil data transaksi dengan join dan pagination.
      */
-    public function getTransaksiWithDetails($search = null, $perPage = 10)
+    public function getTransaksiWithDetails($search = null, $perPage = 10, $tahunAjaranId = null, $kelasId = null)
     {
         $builder = $this->select('transaksi_tabungan.*, siswa.nis, siswa.nama_lengkap as nama_siswa, pengguna.nama_lengkap as nama_pengguna')
                         ->join('siswa', 'siswa.id = transaksi_tabungan.siswa_id', 'left')
                         ->join('pengguna', 'pengguna.id = transaksi_tabungan.pengguna_id', 'left');
+
+        if ($tahunAjaranId || $kelasId) {
+            $builder->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.siswa_id = siswa.id', 'left');
+            if ($tahunAjaranId && $tahunAjaranId !== 'semua') {
+                $builder->where('riwayat_kelas_siswa.tahun_ajaran_id', $tahunAjaranId);
+            }
+            if ($kelasId && $kelasId !== 'semua') {
+                $builder->where('riwayat_kelas_siswa.kelas_id', $kelasId);
+            }
+        }
         
         // Fitur pencarian
         if ($search) {

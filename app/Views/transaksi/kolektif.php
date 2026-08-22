@@ -38,8 +38,22 @@
         </div>
         <div class="card-body">
           <div class="row">
+            <!-- Tahun Ajaran -->
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="tahun_ajaran_id"><i class="fas fa-calendar-alt mr-1"></i> Tahun Ajaran</label>
+                <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-control select2" onchange="window.location.href='?tahun_ajaran_id=' + this.value">
+                  <?php if (isset($tahunAjaran)) : foreach ($tahunAjaran as $t) : ?>
+                    <option value="<?= $t['id'] ?>" <?= (isset($selectedTahunId) && $selectedTahunId == $t['id']) ? 'selected' : '' ?>>
+                      <?= esc($t['nama_tahun_ajaran']) ?> <?= ($t['status'] == 'aktif') ? '(Aktif)' : '' ?>
+                    </option>
+                  <?php endforeach; endif; ?>
+                </select>
+              </div>
+            </div>
+
             <!-- Pilih Kelas -->
-            <div class="col-md-4">
+            <div class="col-md-3">
               <div class="form-group">
                 <label for="kelas_id"><i class="fas fa-school mr-1"></i> Pilih Kelas <span class="text-danger">*</span></label>
                 <select name="kelas_id" id="kelas_id" class="form-control select2" required>
@@ -52,12 +66,12 @@
             </div>
 
             <!-- Jenis Transaksi -->
-            <div class="col-md-3">
+            <div class="col-md-2">
               <div class="form-group">
                 <label for="jenis_transaksi"><i class="fas fa-exchange-alt mr-1"></i> Jenis Transaksi <span class="text-danger">*</span></label>
-                <select name="jenis_transaksi" id="jenis_transaksi" class="form-control" required>
-                  <option value="setor">🟢 Setor Tunai (Pemasukan)</option>
-                  <option value="tarik">🔴 Tarik Tunai (Penarikan)</option>
+                <select name="jenis_transaksi" id="jenis_transaksi" class="form-control select2" required>
+                  <option value="setor">🟢 Setor Tunai</option>
+                  <option value="tarik">🔴 Tarik Tunai</option>
                 </select>
               </div>
             </div>
@@ -65,16 +79,16 @@
             <!-- Tanggal -->
             <div class="col-md-2">
               <div class="form-group">
-                <label for="tanggal"><i class="fas fa-calendar-alt mr-1"></i> Tanggal</label>
+                <label for="tanggal"><i class="fas fa-calendar-day mr-1"></i> Tanggal</label>
                 <input type="date" name="tanggal" id="tanggal" class="form-control" value="<?= date('Y-m-d') ?>" required>
               </div>
             </div>
 
             <!-- Keterangan Umum -->
-            <div class="col-md-3">
+            <div class="col-md-2">
               <div class="form-group">
-                <label for="keterangan_umum"><i class="fas fa-comment-alt mr-1"></i> Catatan/Keterangan</label>
-                <input type="text" name="keterangan_umum" id="keterangan_umum" class="form-control" placeholder="Contoh: Setoran Hari Jumat">
+                <label for="keterangan_umum"><i class="fas fa-comment-alt mr-1"></i> Catatan/Ket</label>
+                <input type="text" name="keterangan_umum" id="keterangan_umum" class="form-control" placeholder="Opsional...">
               </div>
             </div>
           </div>
@@ -264,7 +278,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetId = kelasId;
         siswaContainer.innerHTML = `<tr><td colspan="7" class="text-center text-primary py-4"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Memuat daftar siswa...</td></tr>`;
 
-        fetch(`<?= base_url('transaksi/get-siswa-by-kelas') ?>/${targetId}`, {
+        const tahunSelect = document.getElementById('tahun_ajaran_id');
+        const tahunId = tahunSelect ? tahunSelect.value : '';
+        fetch(`<?= base_url('transaksi/get-siswa-by-kelas') ?>/${targetId}?tahun_ajaran_id=${tahunId}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }

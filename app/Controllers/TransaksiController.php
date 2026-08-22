@@ -21,27 +21,54 @@ class TransaksiController extends BaseController
 
     public function index()
     {
-        $perPage = $this->request->getGet('per_page') ?: 10;
-        $search = $this->request->getGet('q');
+        $perPage         = $this->request->getGet('per_page') ?: 10;
+        $search          = $this->request->getGet('q');
+        $selectedTahunId = $this->request->getGet('tahun_ajaran_id');
+        $selectedKelasId = $this->request->getGet('kelas_id');
 
-        $statsData = $this->db->table('transaksi_tabungan')
+        $tahunAjaranModel = new \App\Models\TahunAjaran();
+        $kelasModel       = new \App\Models\Kelas();
+
+        $tahunAjaranList = $tahunAjaranModel->orderBy('id', 'DESC')->findAll();
+        $tahunAktif      = $tahunAjaranModel->where('status', 'aktif')->first();
+
+        if (!$selectedTahunId && $tahunAktif) {
+            $selectedTahunId = $tahunAktif['id'];
+        }
+
+        $statsBuilder = $this->db->table('transaksi_tabungan')
             ->select('
-                COUNT(id) as total_transaksi,
-                COALESCE(SUM(CASE WHEN jenis_transaksi = "setor" THEN jumlah ELSE 0 END), 0) as total_setor,
-                COALESCE(SUM(CASE WHEN jenis_transaksi = "tarik" THEN jumlah ELSE 0 END), 0) as total_tarik
-            ')
-            ->get()->getRowArray();
+                COUNT(transaksi_tabungan.id) as total_transaksi,
+                COALESCE(SUM(CASE WHEN transaksi_tabungan.jenis_transaksi = "setor" THEN transaksi_tabungan.jumlah ELSE 0 END), 0) as total_setor,
+                COALESCE(SUM(CASE WHEN transaksi_tabungan.jenis_transaksi = "tarik" THEN transaksi_tabungan.jumlah ELSE 0 END), 0) as total_tarik
+            ');
 
+        if ($selectedTahunId || $selectedKelasId) {
+            $statsBuilder->join('siswa', 'siswa.id = transaksi_tabungan.siswa_id', 'left')
+                         ->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.siswa_id = siswa.id', 'left');
+            if ($selectedTahunId && $selectedTahunId !== 'semua') {
+                $statsBuilder->where('riwayat_kelas_siswa.tahun_ajaran_id', $selectedTahunId);
+            }
+            if ($selectedKelasId && $selectedKelasId !== 'semua') {
+                $statsBuilder->where('riwayat_kelas_siswa.kelas_id', $selectedKelasId);
+            }
+        }
+
+        $statsData = $statsBuilder->get()->getRowArray();
         $statsData['total_kas'] = $statsData['total_setor'] - $statsData['total_tarik'];
 
         $data = [
-            'title'       => 'Riwayat Transaksi Tabungan',
-            'transaksi'   => $this->transaksiModel->getTransaksiWithDetails($search, $perPage),
-            'pager'       => $this->transaksiModel->pager,
-            'perPage'     => $perPage,
-            'search'      => $search,
-            'siswa'       => $this->siswaModel->where('status_siswa', 'aktif')->findAll(),
-            'stats'       => $statsData
+            'title'           => 'Riwayat Transaksi Tabungan',
+            'transaksi'       => $this->transaksiModel->getTransaksiWithDetails($search, $perPage, $selectedTahunId, $selectedKelasId),
+            'pager'           => $this->transaksiModel->pager,
+            'perPage'         => $perPage,
+            'search'          => $search,
+            'siswa'           => $this->siswaModel->where('status_siswa', 'aktif')->findAll(),
+            'stats'           => $statsData,
+            'tahunAjaran'     => $tahunAjaranList,
+            'selectedTahunId' => $selectedTahunId,
+            'kelas'           => $kelasModel->findAll(),
+            'selectedKelasId' => $selectedKelasId
         ];
         return view('transaksi/index', $data);
     }
@@ -130,15 +157,23 @@ class TransaksiController extends BaseController
      */
     public function kolektif()
     {
-        $kelasModel = new \App\Models\Kelas();
+        $kelasModel       = new \App\Models\Kelas();
         $tahunAjaranModel = new \App\Models\TahunAjaran();
 
-        $tahunAktif = $tahunAjaranModel->where('status', 'aktif')->first();
+        $tahunAjaranList = $tahunAjaranModel->orderBy('id', 'DESC')->findAll();
+        $tahunAktif      = $tahunAjaranModel->where('status', 'aktif')->first();
+
+        $selectedTahunId = $this->request->getGet('tahun_ajaran_id');
+        if (!$selectedTahunId && $tahunAktif) {
+            $selectedTahunId = $tahunAktif['id'];
+        }
 
         $data = [
-            'title'       => 'Pencatatan Transaksi Kolektif',
-            'kelas'       => $kelasModel->getAllKelasWithWali(),
-            'tahunAktif'  => $tahunAktif
+            'title'           => 'Pencatatan Transaksi Kolektif',
+            'kelas'           => $kelasModel->getAllKelasWithWali($selectedTahunId),
+            'tahunAktif'      => $tahunAktif,
+            'tahunAjaran'     => $tahunAjaranList,
+            'selectedTahunId' => $selectedTahunId
         ];
         return view('transaksi/kolektif', $data);
     }
@@ -149,12 +184,17 @@ class TransaksiController extends BaseController
     public function getSiswaByKelas($kelasId = null)
     {
         $siswaList = [];
+        $tahunId   = $this->request->getGet('tahun_ajaran_id');
+
         if ($kelasId && $kelasId !== 'all') {
             $tahunAjaranModel = new \App\Models\TahunAjaran();
-            $tahunAktif = $tahunAjaranModel->where('status', 'aktif')->first();
-            if ($tahunAktif) {
+            if (!$tahunId) {
+                $tahunAktif = $tahunAjaranModel->where('status', 'aktif')->first();
+                $tahunId    = $tahunAktif['id'] ?? null;
+            }
+            if ($tahunId) {
                 $riwayatModel = new \App\Models\RiwayatKelasSiswa();
-                $siswaList = $riwayatModel->getSiswaByKelasTahun($kelasId, $tahunAktif['id']);
+                $siswaList    = $riwayatModel->getSiswaByKelasTahun($kelasId, $tahunId);
             }
         }
 

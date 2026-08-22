@@ -23,13 +23,18 @@ class KelasController extends BaseController
     public function index()
     {
         $tahunAjaranModel = new \App\Models\TahunAjaran();
-        $tahunAktif = $tahunAjaranModel->where('status', 'aktif')->first();
-        $tahunId = $tahunAktif['id'] ?? null;
+        $tahunAjaranList  = $tahunAjaranModel->orderBy('id', 'DESC')->findAll();
+        $tahunAktif       = $tahunAjaranModel->where('status', 'aktif')->first();
 
-        $kelases = $this->kelas->getAllKelasWithWali($tahunId);
+        $selectedTahunId  = $this->request->getGet('tahun_ajaran_id');
+        if (!$selectedTahunId && $tahunAktif) {
+            $selectedTahunId = $tahunAktif['id'];
+        }
+
+        $kelases = $this->kelas->getAllKelasWithWali($selectedTahunId);
 
         $totalKelas = count($kelases);
-        $totalWali = 0;
+        $totalWali  = 0;
         $totalSiswa = 0;
 
         foreach ($kelases as $k) {
@@ -40,10 +45,12 @@ class KelasController extends BaseController
         }
 
         $data = [
-            'title'      => 'Manajemen Data Kelas',
-            'kelas'      => $kelases,
-            'tahunAktif' => $tahunAktif,
-            'stats'      => [
+            'title'           => 'Manajemen Data Kelas',
+            'kelas'           => $kelases,
+            'tahunAktif'      => $tahunAktif,
+            'tahunAjaran'     => $tahunAjaranList,
+            'selectedTahunId' => $selectedTahunId,
+            'stats'           => [
                 'total_kelas' => $totalKelas,
                 'total_wali'  => $totalWali,
                 'total_siswa' => $totalSiswa

@@ -91,7 +91,31 @@
             <!-- Filter Bar -->
             <form action="" method="get" class="mb-4" id="formFilterTransaksi">
                 <div class="row align-items-end">
-                    <div class="col-md-8 mb-2">
+                    <div class="col-md-3 mb-2">
+                        <label for="tahun_ajaran_id" class="small font-weight-bold">Tahun Ajaran</label>
+                        <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-control form-control-sm select2" onchange="this.form.submit()">
+                            <option value="semua" <?= ($selectedTahunId == 'semua') ? 'selected' : '' ?>>📋 Semua Tahun Ajaran</option>
+                            <?php foreach ($tahunAjaran as $t) : ?>
+                                <option value="<?= $t['id'] ?>" <?= ($selectedTahunId == $t['id']) ? 'selected' : '' ?>>
+                                    <?= esc($t['nama_tahun_ajaran']) ?> <?= ($t['status'] == 'aktif') ? '(Aktif)' : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <label for="kelas_id" class="small font-weight-bold">Filter Kelas</label>
+                        <select name="kelas_id" id="kelas_id" class="form-control form-control-sm select2" onchange="this.form.submit()">
+                            <option value="semua" <?= ($selectedKelasId == 'semua') ? 'selected' : '' ?>>-- Semua Kelas --</option>
+                            <?php foreach ($kelas as $k) : ?>
+                                <option value="<?= $k['id'] ?>" <?= ($selectedKelasId == $k['id']) ? 'selected' : '' ?>>
+                                    <?= esc($k['nama_kelas']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-2">
                         <label for="q" class="small font-weight-bold">Cari Transaksi</label>
                         <div class="input-group input-group-sm">
                             <input type="text" name="q" id="q" class="form-control" placeholder="Cari Kode / NIS / Nama Siswa / Petugas..." value="<?= esc($search ?? '') ?>">
@@ -102,13 +126,13 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4 mb-2">
-                        <label for="per_page" class="small font-weight-bold">Tampilkan Data</label>
+                    <div class="col-md-2 mb-2">
+                        <label for="per_page" class="small font-weight-bold">Tampilkan</label>
                         <select name="per_page" id="per_page" class="form-control form-control-sm select2" onchange="this.form.submit()">
-                            <option value="10" <?= ($perPage == '10') ? 'selected' : '' ?>>10 Data Per Halaman</option>
-                            <option value="25" <?= ($perPage == '25') ? 'selected' : '' ?>>25 Data Per Halaman</option>
-                            <option value="50" <?= ($perPage == '50') ? 'selected' : '' ?>>50 Data Per Halaman</option>
-                            <option value="100" <?= ($perPage == '100') ? 'selected' : '' ?>>100 Data Per Halaman</option>
+                            <option value="10" <?= ($perPage == '10') ? 'selected' : '' ?>>10 Data</option>
+                            <option value="25" <?= ($perPage == '25') ? 'selected' : '' ?>>25 Data</option>
+                            <option value="50" <?= ($perPage == '50') ? 'selected' : '' ?>>50 Data</option>
+                            <option value="100" <?= ($perPage == '100') ? 'selected' : '' ?>>100 Data</option>
                         </select>
                     </div>
                 </div>

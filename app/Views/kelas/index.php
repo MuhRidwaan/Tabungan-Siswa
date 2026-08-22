@@ -73,6 +73,24 @@
             </div>
         </div>
         <div class="card-body">
+            <!-- Filter Bar Tahun Ajaran -->
+            <form action="" method="get" class="mb-3">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <div class="form-group mb-0 d-flex align-items-center">
+                            <label for="tahun_ajaran_id" class="small font-weight-bold mr-2 mb-0 text-nowrap"><i class="fas fa-calendar-alt text-primary mr-1"></i> Filter Tahun Ajaran:</label>
+                            <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-control form-control-sm select2" onchange="this.form.submit()">
+                                <?php foreach ($tahunAjaran as $t) : ?>
+                                    <option value="<?= $t['id'] ?>" <?= ($selectedTahunId == $t['id']) ? 'selected' : '' ?>>
+                                        <?= esc($t['nama_tahun_ajaran']) ?> <?= ($t['status'] == 'aktif') ? '(Aktif)' : '' ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
             <div class="table-responsive">
                 <table id="tableKelas" class="table table-bordered table-striped table-hover mb-0">
                     <thead class="bg-light">
