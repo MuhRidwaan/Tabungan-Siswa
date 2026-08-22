@@ -4,23 +4,24 @@
     <meta charset="utf-8">
     <title>Buku Tabungan - <?= esc($siswa['nama_lengkap']) ?></title>
     <style>
-        body { font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #1e293b; margin: 0; padding: 0; }
-        .kop-surat { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 15px; }
-        .kop-title h2 { margin: 0; font-size: 16px; color: #0f172a; text-transform: uppercase; }
-        .kop-title h3 { margin: 3px 0; font-size: 13px; color: #0d9488; }
-        .kop-title p { margin: 0; font-size: 10px; color: #64748b; }
-        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; }
-        .info-table td { padding: 4px 6px; }
-        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .data-table th { background-color: #f1f5f9; color: #0f172a; font-weight: bold; border: 1px solid #cbd5e1; padding: 6px; text-align: center; font-size: 10px; }
-        .data-table td { border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 10px; }
+        @page { margin: 12mm 10mm 12mm 10mm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 10px; color: #1e293b; margin: 0; padding: 0; }
+        .kop-surat { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-bottom: 12px; }
+        .kop-title h2 { margin: 0; font-size: 15px; color: #0f172a; text-transform: uppercase; }
+        .kop-title h3 { margin: 2px 0; font-size: 12px; color: #0d9488; }
+        .kop-title p { margin: 0; font-size: 9px; color: #64748b; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10px; }
+        .info-table td { padding: 3px 5px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; table-layout: fixed; word-wrap: break-word; }
+        .data-table th { background-color: #f1f5f9; color: #0f172a; font-weight: bold; border: 1px solid #cbd5e1; padding: 5px 4px; text-align: center; font-size: 9px; }
+        .data-table td { border: 1px solid #cbd5e1; padding: 4px 4px; font-size: 9px; word-break: break-word; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .text-success { color: #16a34a; font-weight: bold; }
         .text-danger { color: #dc2626; font-weight: bold; }
         .text-primary { color: #0284c7; font-weight: bold; }
-        .footer-ttd { width: 100%; margin-top: 30px; }
-        .footer-ttd td { text-align: center; vertical-align: top; font-size: 11px; }
+        .footer-ttd { width: 100%; margin-top: 20px; page-break-inside: avoid; }
+        .footer-ttd td { text-align: center; vertical-align: top; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -50,13 +51,13 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th width="30">No</th>
-                <th width="100">Kode Transaksi</th>
-                <th width="100">Tanggal</th>
-                <th width="50">Jenis</th>
-                <th width="90" class="text-right">Jumlah (Rp)</th>
-                <th width="90" class="text-right">Saldo (Rp)</th>
-                <th>Keterangan</th>
+                <th width="5%">No</th>
+                <th width="21%">Kode Transaksi</th>
+                <th width="16%">Tanggal</th>
+                <th width="10%">Jenis</th>
+                <th width="15%" class="text-right">Jumlah (Rp)</th>
+                <th width="15%" class="text-right">Saldo (Rp)</th>
+                <th width="18%">Keterangan</th>
             </tr>
         </thead>
         <tbody>
