@@ -102,7 +102,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 p-0 text-md-right text-left">
-                    <a href="<?= base_url('siswa/export?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $selectedKelasId) ?>" class="btn btn-info">
+                    <a href="<?= base_url('siswa/export?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $selectedKelasId . '&status_siswa=' . $statusFilter) ?>" class="btn btn-info">
                         <i class="fas fa-file-export mr-1"></i> Export Data Siswa (Excel)
                     </a>
                 </div>

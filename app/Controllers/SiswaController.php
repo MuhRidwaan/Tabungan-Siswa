@@ -480,12 +480,13 @@ class SiswaController extends BaseController
     }
 
     /**
-     * Export Data Siswa ke File CSV
+     * Export Data Siswa ke File Native Microsoft Excel (.xls)
      */
     public function export()
     {
         $selectedKelasId = $this->request->getGet('kelas_id');
         $selectedTahunId = $this->request->getGet('tahun_ajaran_id');
+        $statusFilter    = $this->request->getGet('status_siswa') ?? 'aktif';
 
         $tahunAktif = $this->tahunAjaranModel->where('status', 'aktif')->first();
         if (!$selectedTahunId && $tahunAktif) {
@@ -496,33 +497,48 @@ class SiswaController extends BaseController
                               ->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.siswa_id = siswa.id AND riwayat_kelas_siswa.tahun_ajaran_id = ' . $this->db->escape($selectedTahunId), 'left')
                               ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left');
 
+        if ($statusFilter && $statusFilter !== 'semua') {
+            $builder->where('siswa.status_siswa', $statusFilter);
+        }
+
         if ($selectedKelasId) {
             $builder->where('riwayat_kelas_siswa.kelas_id', $selectedKelasId);
         }
 
         $list = $builder->findAll();
 
-        $filename = "data_siswa_" . date('Ymd_His') . ".csv";
-        header('Content-Type: text/csv; charset=utf-8');
+        $filename = "export_data_siswa_" . date('Ymd_His') . ".xls";
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $filename);
 
-        $output = fopen('php://output', 'w');
-        fputcsv($output, ['NIS', 'Nama Lengkap', 'Jenis Kelamin', 'Tanggal Lahir', 'Alamat', 'Kelas', 'Status', 'Saldo Tabungan (Rp)']);
+        echo "<html><head><meta charset='utf-8'></head><body>";
+        echo "<h3 style='font-family:sans-serif;'>DAFTAR DATA SISWA</h3>";
+        echo "<p style='font-family:sans-serif;'>Tahun Ajaran: " . esc($tahunAktif['nama_tahun_ajaran'] ?? 'Aktif') . " | Tanggal Export: " . date('d-m-Y H:i') . "</p>";
+        echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px;'>";
+        echo "<tr style='background-color:#0277BD; color:#FFFFFF; font-weight:bold; text-align:center;'>";
+        echo "<th>No</th><th>NIS</th><th>Nama Lengkap</th><th>Jenis Kelamin</th><th>Tanggal Lahir</th><th>Alamat</th><th>Kelas</th><th>Status</th><th>Saldo Tabungan (Rp)</th>";
+        echo "</tr>";
 
-        foreach ($list as $s) {
-            fputcsv($output, [
-                $s['nis'],
-                $s['nama_lengkap'],
-                $s['jenis_kelamin'],
-                $s['tanggal_lahir'],
-                $s['alamat'],
-                $s['nama_kelas'] ?? 'Belum Ditempatkan',
-                ucfirst($s['status_siswa']),
-                number_format($s['saldo_akhir'], 0, ',', '.')
-            ]);
+        foreach ($list as $idx => $s) {
+            echo "<tr>";
+            echo "<td align='center'>" . ($idx + 1) . "</td>";
+            echo "<td align='center'>'" . esc($s['nis']) . "</td>";
+            echo "<td>" . esc($s['nama_lengkap']) . "</td>";
+            echo "<td align='center'>" . esc($s['jenis_kelamin']) . "</td>";
+            echo "<td align='center'>" . esc($s['tanggal_lahir']) . "</td>";
+            echo "<td>" . esc($s['alamat']) . "</td>";
+            echo "<td>" . esc($s['nama_kelas'] ?? 'Belum Ditempatkan') . "</td>";
+            echo "<td align='center'>" . ucfirst(esc($s['status_siswa'])) . "</td>";
+            echo "<td align='right'>" . number_format($s['saldo_akhir'] ?? 0, 0, ',', '.') . "</td>";
+            echo "</tr>";
         }
 
-        fclose($output);
+        if (empty($list)) {
+            echo "<tr><td colspan='9' align='center'>Tidak ada data siswa yang sesuai filter.</td></tr>";
+        }
+
+        echo "</table>";
+        echo "</body></html>";
         exit;
     }
 }
