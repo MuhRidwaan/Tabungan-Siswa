@@ -89,4 +89,30 @@ class Transaksi extends Model
                     ->orderBy('tanggal_transaksi', 'ASC')
                     ->findAll();
     }
+
+    /**
+     * Mengambil ledger transaksi lengkap seorang siswa dengan filter tanggal & jenis transaksi
+     */
+    public function getLedgerSiswa($siswaId, $tglAwal = null, $tglAkhir = null, $jenisFilter = null)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table($this->table)
+            ->select('transaksi_tabungan.*, pengguna.nama_lengkap as nama_petugas')
+            ->join('pengguna', 'pengguna.id = transaksi_tabungan.pengguna_id', 'left')
+            ->where('transaksi_tabungan.siswa_id', $siswaId);
+
+        if ($tglAwal) {
+            $builder->where('DATE(transaksi_tabungan.tanggal_transaksi) >=', $tglAwal);
+        }
+        if ($tglAkhir) {
+            $builder->where('DATE(transaksi_tabungan.tanggal_transaksi) <=', $tglAkhir);
+        }
+        if ($jenisFilter && in_array($jenisFilter, ['setor', 'tarik'])) {
+            $builder->where('transaksi_tabungan.jenis_transaksi', $jenisFilter);
+        }
+
+        return $builder->orderBy('transaksi_tabungan.tanggal_transaksi', 'ASC')
+                       ->orderBy('transaksi_tabungan.id', 'ASC')
+                       ->get()->getResultArray();
+    }
 }
