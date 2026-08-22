@@ -28,4 +28,36 @@ class RiwayatKelasSiswa extends Model
             ->orderBy('siswa.nama_lengkap', 'ASC')
             ->findAll();
     }
+
+    /**
+     * Mengambil data kelas & tahun ajaran aktif siswa
+     */
+    public function getRiwayatAktifSiswa($siswaId, $tahunAjaranId = null)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table($this->table)
+            ->select('kelas.nama_kelas, kelas.tingkat, tahun_ajaran.nama_tahun_ajaran, pengguna.nama_lengkap as nama_wali_kelas')
+            ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left')
+            ->join('tahun_ajaran', 'tahun_ajaran.id = riwayat_kelas_siswa.tahun_ajaran_id', 'left')
+            ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left')
+            ->where('riwayat_kelas_siswa.siswa_id', $siswaId);
+
+        if ($tahunAjaranId) {
+            $builder->where('riwayat_kelas_siswa.tahun_ajaran_id', $tahunAjaranId);
+        }
+
+        $res = $builder->get()->getRowArray();
+        if (!$res) {
+            $res = $db->table($this->table)
+                ->select('kelas.nama_kelas, kelas.tingkat, tahun_ajaran.nama_tahun_ajaran, pengguna.nama_lengkap as nama_wali_kelas')
+                ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left')
+                ->join('tahun_ajaran', 'tahun_ajaran.id = riwayat_kelas_siswa.tahun_ajaran_id', 'left')
+                ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left')
+                ->where('riwayat_kelas_siswa.siswa_id', $siswaId)
+                ->orderBy('riwayat_kelas_siswa.id', 'DESC')
+                ->get()->getRowArray();
+        }
+
+        return $res;
+    }
 }
