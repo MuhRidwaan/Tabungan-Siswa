@@ -78,7 +78,7 @@
                             <th>Nama Lengkap</th>
                             <th width="180">Username</th>
                             <th width="130" class="text-center">Role / Hak Akses</th>
-                            <th width="150" class="text-center">Aksi</th>
+                            <th width="150" class="text-center text-nowrap">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -106,17 +106,19 @@
                                         <span class="badge badge-info px-3 py-1"><i class="fas fa-chalkboard-teacher mr-1"></i>Guru</span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="text-center">
-                                    <a href="<?= base_url('guru/' . $item['id'] . '/edit') ?>" class="btn btn-xs btn-warning mr-1" title="Edit Data">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <form action="<?= base_url('guru/' . $item['id']) ?>" method="post" class="d-inline">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="btn btn-xs btn-danger btn-delete-swal" title="Hapus Data">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                <td class="text-center text-nowrap">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="<?= base_url('guru/' . $item['id'] . '/edit') ?>" class="btn btn-warning" title="Edit Data">
+                                            <i class="fas fa-edit mr-1"></i> Edit
+                                        </a>
+                                        <form action="<?= base_url('guru/' . $item['id']) ?>" method="post" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="button" class="btn btn-danger btn-delete-swal" title="Hapus Data" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

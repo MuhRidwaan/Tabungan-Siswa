@@ -100,7 +100,7 @@
                             <th width="120" class="text-center">Tingkat</th>
                             <th>Wali Kelas</th>
                             <th width="140" class="text-center">Total Murid</th>
-                            <th width="200" class="text-center">Aksi</th>
+                            <th width="220" class="text-center text-nowrap">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -130,20 +130,22 @@
                                         <i class="fas fa-user-graduate mr-1"></i><?= number_format($item['total_siswa'] ?? 0) ?> Siswa
                                     </span>
                                 </td>
-                                <td class="text-center">
-                                    <a href="<?= base_url('manajemen-kelas?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $item['id']) ?>" class="btn btn-xs btn-info mr-1" title="Atur Siswa di Kelas Ini">
-                                        <i class="fas fa-user-cog mr-1"></i> Kelola Murid
-                                    </a>
-                                    <a href="<?= base_url('kelas/' . $item['id'] . '/edit') ?>" class="btn btn-xs btn-warning mr-1" title="Edit Data Kelas">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <form action="<?= base_url('kelas/' . $item['id']) ?>" method="post" class="d-inline">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="btn btn-xs btn-danger btn-delete-swal" title="Hapus Data Kelas">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                <td class="text-center text-nowrap">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="<?= base_url('manajemen-kelas?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $item['id']) ?>" class="btn btn-info" title="Atur Siswa di Kelas Ini">
+                                            <i class="fas fa-user-cog mr-1"></i> Kelola
+                                        </a>
+                                        <a href="<?= base_url('kelas/' . $item['id'] . '/edit') ?>" class="btn btn-warning" title="Edit Data Kelas">
+                                            <i class="fas fa-edit mr-1"></i> Edit
+                                        </a>
+                                        <form action="<?= base_url('kelas/' . $item['id']) ?>" method="post" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="button" class="btn btn-danger btn-delete-swal" title="Hapus Data Kelas" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

@@ -180,7 +180,7 @@
                             <th width="60" class="text-center">L/P</th>
                             <th width="180" class="text-right">Saldo Tabungan</th>
                             <th width="90" class="text-center">Status</th>
-                            <th width="210" class="text-center">Aksi Cepat</th>
+                            <th width="240" class="text-center text-nowrap">Aksi Cepat</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -223,28 +223,30 @@
                                         <span class="badge badge-danger"><?= ucfirst($item['status_siswa']) ?></span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="text-center">
-                                    <a href="<?= base_url('siswa/' . $item['id'] . '/detail') ?>" class="btn btn-xs btn-info mr-1" title="Lihat Detail Buku Tabungan Siswa">
-                                        <i class="fas fa-wallet mr-1"></i> Detail
-                                    </a>
-                                    <button type="button" class="btn btn-xs btn-success btn-quick-setor mr-1" 
-                                            data-siswa-id="<?= $item['id'] ?>" 
-                                            data-nama="<?= esc($item['nama_lengkap']) ?>" 
-                                            data-nis="<?= esc($item['nis']) ?>" 
-                                            data-saldo="<?= $item['saldo_akhir'] ?? 0 ?>"
-                                            title="Setor/Tarik Cepat">
-                                        <i class="fas fa-coins mr-1"></i> Setor/Tarik
-                                    </button>
-                                    <a href="<?= base_url('siswa/' . $item['id'] . '/edit') ?>" class="btn btn-xs btn-warning mr-1" title="Edit Data Siswa">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="<?= base_url('siswa/' . $item['id']) ?>" method="post" class="d-inline">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="btn btn-xs btn-danger btn-delete-swal" title="Hapus Data Siswa">
-                                            <i class="fas fa-trash"></i>
+                                <td class="text-center text-nowrap">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="<?= base_url('siswa/' . $item['id'] . '/detail') ?>" class="btn btn-info" title="Lihat Detail Buku Tabungan Siswa">
+                                            <i class="fas fa-wallet mr-1"></i> Detail
+                                        </a>
+                                        <button type="button" class="btn btn-success btn-quick-setor" 
+                                                data-siswa-id="<?= $item['id'] ?>" 
+                                                data-nama="<?= esc($item['nama_lengkap']) ?>" 
+                                                data-nis="<?= esc($item['nis']) ?>" 
+                                                data-saldo="<?= $item['saldo_akhir'] ?? 0 ?>"
+                                                title="Setor/Tarik Cepat">
+                                            <i class="fas fa-coins mr-1"></i> Setor/Tarik
                                         </button>
-                                    </form>
+                                        <a href="<?= base_url('siswa/' . $item['id'] . '/edit') ?>" class="btn btn-warning" title="Edit Data Siswa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="<?= base_url('siswa/' . $item['id']) ?>" method="post" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="button" class="btn btn-danger btn-delete-swal" title="Hapus Data Siswa" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

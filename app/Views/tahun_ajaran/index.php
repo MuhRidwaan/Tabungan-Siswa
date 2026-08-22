@@ -68,7 +68,7 @@
                             <th width="140" class="text-center">Tahun Mulai</th>
                             <th width="140" class="text-center">Tahun Selesai</th>
                             <th width="140" class="text-center">Status</th>
-                            <th width="220" class="text-center">Aksi</th>
+                            <th width="220" class="text-center text-nowrap">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,22 +89,24 @@
                                         <span class="badge badge-secondary px-3 py-2">Tidak Aktif</span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="text-center">
-                                    <?php if ($item['status'] != 'aktif') : ?>
-                                        <a href="<?= base_url('tahun-ajaran/set-active/' . $item['id']) ?>" class="btn btn-xs btn-success mr-1" title="Set Sebagai TA Aktif">
-                                            <i class="fas fa-toggle-on mr-1"></i> Aktifkan
+                                <td class="text-center text-nowrap">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <?php if ($item['status'] != 'aktif') : ?>
+                                            <a href="<?= base_url('tahun-ajaran/set-active/' . $item['id']) ?>" class="btn btn-success" title="Set Sebagai TA Aktif">
+                                                <i class="fas fa-toggle-on mr-1"></i> Aktifkan
+                                            </a>
+                                        <?php endif; ?>
+                                        <a href="<?= base_url('tahun-ajaran/' . $item['id'] . '/edit') ?>" class="btn btn-warning" title="Edit Data">
+                                            <i class="fas fa-edit mr-1"></i> Edit
                                         </a>
-                                    <?php endif; ?>
-                                    <a href="<?= base_url('tahun-ajaran/' . $item['id'] . '/edit') ?>" class="btn btn-xs btn-warning mr-1" title="Edit Data">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <form action="<?= base_url('tahun-ajaran/' . $item['id']) ?>" method="post" class="d-inline">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="btn btn-xs btn-danger btn-delete-swal" title="Hapus Data">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                        <form action="<?= base_url('tahun-ajaran/' . $item['id']) ?>" method="post" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="button" class="btn btn-danger btn-delete-swal" title="Hapus Data" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
