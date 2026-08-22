@@ -65,8 +65,8 @@ $(function() {
 
   // Auto initialize DataTables
   if ($.fn.DataTable) {
-    // 1. Full Client-Side DataTables (.data-table or .table-datatable)
-    $('.data-table, .table-datatable').each(function() {
+    // 1. Full Client-Side DataTables (.data-table, .table-datatable, table.table)
+    $('.data-table, .table-datatable, table.table-striped:not(.data-table-server):not(.no-datatable), table.table-bordered:not(.data-table-server):not(.no-datatable)').each(function() {
       if (!$.fn.DataTable.isDataTable(this)) {
         $(this).DataTable({
           "responsive": true,
