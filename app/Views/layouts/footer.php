@@ -110,8 +110,32 @@ $(function() {
           "order": []
         });
       }
-    });
   }
+
+  // DataTables Print Handler: Show ALL rows when printing, restore afterwards
+  window.onbeforeprint = function() {
+    if ($.fn.DataTable) {
+      $('.data-table, .table-datatable, table.dataTable').each(function() {
+        if ($.fn.DataTable.isDataTable(this)) {
+          var dt = $(this).DataTable();
+          $(this).data('orig-page-len', dt.page.len());
+          dt.page.len(-1).draw();
+        }
+      });
+    }
+  };
+
+  window.onafterprint = function() {
+    if ($.fn.DataTable) {
+      $('.data-table, .table-datatable, table.dataTable').each(function() {
+        if ($.fn.DataTable.isDataTable(this)) {
+          var dt = $(this).DataTable();
+          var origLen = $(this).data('orig-page-len') || 10;
+          dt.page.len(origLen).draw();
+        }
+      });
+    }
+  };
 });
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -44,7 +44,7 @@
     </div>
 
     <!-- Profile & Header Detail Card -->
-    <div class="card card-info card-outline shadow-sm mb-4">
+    <div class="card card-info card-outline shadow-sm mb-4 no-print">
         <div class="card-header py-3 bg-light">
             <h3 class="card-title font-weight-bold text-dark mb-0">
                 <i class="fas fa-id-card text-info mr-2"></i>Informasi Profil & Keuangan Siswa

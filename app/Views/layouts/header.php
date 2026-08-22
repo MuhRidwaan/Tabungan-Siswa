@@ -253,6 +253,53 @@
       font-weight: 700 !important;
       border-bottom: 2px solid #E2E8F0 !important;
     }
+
+    /* Clean Media Print CSS */
+    @media print {
+      .no-print,
+      .main-header,
+      .main-sidebar,
+      .main-footer,
+      .content-header,
+      .dataTables_length,
+      .dataTables_filter,
+      .dataTables_info,
+      .dataTables_paginate,
+      .breadcrumb,
+      .card-header,
+      .btn,
+      form,
+      nav {
+        display: none !important;
+      }
+
+      body, .wrapper, .content-wrapper {
+        background: #FFFFFF !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .card {
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      .table-responsive {
+        overflow: visible !important;
+      }
+
+      .print-header {
+        display: block !important;
+      }
+
+      table.dataTable {
+        width: 100% !important;
+      }
+
+      table.dataTable tbody tr {
+        display: table-row !important;
+      }
+    }
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
