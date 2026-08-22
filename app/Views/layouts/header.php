@@ -86,17 +86,17 @@
       border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
 
-    /* Brand Logo Area (#0D9488 Solid Teal) */
+    /* Brand Logo Area (Dark Slate #0F172A matching sidebar) */
     .main-sidebar .brand-link {
-      background-color: #0D9488 !important;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.15) !important;
+      background: #0F172A !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
       padding: 0.85rem 1rem !important;
       transition: all 0.3s ease !important;
     }
 
     .main-sidebar .brand-link:hover {
-      background-color: #0F766E !important;
-      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.2) !important;
+      background: #1E293B !important;
+      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.05) !important;
     }
 
     .main-sidebar .brand-link .brand-text {
