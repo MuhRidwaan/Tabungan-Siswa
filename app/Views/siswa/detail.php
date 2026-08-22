@@ -30,9 +30,15 @@
                 <i class="fas fa-list-alt mr-1"></i> Transaksi Instan
             </a>
         </div>
-        <div>
-            <button onclick="window.print()" class="btn btn-info font-weight-bold shadow-sm mb-2">
-                <i class="fas fa-print mr-1"></i> Cetak Buku Tabungan
+        <div class="d-flex flex-wrap align-items-center">
+            <a href="<?= base_url('siswa/' . $siswa['id'] . '/export-detail') ?>" class="btn btn-outline-success font-weight-bold shadow-sm mb-2 mr-2">
+                <i class="fas fa-file-excel mr-1"></i> Export Excel
+            </a>
+            <button onclick="window.print()" class="btn btn-info font-weight-bold shadow-sm mb-2 mr-2">
+                <i class="fas fa-file-pdf mr-1"></i> Cetak PDF / Print
+            </button>
+            <button type="button" class="btn text-white font-weight-bold shadow-sm mb-2" data-toggle="modal" data-target="#modalWA" style="background-color: #25D366; border-color: #25D366;">
+                <i class="fab fa-whatsapp mr-1"></i> Kirim ke WhatsApp
             </button>
         </div>
     </div>
@@ -58,7 +64,7 @@
                 <!-- Avatar & Identity -->
                 <div class="col-md-4 border-right mb-3 mb-md-0 text-center text-md-left">
                     <div class="d-flex align-items-center">
-                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center font-weight-bold mr-3 shadow-sm" style="width: 64px; height: 64px; font-size: 24px;">
+                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center font-weight-bold mr-3 shadow-sm" style="width: 64px; height: 64px; font-size: 24px; flex-shrink:0;">
                             <?= strtoupper(substr($siswa['nama_lengkap'], 0, 1)) ?>
                         </div>
                         <div>
@@ -125,6 +131,7 @@
                     <h3 class="card-title font-weight-bold text-dark mr-3 mb-2 mb-md-0">
                         <i class="fas fa-history text-primary mr-2"></i>Riwayat Transaksi Tabungan (<?= $stats['total_transaksi'] ?> Transaksi)
                     </h3>
+                    <small class="text-muted"><i class="fas fa-arrows-alt-h mr-1"></i> (Tabel dapat digeser secara horizontal jika layar kurang lebar)</small>
                 </div>
 
                 <div class="d-flex flex-wrap align-items-center">
@@ -187,24 +194,24 @@
                 </table>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover mb-0">
+            <!-- Scrollable Responsive Table Wrapper -->
+            <div class="table-responsive text-nowrap custom-scroll" style="overflow-x: auto; max-width: 100%;">
+                <table class="table table-bordered table-striped table-hover text-nowrap mb-0" style="min-width: 950px;">
                     <thead class="bg-light">
                         <tr class="text-center">
                             <th width="40">No</th>
                             <th width="140">Kode Transaksi</th>
                             <th width="140">Tanggal Transaksi</th>
-                            <th width="150" class="no-print">Created At (Input)</th>
+                            <th width="160" class="no-print">Created At (Input)</th>
                             <th width="110">Jenis</th>
-                            <th width="140" class="text-right">Jumlah (Rp)</th>
-                            <th width="150" class="text-right">Saldo Setelah (Rp)</th>
+                            <th width="150" class="text-right">Jumlah (Rp)</th>
+                            <th width="160" class="text-right">Saldo Setelah (Rp)</th>
                             <th>Keterangan</th>
                             <th width="130" class="no-print">Petugas</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php 
-                        $runningSaldo = 0;
                         foreach ($transaksi as $idx => $t) : 
                             $isSetor = ($t['jenis_transaksi'] === 'setor');
                             $jumlah  = (float)$t['jumlah'];
@@ -277,7 +284,75 @@
     </div>
 </div>
 
+<!-- Modal Kirim Ke WhatsApp -->
+<div class="modal fade" id="modalWA" tabindex="-1" role="dialog" aria-labelledby="modalWALabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #25D366;">
+                <h5 class="modal-title font-weight-bold" id="modalWALabel">
+                    <i class="fab fa-whatsapp mr-2"></i>Kirim Rekap Tabungan ke WhatsApp
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="no_wa_tujuan" class="font-weight-bold">Nomor WhatsApp Tujuan / Wali Siswa</label>
+                    <input type="text" id="no_wa_tujuan" class="form-control" placeholder="Contoh: 628123456789 atau 08123456789">
+                    <small class="form-text text-muted">Bisa dikosongkan jika ingin memilih kontak langsung di WhatsApp Web / App.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="pesan_wa_preview" class="font-weight-bold">Pratinjau Pesan WhatsApp</label>
+                    <?php 
+                        $namaWali = esc($riwayatKelas['nama_wali_kelas'] ?? 'Pengelola Tabungan');
+                        $kelasStr = esc($riwayatKelas['nama_kelas'] ?? '-');
+                        $taStr    = esc($riwayatKelas['nama_tahun_ajaran'] ?? '-');
+
+                        $rawMsg  = "*REKAP BUKU TABUNGAN SISWA*\n";
+                        $rawMsg .= "---------------------------------------------\n";
+                        $rawMsg .= "👤 *Nama Siswa* : " . esc($siswa['nama_lengkap']) . "\n";
+                        $rawMsg .= "🆔 *NIS* : " . esc($siswa['nis']) . "\n";
+                        $rawMsg .= "🏫 *Kelas* : " . $kelasStr . " (TA " . $taStr . ")\n";
+                        $rawMsg .= "📌 *Status Siswa* : " . strtoupper(esc($siswa['status_siswa'])) . "\n\n";
+                        $rawMsg .= "*RINGKASAN TABUNGAN:*\n";
+                        $rawMsg .= "📥 Total Setoran : Rp " . number_format($stats['total_setor'], 0, ',', '.') . "\n";
+                        $rawMsg .= "📤 Total Penarikan : Rp " . number_format($stats['total_tarik'], 0, ',', '.') . "\n";
+                        $rawMsg .= "💰 *SALDO AKHIR SAAT INI : Rp " . number_format($stats['saldo_akhir'], 0, ',', '.') . "*\n";
+                        $rawMsg .= "---------------------------------------------\n";
+                        $rawMsg .= "_Pesan resmi dikirim dari Sistem Informasi Tabungan Siswa pada " . date('d-m-Y H:i') . "_";
+                    ?>
+                    <textarea id="pesan_wa_preview" class="form-control font-weight-bold" rows="9" style="font-family: monospace; font-size: 13px; background-color: #F4F6F9;" readonly><?= esc($rawMsg) ?></textarea>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" id="btnKirimWASubmit" class="btn text-white font-weight-bold" style="background-color: #25D366;">
+                    <i class="fab fa-whatsapp mr-1"></i> Buka WhatsApp & Kirim
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
+/* Custom Scrollbar for Horizontal Table */
+.custom-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #0277BD;
+    border-radius: 4px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: #01579B;
+}
+
 @media print {
     body { background-color: #fff !important; }
     .main-sidebar, .main-header, .main-footer, .no-print, .content-header { display: none !important; }
@@ -290,4 +365,31 @@
     th, td { border: 1px solid #333 !important; padding: 6px 8px !important; }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnWASubmit = document.getElementById('btnKirimWASubmit');
+    if (btnWASubmit) {
+        btnWASubmit.addEventListener('click', function() {
+            let phone = document.getElementById('no_wa_tujuan').value.trim();
+            const text = document.getElementById('pesan_wa_preview').value;
+
+            // Format phone number to international 62 format
+            if (phone.startsWith('0')) {
+                phone = '62' + phone.substring(1);
+            }
+            phone = phone.replace(/[^0-9]/g, '');
+
+            let url = '';
+            if (phone.length >= 7) {
+                url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
+            } else {
+                url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            }
+
+            window.open(url, '_blank');
+        });
+    }
+});
+</script>
 <?= $this->endSection() ?>

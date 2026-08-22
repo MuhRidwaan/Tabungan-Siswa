@@ -23,9 +23,10 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get ('siswa/download-template', 'SiswaController::downloadTemplate');
     $routes->get ('siswa/export',            'SiswaController::export');
     $routes->post('siswa/import',            'SiswaController::import');
-    $routes->get ('siswa/(:num)/detail',     'SiswaController::detail/$1');
-    $routes->get ('siswa/detail/(:num)',     'SiswaController::detail/$1');
-    $routes->resource('siswa',        ['controller' => 'SiswaController']);
+    $routes->get ('siswa/(:num)/detail',        'SiswaController::detail/$1');
+    $routes->get ('siswa/detail/(:num)',        'SiswaController::detail/$1');
+    $routes->get ('siswa/(:num)/export-detail', 'SiswaController::exportDetail/$1');
+    $routes->resource('siswa',           ['controller' => 'SiswaController']);
     $routes->resource('guru',         ['controller' => 'GuruController']);
     $routes->resource('kelas',        ['controller' => 'KelasController']);
     $routes->get ('tahun-ajaran/set-active/(:num)', 'TahunAjaranController::setActive/$1');

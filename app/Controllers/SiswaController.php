@@ -651,4 +651,109 @@ class SiswaController extends BaseController
 
         return view('siswa/detail', $data);
     }
+
+    /**
+     * Export Detail Buku Tabungan Siswa ke File Excel (.xls)
+     */
+    public function exportDetail($id)
+    {
+        $siswa = $this->siswa->find($id);
+        if (!$siswa) {
+            return redirect()->to('/siswa')->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        $tahunAktif = $this->tahunAjaranModel->where('status', 'aktif')->first();
+        $selectedTahunId = $this->request->getGet('tahun_ajaran_id') ?: ($tahunAktif['id'] ?? null);
+
+        $riwayatQuery = $this->db->table('riwayat_kelas_siswa')
+            ->select('kelas.nama_kelas, kelas.tingkat, tahun_ajaran.nama_tahun_ajaran, pengguna.nama_lengkap as nama_wali_kelas')
+            ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left')
+            ->join('tahun_ajaran', 'tahun_ajaran.id = riwayat_kelas_siswa.tahun_ajaran_id', 'left')
+            ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left')
+            ->where('riwayat_kelas_siswa.siswa_id', $id);
+
+        if ($selectedTahunId) {
+            $riwayatQuery->where('riwayat_kelas_siswa.tahun_ajaran_id', $selectedTahunId);
+        }
+
+        $riwayatKelas = $riwayatQuery->get()->getRowArray();
+        if (!$riwayatKelas) {
+            $riwayatKelas = $this->db->table('riwayat_kelas_siswa')
+                ->select('kelas.nama_kelas, kelas.tingkat, tahun_ajaran.nama_tahun_ajaran, pengguna.nama_lengkap as nama_wali_kelas')
+                ->join('kelas', 'kelas.id = riwayat_kelas_siswa.kelas_id', 'left')
+                ->join('tahun_ajaran', 'tahun_ajaran.id = riwayat_kelas_siswa.tahun_ajaran_id', 'left')
+                ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left')
+                ->where('riwayat_kelas_siswa.siswa_id', $id)
+                ->orderBy('riwayat_kelas_siswa.id', 'DESC')
+                ->get()->getRowArray();
+        }
+
+        $transaksiList = $this->db->table('transaksi_tabungan')
+            ->select('transaksi_tabungan.*, pengguna.nama_lengkap as nama_petugas')
+            ->join('pengguna', 'pengguna.id = transaksi_tabungan.pengguna_id', 'left')
+            ->where('transaksi_tabungan.siswa_id', $id)
+            ->orderBy('transaksi_tabungan.tanggal_transaksi', 'ASC')
+            ->orderBy('transaksi_tabungan.id', 'ASC')
+            ->get()->getResultArray();
+
+        $totalSetor = 0;
+        $totalTarik = 0;
+        foreach ($transaksiList as $t) {
+            if ($t['jenis_transaksi'] === 'setor') {
+                $totalSetor += (float)$t['jumlah'];
+            } else {
+                $totalTarik += (float)$t['jumlah'];
+            }
+        }
+
+        $filename = "buku_tabungan_" . preg_replace('/[^a-zA-Z0-9_]/', '', $siswa['nama_lengkap']) . "_" . date('Ymd_His') . ".xls";
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $filename);
+
+        echo "<html><head><meta charset='utf-8'></head><body>";
+        echo "<h3 style='font-family:sans-serif; margin:0;'>BUKU TABUNGAN SISWA</h3>";
+        echo "<p style='font-family:sans-serif; font-size:12px; margin:5px 0 15px 0;'>Tanggal Export: " . date('d-m-Y H:i') . "</p>";
+
+        echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px; margin-bottom:15px;'>";
+        echo "<tr><td style='background:#E0F2FE; font-weight:bold;' width='150'>Nama Lengkap Siswa</td><td>" . esc($siswa['nama_lengkap']) . "</td><td style='background:#E0F2FE; font-weight:bold;' width='150'>Kelas / Tahun Ajaran</td><td>" . esc($riwayatKelas['nama_kelas'] ?? '-') . " (TA " . esc($riwayatKelas['nama_tahun_ajaran'] ?? '-') . ")</td></tr>";
+        echo "<tr><td style='background:#E0F2FE; font-weight:bold;'>NIS</td><td>'" . esc($siswa['nis']) . "</td><td style='background:#E0F2FE; font-weight:bold;'>Status Siswa</td><td>" . strtoupper(esc($siswa['status_siswa'])) . "</td></tr>";
+        echo "<tr><td style='background:#E0F2FE; font-weight:bold;'>Total Setoran (Masuk)</td><td style='color:green; font-weight:bold;'>Rp " . number_format($totalSetor, 0, ',', '.') . "</td><td style='background:#E0F2FE; font-weight:bold;'>Total Penarikan (Keluar)</td><td style='color:red; font-weight:bold;'>Rp " . number_format($totalTarik, 0, ',', '.') . "</td></tr>";
+        echo "<tr><td style='background:#E0F2FE; font-weight:bold;'>SALDO AKHIR SAAT INI</td><td colspan='3' style='color:#0277BD; font-weight:bold; font-size:14px;'>Rp " . number_format($siswa['saldo_akhir'], 0, ',', '.') . "</td></tr>";
+        echo "</table>";
+
+        echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px;'>";
+        echo "<tr style='background-color:#0277BD; color:#FFFFFF; font-weight:bold; text-align:center;'>";
+        echo "<th>No</th><th>Kode Transaksi</th><th>Tanggal Transaksi</th><th>Created At (Waktu Input)</th><th>Jenis</th><th>Jumlah (Rp)</th><th>Saldo Setelah (Rp)</th><th>Keterangan</th><th>Petugas</th>";
+        echo "</tr>";
+
+        foreach ($transaksiList as $idx => $t) {
+            $isSetor = ($t['jenis_transaksi'] === 'setor');
+            echo "<tr>";
+            echo "<td align='center'>" . ($idx + 1) . "</td>";
+            echo "<td align='center'>" . esc($t['kode_transaksi']) . "</td>";
+            echo "<td align='center'>" . date('d-m-Y H:i', strtotime($t['tanggal_transaksi'])) . "</td>";
+            echo "<td align='center'>" . date('d-m-Y H:i:s', strtotime($t['created_at'])) . "</td>";
+            echo "<td align='center' style='font-weight:bold; color:" . ($isSetor ? 'green' : 'red') . ";'>" . strtoupper($t['jenis_transaksi']) . "</td>";
+            echo "<td align='right' style='font-weight:bold; color:" . ($isSetor ? 'green' : 'red') . ";'>" . ($isSetor ? '+' : '-') . " Rp " . number_format($t['jumlah'], 0, ',', '.') . "</td>";
+            echo "<td align='right' style='font-weight:bold; color:#0277BD;'>" . number_format($t['saldo_sesudah'], 0, ',', '.') . "</td>";
+            echo "<td>" . esc($t['keterangan'] ?: '-') . "</td>";
+            echo "<td>" . esc($t['nama_petugas'] ?? 'System') . "</td>";
+            echo "</tr>";
+        }
+
+        if (empty($transaksiList)) {
+            echo "<tr><td colspan='9' align='center'>Belum ada transaksi.</td></tr>";
+        }
+
+        echo "<tr style='background:#F1F5F9; font-weight:bold;'>";
+        echo "<td colspan='5' align='right'>TOTAL:</td>";
+        echo "<td align='right' style='color:green;'>+ Rp " . number_format($totalSetor, 0, ',', '.') . "</td>";
+        echo "<td align='right' style='color:#0277BD;'>Rp " . number_format($siswa['saldo_akhir'], 0, ',', '.') . "</td>";
+        echo "<td colspan='2'>Penarikan: <span style='color:red;'>- Rp " . number_format($totalTarik, 0, ',', '.') . "</span></td>";
+        echo "</tr>";
+
+        echo "</table>";
+        echo "</body></html>";
+        exit;
+    }
 }
