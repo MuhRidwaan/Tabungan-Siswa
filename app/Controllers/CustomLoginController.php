@@ -65,4 +65,94 @@ class CustomLoginController extends ShieldLoginController
 
         return redirect()->to(config('Auth')->loginRedirect())->withCookies();
     }
+
+    /**
+     * AJAX Lookup User Avatar & Profile Information before entering password
+     */
+    public function checkUserAvatar()
+    {
+        $db = \Config\Database::connect();
+        $loginInput = trim((string)($this->request->getGet('login') ?: $this->request->getPost('login')));
+        if (empty($loginInput)) {
+            $loginInput = trim((string)($this->request->getGet('username') ?: $this->request->getPost('username')));
+        }
+        if (empty($loginInput)) {
+            $loginInput = trim((string)($this->request->getGet('email') ?: $this->request->getPost('email')));
+        }
+
+        if (empty($loginInput)) {
+            return $this->response->setJSON(['found' => false, 'message' => 'Username/Email kosong']);
+        }
+
+        $userModel = new \CodeIgniter\Shield\Models\UserModel();
+        $user = null;
+
+        if (filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
+            $identityTable = $db->table('auth_identities')
+                                ->where('type', 'email_password')
+                                ->where('secret', $loginInput)
+                                ->get()
+                                ->getRowArray();
+            if ($identityTable) {
+                $user = $userModel->find($identityTable['user_id']);
+            }
+        } else {
+            $user = $userModel->where('username', $loginInput)->first();
+        }
+
+        if (!$user) {
+            // Check Guru table directly as fallback
+            $guruModel = new \App\Models\Guru();
+            $guru = $guruModel->where('username', $loginInput)->orWhere('email', $loginInput)->first();
+            if ($guru) {
+                $fullName = $guru['nama_guru'] ?? $guru['username'];
+                $role = 'Guru / Wali Kelas';
+                $avatarUrl = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=6366f1&color=ffffff&size=128&bold=true";
+
+                return $this->response->setJSON([
+                    'found'     => true,
+                    'username'  => $guru['username'],
+                    'full_name' => $fullName,
+                    'role'      => $role,
+                    'avatar'    => $avatarUrl
+                ]);
+            }
+
+            return $this->response->setJSON(['found' => false]);
+        }
+
+        // Get User details
+        $username = $user->username;
+        $guruModel = new \App\Models\Guru();
+        $guru = $guruModel->where('username', $username)->orWhere('email', $user->email)->first();
+
+        $fullName = $guru['nama_guru'] ?? ($username ?: 'Pengguna Tabungan');
+        $groups = $user->getGroups();
+        $roleName = !empty($groups) ? ucfirst($groups[0]) : 'Pengelola Tabungan';
+        if (in_array('admin', $groups)) {
+            $roleName = 'Administrator Sekolah';
+        }
+
+        // Check custom uploaded photo
+        $avatarUrl = null;
+        $uploadDir = FCPATH . 'uploads/profile/';
+        if (is_dir($uploadDir)) {
+            $files = glob($uploadDir . 'user_' . $user->id . '_*');
+            if (!empty($files)) {
+                $avatarUrl = base_url('uploads/profile/' . basename($files[0]));
+            }
+        }
+
+        if (!$avatarUrl) {
+            $avatarUrl = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=4f46e5&color=ffffff&size=128&bold=true";
+        }
+
+        return $this->response->setJSON([
+            'found'     => true,
+            'username'  => $username,
+            'full_name' => $fullName,
+            'role'      => $roleName,
+            'avatar'    => $avatarUrl
+        ]);
+    }
 }

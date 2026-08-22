@@ -7,6 +7,8 @@ use CodeIgniter\Router\RouteCollection;
 // 1. Shield Auth routes (login, register, logout, dsb)
 service('auth')->routes($routes);
 $routes->post('login', 'CustomLoginController::loginAction');
+$routes->get('check-user-avatar', 'CustomLoginController::checkUserAvatar');
+$routes->post('check-user-avatar', 'CustomLoginController::checkUserAvatar');
 
 // 2. Arahkan '/' ke halaman dashboard
 $routes->get('/', function () {
