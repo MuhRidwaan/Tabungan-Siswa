@@ -224,24 +224,28 @@ class SiswaController extends BaseController
     }
 
     /**
-     * Download Template Upload CSV/Excel
+     * Download Template Upload Native Microsoft Excel (.xls)
      */
     public function downloadTemplate()
     {
-        $filename = "template_import_siswa.csv";
-        header('Content-Type: text/csv; charset=utf-8');
+        $filename = "template_import_siswa.xls";
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $filename);
 
-        $output = fopen('php://output', 'w');
-        fputcsv($output, ['nis', 'nama_lengkap', 'jenis_kelamin', 'tanggal_lahir', 'alamat', 'nama_kelas']);
-        fputcsv($output, ['1001', 'Ahmad Dani', 'L', '2010-05-15', 'Jl. Merdeka No. 10', 'Kelas 10-A']);
-        fputcsv($output, ['1002', 'Siti Rahma', 'P', '2010-08-20', 'Jl. Mawar No. 5', 'Kelas 10-A']);
-        fclose($output);
+        echo "<html><head><meta charset='utf-8'></head><body>";
+        echo "<table border='1'>";
+        echo "<tr style='background-color:#4CAF50; color:#FFFFFF; font-weight:bold;'>";
+        echo "<th>nis</th><th>nama_lengkap</th><th>jenis_kelamin</th><th>tanggal_lahir</th><th>alamat</th><th>nama_kelas</th>";
+        echo "</tr>";
+        echo "<tr><td>1001</td><td>Ahmad Dani</td><td>L</td><td>2010-05-15</td><td>Jl. Merdeka No. 10</td><td>Kelas 1</td></tr>";
+        echo "<tr><td>1002</td><td>Siti Rahma</td><td>P</td><td>2010-08-20</td><td>Jl. Mawar No. 5</td><td>Kelas 1</td></tr>";
+        echo "</table>";
+        echo "</body></html>";
         exit;
     }
 
     /**
-     * Import Data Siswa dari File CSV/Excel
+     * Import Data Siswa dari File Excel (.xls, .xlsx, .csv)
      */
     public function import()
     {
@@ -250,25 +254,48 @@ class SiswaController extends BaseController
             return redirect()->back()->with('error', 'File tidak valid atau gagal diunggah.');
         }
 
-        $ext = $file->getClientExtension();
-        if (!in_array(strtolower($ext), ['csv', 'txt'])) {
-            return redirect()->back()->with('error', 'Format file harus berupa CSV (.csv). Silakan unduh template yang disediakan.');
+        $ext = strtolower($file->getClientExtension());
+        if (!in_array($ext, ['xls', 'xlsx', 'csv', 'txt'])) {
+            return redirect()->back()->with('error', 'Format file harus berupa Excel (.xls) atau CSV (.csv). Silakan unduh template yang disediakan.');
         }
 
-        $handle = fopen($file->getTempName(), "r");
-        if (!$handle) {
-            return redirect()->back()->with('error', 'Gagal membaca file CSV.');
+        $filePath = $file->getTempName();
+        $content = file_get_contents($filePath);
+        $rows = [];
+
+        // Parsing jika format HTML Table (.xls native template)
+        if (strpos($content, '<table') !== false && strpos($content, '<tr') !== false) {
+            preg_match_all('/<tr[^>]*>(.*?)<\/tr>/is', $content, $trMatches);
+            if (!empty($trMatches[1])) {
+                foreach ($trMatches[1] as $idx => $tr) {
+                    if ($idx === 0) continue; // Skip header
+                    preg_match_all('/<td[^>]*>(.*?)<\/td>/is', $tr, $tdMatches);
+                    if (!empty($tdMatches[1])) {
+                        $row = array_map(function($val) {
+                            return trim(strip_tags($val));
+                        }, $tdMatches[1]);
+                        $rows[] = $row;
+                    }
+                }
+            }
+        } else {
+            // Parsing CSV / TXT / delimiter
+            $lines = explode("\n", str_replace("\r", "", $content));
+            $delimiter = (strpos($content, "\t") !== false) ? "\t" : ((strpos($content, ";") !== false) ? ";" : ",");
+            foreach ($lines as $idx => $line) {
+                if ($idx === 0 || trim($line) === '') continue; // Skip header or empty
+                $row = str_getcsv($line, $delimiter);
+                $rows[] = $row;
+            }
         }
 
-        $header = fgetcsv($handle, 1000, ",");
         $tahunAktif = $this->tahunAjaranModel->where('status', 'aktif')->first();
-
         $countSuccess = 0;
         $countFailed = 0;
 
         $this->db->transStart();
 
-        while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        foreach ($rows as $row) {
             if (count($row) < 2) continue;
 
             $nis          = trim($row[0]);
@@ -310,10 +337,9 @@ class SiswaController extends BaseController
             $countSuccess++;
         }
 
-        fclose($handle);
         $this->db->transComplete();
 
-        session()->setFlashdata('success', "Import selesai: {$countSuccess} siswa berhasil didaftarkan, {$countFailed} dilewati (NIS ganda).");
+        session()->setFlashdata('success', "Import Data Siswa Selesai: {$countSuccess} siswa berhasil didaftarkan, {$countFailed} dilewati (NIS ganda/sudah ada).");
         return redirect()->to('/siswa');
     }
 

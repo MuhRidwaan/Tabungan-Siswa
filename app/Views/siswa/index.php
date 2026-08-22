@@ -39,31 +39,31 @@
 
     <div class="card card-primary card-outline">
         <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
-            <div class="mb-2 mb-md-0">
-                <a href="<?= base_url('siswa/new') ?>" class="btn btn-primary mr-1">
-                    <i class="fas fa-plus mr-1"></i> Tambah Siswa
+            <div class="btn-group mb-2 mb-md-0" role="group">
+                <a href="<?= base_url('siswa/new') ?>" class="btn btn-primary">
+                    <i class="fas fa-user-plus mr-1"></i> Tambah Siswa Baru
                 </a>
-                <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#modalImport">
-                    <i class="fas fa-file-excel mr-1"></i> Import Excel/CSV
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalImport">
+                    <i class="fas fa-file-excel mr-1"></i> Import Excel / CSV
                 </button>
-                <a href="<?= base_url('siswa/download-template') ?>" class="btn btn-outline-secondary mr-1">
-                    <i class="fas fa-download mr-1"></i> Download Template
+                <a href="<?= base_url('siswa/download-template') ?>" class="btn btn-outline-success">
+                    <i class="fas fa-file-download mr-1"></i> Download Template Excel (.xls)
                 </a>
             </div>
             <div>
                 <a href="<?= base_url('siswa/export?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $selectedKelasId) ?>" class="btn btn-info">
-                    <i class="fas fa-file-export mr-1"></i> Export Data Siswa
+                    <i class="fas fa-file-export mr-1"></i> Export Data Siswa (Excel)
                 </a>
             </div>
         </div>
         <div class="card-body">
             
             <!-- Filter Bar -->
-            <form action="" method="get" class="mb-4">
+            <form action="" method="get" class="mb-4" id="formFilterSiswa">
                 <div class="row align-items-end">
                     <div class="col-md-3 mb-2">
                         <label for="tahun_ajaran_id" class="small font-weight-bold">Tahun Ajaran</label>
-                        <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-control form-control-sm" onchange="this.form.submit()">
+                        <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-control form-control-sm select2">
                             <?php foreach ($tahunAjaran as $t) : ?>
                                 <option value="<?= $t['id'] ?>" <?= ($selectedTahunId == $t['id']) ? 'selected' : '' ?>>
                                     <?= esc($t['nama_tahun_ajaran']) ?> <?= ($t['status'] == 'aktif') ? '(Aktif)' : '' ?>
@@ -74,7 +74,7 @@
 
                     <div class="col-md-3 mb-2">
                         <label for="kelas_id" class="small font-weight-bold">Filter Kelas</label>
-                        <select name="kelas_id" id="kelas_id" class="form-control form-control-sm" onchange="this.form.submit()">
+                        <select name="kelas_id" id="kelas_id" class="form-control form-control-sm select2">
                             <option value="">-- Semua Kelas --</option>
                             <?php foreach ($kelas as $k) : ?>
                                 <option value="<?= $k['id'] ?>" <?= ($selectedKelasId == $k['id']) ? 'selected' : '' ?>>
@@ -96,7 +96,7 @@
 
                     <div class="col-md-2 mb-2">
                         <label for="per_page" class="small font-weight-bold">Tampilkan</label>
-                        <select name="per_page" id="per_page" class="form-control form-control-sm" onchange="this.form.submit()">
+                        <select name="per_page" id="per_page" class="form-control form-control-sm select2" onchange="this.form.submit()">
                             <option value="10" <?= ($perPage == '10') ? 'selected' : '' ?>>10 Data</option>
                             <option value="25" <?= ($perPage == '25') ? 'selected' : '' ?>>25 Data</option>
                             <option value="50" <?= ($perPage == '50') ? 'selected' : '' ?>>50 Data</option>
@@ -109,7 +109,7 @@
                 <table class="table table-bordered table-striped table-hover mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th width="40" class="text-center">No</th>
+                            <th width="50" class="text-center">No</th>
                             <th width="100">NIS</th>
                             <th>Nama Lengkap</th>
                             <th width="140">Kelas Saat Ini</th>
@@ -133,12 +133,14 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center"><?= esc($item['jenis_kelamin']) ?></td>
-                                <td class="text-right font-weight-bold text-success">Rp <?= number_format($item['saldo_akhir'] ?? 0, 0, ',', '.') ?></td>
+                                <td class="text-right font-weight-bold text-success">
+                                    Rp <?= number_format($item['saldo_akhir'] ?? 0, 0, ',', '.') ?>
+                                </td>
                                 <td class="text-center">
                                     <?php if ($item['status_siswa'] == 'aktif') : ?>
-                                        <span class="badge bg-success">Aktif</span>
+                                        <span class="badge badge-success">Aktif</span>
                                     <?php else : ?>
-                                        <span class="badge bg-danger"><?= ucfirst($item['status_siswa']) ?></span>
+                                        <span class="badge badge-danger"><?= ucfirst($item['status_siswa']) ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
@@ -177,7 +179,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Import Data Siswa dari File CSV/Excel</h5>
+                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Import Data Siswa dari File Excel / CSV</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -186,11 +188,11 @@
                 <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="file_excel">Pilih File CSV (.csv)</label>
-                        <input type="file" name="file_excel" id="file_excel" class="form-control-file" accept=".csv" required>
+                        <label for="file_excel">Pilih File Excel (.xls, .csv)</label>
+                        <input type="file" name="file_excel" id="file_excel" class="form-control-file" accept=".xls,.xlsx,.csv" required>
                     </div>
                     <div class="alert alert-info py-2 small">
-                        <i class="fas fa-info-circle mr-1"></i> Gunakan format file CSV yang telah disediakan pada tombol <strong>Download Template</strong>.
+                        <i class="fas fa-info-circle mr-1"></i> Gunakan format file Microsoft Excel yang telah disediakan pada tombol <strong>Download Template Excel (.xls)</strong>.
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -201,5 +203,19 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+        $('#tahun_ajaran_id, #kelas_id').on('change', function() {
+            document.getElementById('formFilterSiswa').submit();
+        });
+    }
+});
+</script>
 
 <?= $this->endSection() ?>

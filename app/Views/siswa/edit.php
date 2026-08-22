@@ -36,7 +36,7 @@
                 </div>
                 <div class="form-group">
                     <label for="kelas_id">Penempatan Kelas <span class="badge badge-info">(Tahun Ajaran: <?= esc($tahunAktif['nama_tahun_ajaran'] ?? 'Aktif') ?>)</span></label>
-                    <select name="kelas_id" id="kelas_id" class="form-control">
+                    <select name="kelas_id" id="kelas_id" class="form-control select2">
                         <option value="">-- Pilih Kelas --</option>
                         <?php foreach ($kelas as $k) : ?>
                             <option value="<?= $k['id'] ?>" <?= (old('kelas_id', $currentKelasId) == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?></option>
@@ -45,7 +45,7 @@
                 </div>
                  <div class="form-group">
                     <label>Jenis Kelamin</label>
-                    <select name="jenis_kelamin" class="form-control <?= ($validation->hasError('jenis_kelamin')) ? 'is-invalid' : '' ?>">
+                    <select name="jenis_kelamin" class="form-control select2 <?= ($validation->hasError('jenis_kelamin')) ? 'is-invalid' : '' ?>">
                         <option value="">Pilih Jenis Kelamin</option>
                         <option value="L" <?= (old('jenis_kelamin', $siswa['jenis_kelamin']) == 'L') ? 'selected' : '' ?>>Laki-laki</option>
                         <option value="P" <?= (old('jenis_kelamin', $siswa['jenis_kelamin']) == 'P') ? 'selected' : '' ?>>Perempuan</option>
@@ -64,7 +64,7 @@
                 </div>
                  <div class="form-group">
                     <label>Status Siswa</label>
-                    <select name="status_siswa" class="form-control <?= ($validation->hasError('status_siswa')) ? 'is-invalid' : '' ?>">
+                    <select name="status_siswa" class="form-control select2 <?= ($validation->hasError('status_siswa')) ? 'is-invalid' : '' ?>">
                         <option value="aktif" <?= (old('status_siswa', $siswa['status_siswa']) == 'aktif') ? 'selected' : '' ?>>Aktif</option>
                         <option value="lulus" <?= (old('status_siswa', $siswa['status_siswa']) == 'lulus') ? 'selected' : '' ?>>Lulus</option>
                         <option value="pindah" <?= (old('status_siswa', $siswa['status_siswa']) == 'pindah') ? 'selected' : '' ?>>Pindah</option>
@@ -73,10 +73,21 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Update</button>
-                <a href="<?= base_url('siswa') ?>" class="btn btn-secondary">Batal</a>
+                <button type="submit" class="btn btn-warning"><i class="fas fa-save mr-1"></i> Update Data Siswa</button>
+                <a href="<?= base_url('siswa') ?>" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Batal</a>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+    }
+});
+</script>
 <?= $this->endSection() ?>
