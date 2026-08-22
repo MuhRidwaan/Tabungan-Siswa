@@ -46,7 +46,8 @@ class Transaksi extends Model
                     ->groupEnd();
         }
 
-        return $builder->orderBy('COALESCE(transaksi_tabungan.tanggal_transaksi, transaksi_tabungan.created_at)', 'DESC')
+        return $builder->orderBy('transaksi_tabungan.tanggal_transaksi', 'DESC')
+                       ->orderBy('transaksi_tabungan.created_at', 'DESC')
                        ->paginate($perPage);
     }
 
@@ -73,9 +74,9 @@ class Transaksi extends Model
     public function getLaporanPerSiswa($siswaId, $startDate, $endDate)
     {
         return $this->where('siswa_id', $siswaId)
-                    ->where('COALESCE(tanggal_transaksi, created_at) >=', $startDate . ' 00:00:00')
-                    ->where('COALESCE(tanggal_transaksi, created_at) <=', $endDate . ' 23:59:59')
-                    ->orderBy('COALESCE(tanggal_transaksi, created_at)', 'ASC')
+                    ->where('tanggal_transaksi >=', $startDate . ' 00:00:00')
+                    ->where('tanggal_transaksi <=', $endDate . ' 23:59:59')
+                    ->orderBy('tanggal_transaksi', 'ASC')
                     ->findAll();
     }
 }
