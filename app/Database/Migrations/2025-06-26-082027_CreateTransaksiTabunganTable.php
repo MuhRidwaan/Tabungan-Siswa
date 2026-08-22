@@ -44,6 +44,10 @@ class CreateTransaksiTabunganTable extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
+            'tanggal_transaksi' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
             'pengguna_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,

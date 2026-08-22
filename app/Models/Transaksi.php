@@ -19,6 +19,7 @@ class Transaksi extends Model
         'saldo_sebelum',
         'saldo_sesudah',
         'keterangan',
+        'tanggal_transaksi',
         'pengguna_id'
     ];
 
@@ -45,7 +46,7 @@ class Transaksi extends Model
                     ->groupEnd();
         }
 
-        return $builder->orderBy('transaksi_tabungan.created_at', 'DESC')
+        return $builder->orderBy('COALESCE(transaksi_tabungan.tanggal_transaksi, transaksi_tabungan.created_at)', 'DESC')
                        ->paginate($perPage);
     }
 
@@ -69,12 +70,12 @@ class Transaksi extends Model
         return $kode_transaksi;
     }
 
-     public function getLaporanPerSiswa($siswaId, $startDate, $endDate)
+    public function getLaporanPerSiswa($siswaId, $startDate, $endDate)
     {
         return $this->where('siswa_id', $siswaId)
-                    ->where('created_at >=', $startDate . ' 00:00:00')
-                    ->where('created_at <=', $endDate . ' 23:59:59')
-                    ->orderBy('created_at', 'ASC')
+                    ->where('COALESCE(tanggal_transaksi, created_at) >=', $startDate . ' 00:00:00')
+                    ->where('COALESCE(tanggal_transaksi, created_at) <=', $endDate . ' 23:59:59')
+                    ->orderBy('COALESCE(tanggal_transaksi, created_at)', 'ASC')
                     ->findAll();
     }
 }

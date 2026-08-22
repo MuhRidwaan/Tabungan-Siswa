@@ -25,7 +25,7 @@
 
         <?php foreach($reportData as $tx): ?>
         <tr>
-            <td><?= date('d-m-Y H:i', strtotime($tx['created_at'])) ?></td>
+            <td><?= date('d-m-Y H:i', strtotime($tx['tanggal_transaksi'] ?? $tx['created_at'])) ?></td>
             <td><?= esc($tx['kode_transaksi']) ?></td>
             <td><?= esc($tx['keterangan']) ?></td>
             <td class="text-right text-success">

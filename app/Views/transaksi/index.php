@@ -131,7 +131,7 @@
                         <?php foreach ($transaksi as $item) : ?>
                             <tr>
                                 <td class="text-center small font-weight-bold">
-                                    <i class="far fa-clock text-muted mr-1"></i><?= date('d/m/Y H:i', strtotime($item['created_at'])) ?>
+                                    <i class="far fa-calendar-alt text-info mr-1"></i><?= date('d/m/Y H:i', strtotime($item['tanggal_transaksi'] ?? $item['created_at'])) ?>
                                 </td>
                                 <td><span class="badge badge-secondary"><?= esc($item['kode_transaksi']) ?></span></td>
                                 <td><span class="badge badge-light border"><?= esc($item['nis']) ?></span></td>

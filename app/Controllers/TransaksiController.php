@@ -98,6 +98,7 @@ class TransaksiController extends BaseController
             'keterangan'      => $this->request->getPost('keterangan'),
             'saldo_sebelum'   => $saldo_sebelum,
             'saldo_sesudah'   => $saldo_sesudah,
+            'tanggal_transaksi' => date('Y-m-d H:i:s'),
             'pengguna_id'     => $this->getPenggunaId(),
         ];
 
@@ -232,6 +233,7 @@ class TransaksiController extends BaseController
                 'keterangan'      => $ket,
                 'saldo_sebelum'   => $saldo_sebelum,
                 'saldo_sesudah'   => $saldo_sesudah,
+                'tanggal_transaksi' => $tanggalInput . ' ' . date('H:i:s'),
                 'pengguna_id'     => $this->getPenggunaId(),
                 'created_at'      => $tanggalInput . ' ' . date('H:i:s'),
             ];
@@ -332,6 +334,7 @@ class TransaksiController extends BaseController
                 'keterangan'      => $ket,
                 'saldo_sebelum'   => $saldo_sebelum,
                 'saldo_sesudah'   => $saldo_sesudah,
+                'tanggal_transaksi' => $tgl . ' ' . date('H:i:s'),
                 'pengguna_id'     => $this->getPenggunaId(),
                 'created_at'      => $tgl . ' ' . date('H:i:s'),
             ];
@@ -551,6 +554,7 @@ class TransaksiController extends BaseController
                 'keterangan'      => $ket,
                 'saldo_sebelum'   => $saldo_sebelum,
                 'saldo_sesudah'   => $saldo_sesudah,
+                'tanggal_transaksi' => $tanggal . ' ' . date('H:i:s'),
                 'pengguna_id'     => $this->getPenggunaId(),
                 'created_at'      => $tanggal . ' ' . date('H:i:s'),
             ];
