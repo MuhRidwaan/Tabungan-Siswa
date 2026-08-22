@@ -63,6 +63,33 @@ class CustomLoginController extends ShieldLoginController
             return redirect()->route('auth-action-show')->withCookies();
         }
 
+        // Set session profile data upon login
+        $user = auth()->user();
+        if ($user) {
+            $guruModel = new \App\Models\Guru();
+            $guru = $guruModel->where('username', $user->username)->first();
+            $namaLengkap = $guru['nama_lengkap'] ?? $user->username;
+
+            $fotoProfil = null;
+            $uploadDir = FCPATH . 'uploads/profile/';
+            if (is_dir($uploadDir)) {
+                $files = glob($uploadDir . 'user_' . $user->id . '_*');
+                if (!empty($files)) {
+                    usort($files, function($a, $b) {
+                        return filemtime($b) - filemtime($a);
+                    });
+                    $fotoProfil = basename($files[0]);
+                }
+            }
+
+            session()->set([
+                'nama_lengkap' => $namaLengkap,
+                'username'     => $user->username,
+                'email'        => $user->email,
+                'foto_profil'  => $fotoProfil
+            ]);
+        }
+
         session()->removeTempdata('beforeLoginUrl');
         return redirect()->to(base_url('dashboard'))->withCookies();
     }

@@ -1,6 +1,17 @@
 <?php
 $user = function_exists('auth') ? auth()->user() : null;
-$namaUser = session()->get('nama_lengkap') ?? ($user ? $user->username : 'Pengguna');
+$namaUser = session()->get('nama_lengkap');
+
+if (!$namaUser && $user) {
+    $guruModel = new \App\Models\Guru();
+    $guru = $guruModel->where('username', $user->username)->first();
+    $namaUser = $guru['nama_lengkap'] ?? $user->username;
+    session()->set('nama_lengkap', $namaUser);
+}
+if (!$namaUser && $user) {
+    $namaUser = $user->username;
+}
+
 $role = 'admin';
 if ($user && method_exists($user, 'inGroup') && $user->inGroup('guru')) {
     $role = 'guru';
@@ -9,6 +20,20 @@ if ($user && method_exists($user, 'inGroup') && $user->inGroup('guru')) {
 }
 
 $fotoProfile = session()->get('foto_profil');
+if (!$fotoProfile && $user) {
+    $uploadDir = FCPATH . 'uploads/profile/';
+    if (is_dir($uploadDir)) {
+        $files = glob($uploadDir . 'user_' . $user->id . '_*');
+        if (!empty($files)) {
+            usort($files, function($a, $b) {
+                return filemtime($b) - filemtime($a);
+            });
+            $fotoProfile = basename($files[0]);
+            session()->set('foto_profil', $fotoProfile);
+        }
+    }
+}
+
 $avatarUrl = ($fotoProfile && file_exists(FCPATH . 'uploads/profile/' . $fotoProfile)) 
     ? base_url('uploads/profile/' . $fotoProfile) 
     : base_url('dist/img/user2-160x160.jpg');
