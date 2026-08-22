@@ -71,7 +71,7 @@ class LaporanController extends BaseController
     }
 
     /**
-     * Export Laporan ke CSV/Excel
+     * Export Laporan ke Native Microsoft Excel (.xls)
      */
     public function exportExcel()
     {
@@ -83,35 +83,38 @@ class LaporanController extends BaseController
         $kelasModel     = new Kelas();
         $transaksiModel = new Transaksi();
 
-        $filename = "laporan_{$jenisLaporan}_" . date('Ymd_His') . ".csv";
-        header('Content-Type: text/csv; charset=utf-8');
+        $filename = "laporan_{$jenisLaporan}_" . date('Ymd_His') . ".xls";
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $filename);
-        $output = fopen('php://output', 'w');
+
+        echo "<html><head><meta charset='utf-8'></head><body>";
 
         if ($jenisLaporan == 'per_siswa') {
             $siswaId = $this->request->getGet('siswa_id');
             $siswa   = $siswaModel->find($siswaId);
             $rows    = $transaksiModel->getLaporanPerSiswa($siswaId, $startDate, $endDate);
 
-            fputcsv($output, ['LAPORAN TABUNGAN PER SISWA']);
-            fputcsv($output, ['Nama Siswa', $siswa['nama_lengkap'] ?? '-']);
-            fputcsv($output, ['NIS', $siswa['nis'] ?? '-']);
-            fputcsv($output, ['Periode', "{$startDate} s/d {$endDate}"]);
-            fputcsv($output, []);
-            fputcsv($output, ['No', 'Kode Transaksi', 'Tanggal', 'Jenis Transaksi', 'Nominal (Rp)', 'Saldo Sebelum', 'Saldo Sesudah', 'Keterangan']);
+            echo "<h3 style='font-family:sans-serif;'>LAPORAN TABUNGAN PER SISWA</h3>";
+            echo "<p style='font-family:sans-serif;'>Nama: <strong>" . esc($siswa['nama_lengkap'] ?? '-') . "</strong> | NIS: <strong>" . esc($siswa['nis'] ?? '-') . "</strong> | Periode: " . esc($startDate) . " s/d " . esc($endDate) . "</p>";
+            echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px;'>";
+            echo "<tr style='background-color:#0277BD; color:#FFFFFF; font-weight:bold; text-align:center;'>";
+            echo "<th>No</th><th>Kode Transaksi</th><th>Tanggal</th><th>Jenis Transaksi</th><th>Nominal (Rp)</th><th>Saldo Sebelum</th><th>Saldo Sesudah</th><th>Keterangan</th>";
+            echo "</tr>";
 
             foreach ($rows as $idx => $r) {
-                fputcsv($output, [
-                    $idx + 1,
-                    $r['kode_transaksi'],
-                    $r['created_at'],
-                    strtoupper($r['jenis_transaksi']),
-                    number_format($r['jumlah'], 0, ',', '.'),
-                    number_format($r['saldo_sebelum'], 0, ',', '.'),
-                    number_format($r['saldo_sesudah'], 0, ',', '.'),
-                    $r['keterangan']
-                ]);
+                echo "<tr>";
+                echo "<td align='center'>" . ($idx + 1) . "</td>";
+                echo "<td align='center'>" . esc($r['kode_transaksi']) . "</td>";
+                echo "<td align='center'>" . date('d-m-Y H:i', strtotime($r['created_at'])) . "</td>";
+                echo "<td align='center'>" . strtoupper(esc($r['jenis_transaksi'])) . "</td>";
+                echo "<td align='right'>" . number_format($r['jumlah'], 0, ',', '.') . "</td>";
+                echo "<td align='right'>" . number_format($r['saldo_sebelum'], 0, ',', '.') . "</td>";
+                echo "<td align='right'>" . number_format($r['saldo_sesudah'], 0, ',', '.') . "</td>";
+                echo "<td>" . esc($r['keterangan']) . "</td>";
+                echo "</tr>";
             }
+            echo "</table>";
+
         } elseif ($jenisLaporan == 'per_kelas') {
             $kelasId = $this->request->getGet('kelas_id');
             $kelas   = $kelasModel->find($kelasId);
@@ -124,26 +127,31 @@ class LaporanController extends BaseController
                 $rows = $riwayatKelasModel->getSiswaByKelasTahun($kelasId, $tahunAktif['id']);
             }
 
-            fputcsv($output, ['REKAPITULASI TABUNGAN KELAS']);
-            fputcsv($output, ['Kelas', $kelas['nama_kelas'] ?? '-']);
-            fputcsv($output, ['Tahun Ajaran', $tahunAktif['nama_tahun_ajaran'] ?? '-']);
-            fputcsv($output, []);
-            fputcsv($output, ['No', 'NIS', 'Nama Siswa', 'Saldo Tabungan (Rp)']);
+            echo "<h3 style='font-family:sans-serif;'>REKAPITULASI TABUNGAN KELAS</h3>";
+            echo "<p style='font-family:sans-serif;'>Kelas: <strong>" . esc($kelas['nama_kelas'] ?? '-') . "</strong> | Tahun Ajaran: <strong>" . esc($tahunAktif['nama_tahun_ajaran'] ?? '-') . "</strong></p>";
+            echo "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse:collapse; font-family:sans-serif; font-size:12px;'>";
+            echo "<tr style='background-color:#0277BD; color:#FFFFFF; font-weight:bold; text-align:center;'>";
+            echo "<th>No</th><th>NIS</th><th>Nama Siswa</th><th>Saldo Tabungan (Rp)</th>";
+            echo "</tr>";
 
             $totalSaldo = 0;
             foreach ($rows as $idx => $r) {
                 $totalSaldo += $r['saldo_akhir'];
-                fputcsv($output, [
-                    $idx + 1,
-                    $r['nis'],
-                    $r['nama_lengkap'],
-                    number_format($r['saldo_akhir'], 0, ',', '.')
-                ]);
+                echo "<tr>";
+                echo "<td align='center'>" . ($idx + 1) . "</td>";
+                echo "<td align='center'>'" . esc($r['nis']) . "</td>";
+                echo "<td>" . esc($r['nama_lengkap']) . "</td>";
+                echo "<td align='right'>" . number_format($r['saldo_akhir'], 0, ',', '.') . "</td>";
+                echo "</tr>";
             }
-            fputcsv($output, ['', '', 'TOTAL SALDO KELAS', number_format($totalSaldo, 0, ',', '.')]);
+            echo "<tr style='background-color:#F5F5F5; font-weight:bold;'>";
+            echo "<td colspan='3' align='center'>TOTAL SALDO KELAS</td>";
+            echo "<td align='right'>" . number_format($totalSaldo, 0, ',', '.') . "</td>";
+            echo "</tr>";
+            echo "</table>";
         }
 
-        fclose($output);
+        echo "</body></html>";
         exit;
     }
 }

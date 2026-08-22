@@ -5,81 +5,157 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0"><?= $title ?></h1>
+                <h1 class="m-0"><i class="fas fa-receipt text-primary mr-2"></i><?= esc($title) ?></h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="<?= base_url('dashboard') ?>">Home</a></li>
+                    <li class="breadcrumb-item active">Riwayat Transaksi</li>
+                </ol>
             </div>
         </div>
     </div>
 </div>
 
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <div>
-                <button type="button" class="btn btn-primary mr-2 mb-1" id="btn-tambah">
-                    <i class="fas fa-plus"></i> Transaksi Tunggal
-                </button>
-                <a href="<?= base_url('transaksi/kolektif') ?>" class="btn btn-success mr-2 mb-1">
-                    <i class="fas fa-layer-group"></i> Input Setoran Kolektif (Per Kelas)
-                </a>
-                <a href="<?= base_url('transaksi/multi-tanggal') ?>" class="btn btn-info mb-1">
-                    <i class="fas fa-calendar-alt"></i> Input Setoran Multi-Tanggal (Per Siswa)
-                </a>
+
+    <!-- Small Stat Cards Ringkasan Kas -->
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3 style="font-size: 1.6rem;">Rp <?= number_format($stats['total_kas'] ?? 0, 0, ',', '.') ?></h3>
+                    <p>Saldo Kas Tabungan Net</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-vault"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3 style="font-size: 1.6rem;">Rp <?= number_format($stats['total_setor'] ?? 0, 0, ',', '.') ?></h3>
+                    <p>Total Accumulation Setoran</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-arrow-circle-down"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3 style="font-size: 1.6rem;">Rp <?= number_format($stats['total_tarik'] ?? 0, 0, ',', '.') ?></h3>
+                    <p>Total Accumulation Penarikan</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-arrow-circle-up"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3><?= number_format($stats['total_transaksi'] ?? 0) ?></h3>
+                    <p>Total Record Transaksi</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-primary card-outline">
+        <div class="card-header border-0 py-3">
+            <div class="row w-100 align-items-center m-0">
+                <div class="col-md-8 p-0 mb-2 mb-md-0">
+                    <button type="button" class="btn btn-primary mr-1 mb-1" id="btn-tambah">
+                        <i class="fas fa-plus-circle mr-1"></i> Transaksi Instan
+                    </button>
+                    <a href="<?= base_url('transaksi/kolektif') ?>" class="btn btn-success mr-1 mb-1">
+                        <i class="fas fa-layer-group mr-1"></i> Setor/Tarik Kolektif (Per Kelas)
+                    </a>
+                    <a href="<?= base_url('transaksi/multi-tanggal') ?>" class="btn btn-info mb-1">
+                        <i class="fas fa-calendar-alt mr-1"></i> Setor Multi-Tanggal (Per Siswa)
+                    </a>
+                </div>
+                <div class="col-md-4 p-0 text-md-right text-left">
+                    <span class="badge badge-light border p-2"><i class="fas fa-clock text-primary mr-1"></i> Update Real-time</span>
+                </div>
             </div>
         </div>
         <div class="card-body">
-            <!-- Filter & Pagination Controls -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <form action="" method="get" class="d-flex">
-                        <select name="per_page" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
-                            <option value="10" <?= ($perPage == '10') ? 'selected' : '' ?>>10</option>
-                            <option value="20" <?= ($perPage == '20') ? 'selected' : '' ?>>20</option>
-                            <option value="50" <?= ($perPage == '50') ? 'selected' : '' ?>>50</option>
-                            <option value="100" <?= ($perPage == '100') ? 'selected' : '' ?>>100</option>
+            
+            <!-- Filter Bar -->
+            <form action="" method="get" class="mb-4" id="formFilterTransaksi">
+                <div class="row align-items-end">
+                    <div class="col-md-8 mb-2">
+                        <label for="q" class="small font-weight-bold">Cari Transaksi</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="q" id="q" class="form-control" placeholder="Cari Kode / NIS / Nama Siswa / Petugas..." value="<?= esc($search ?? '') ?>">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary" title="Cari Data"><i class="fas fa-search"></i></button>
+                                <a href="<?= base_url('transaksi') ?>" class="btn btn-outline-secondary" title="Reset Filter"><i class="fas fa-undo"></i> Reset</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-2">
+                        <label for="per_page" class="small font-weight-bold">Tampilkan Data</label>
+                        <select name="per_page" id="per_page" class="form-control form-control-sm select2" onchange="this.form.submit()">
+                            <option value="10" <?= ($perPage == '10') ? 'selected' : '' ?>>10 Data Per Halaman</option>
+                            <option value="25" <?= ($perPage == '25') ? 'selected' : '' ?>>25 Data Per Halaman</option>
+                            <option value="50" <?= ($perPage == '50') ? 'selected' : '' ?>>50 Data Per Halaman</option>
+                            <option value="100" <?= ($perPage == '100') ? 'selected' : '' ?>>100 Data Per Halaman</option>
                         </select>
-                        <input type="text" name="q" class="form-control form-control-sm" placeholder="Cari NIS/Nama/Kode..." value="<?= esc($search) ?>">
-                        <button type="submit" class="btn btn-primary btn-sm ml-2"><i class="fas fa-search"></i></button>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead>
+                <table class="table table-bordered table-striped table-hover mb-0">
+                    <thead class="bg-light">
                         <tr>
-                            <th>Tanggal</th>
-                            <th>Kode</th>
-                            <th>NIS</th>
+                            <th width="150" class="text-center">Waktu & Tanggal</th>
+                            <th width="130">Kode Transaksi</th>
+                            <th width="100">NIS</th>
                             <th>Nama Siswa</th>
-                            <th>Jenis</th>
-                            <th>Jumlah</th>
-                            <th>Petugas</th>
+                            <th width="100" class="text-center">Jenis</th>
+                            <th width="160" class="text-right">Nominal (Rp)</th>
+                            <th width="140">Petugas</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($transaksi as $item) : ?>
                             <tr>
-                                <td><?= date('d-m-Y H:i', strtotime($item['created_at'])) ?></td>
-                                <td><?= esc($item['kode_transaksi']) ?></td>
-                                <td><?= esc($item['nis']) ?></td>
-                                <td><?= esc($item['nama_siswa']) ?></td>
-                                <td>
+                                <td class="text-center small font-weight-bold">
+                                    <i class="far fa-clock text-muted mr-1"></i><?= date('d/m/Y H:i', strtotime($item['created_at'])) ?>
+                                </td>
+                                <td><span class="badge badge-secondary"><?= esc($item['kode_transaksi']) ?></span></td>
+                                <td><span class="badge badge-light border"><?= esc($item['nis']) ?></span></td>
+                                <td class="font-weight-bold"><?= esc($item['nama_siswa']) ?></td>
+                                <td class="text-center">
                                     <?php if ($item['jenis_transaksi'] == 'setor') : ?>
-                                        <span class="badge bg-success">Setor</span>
+                                        <span class="badge badge-success px-2 py-1"><i class="fas fa-arrow-down mr-1"></i>Setor</span>
                                     <?php else : ?>
-                                        <span class="badge bg-danger">Tarik</span>
+                                        <span class="badge badge-danger px-2 py-1"><i class="fas fa-arrow-up mr-1"></i>Tarik</span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="text-right"><?= number_format($item['jumlah'], 0, ',', '.') ?></td>
-                                <td><?= esc($item['nama_pengguna']) ?></td>
+                                <td class="text-right font-weight-bold <?= ($item['jenis_transaksi'] == 'setor') ? 'text-success' : 'text-danger' ?>">
+                                    <?= ($item['jenis_transaksi'] == 'setor') ? '+' : '-' ?> Rp <?= number_format($item['jumlah'], 0, ',', '.') ?>
+                                </td>
+                                <td class="small font-weight-bold"><i class="fas fa-user-circle text-primary mr-1"></i><?= esc($item['nama_pengguna']) ?></td>
                             </tr>
                         <?php endforeach; ?>
                         <?php if (empty($transaksi)) : ?>
-                            <tr><td colspan="7" class="text-center">Tidak ada data transaksi.</td></tr>
+                            <tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-info-circle mr-1"></i> Belum ada riwayat transaksi.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
+
             <?php if (isset($pager)) : ?>
                 <div class="mt-3 d-flex justify-content-between align-items-center flex-wrap">
                     <span class="text-muted small mb-2 mb-md-0"><i class="fas fa-info-circle mr-1"></i> Navigasi halaman riwayat transaksi.</span>
@@ -90,13 +166,13 @@
     </div>
 </div>
 
-<!-- Modal Transaksi -->
+<!-- Modal Transaksi Instan -->
 <div class="modal fade" id="transaksiModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">Tambah Transaksi</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <div class="modal-header bg-primary text-white py-2">
+                <h5 class="modal-title" id="modal-title"><i class="fas fa-cash-register mr-2"></i>Tambah Transaksi Instan</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -104,9 +180,9 @@
                 <div class="modal-body">
                     <input type="hidden" name="id" id="id">
                     <div class="form-group">
-                        <label for="siswa_id">Siswa</label>
-                        <select name="siswa_id" id="siswa_id" class="form-control" required>
-                            <option value="">-- Pilih Siswa --</option>
+                        <label for="siswa_id">Pilih Siswa <span class="text-danger">*</span></label>
+                        <select name="siswa_id" id="siswa_id" class="form-control select2" required style="width:100%;">
+                            <option value="">-- Cari NIS / Nama Siswa --</option>
                             <?php foreach($siswa as $s): ?>
                             <option value="<?= $s['id'] ?>"><?= esc($s['nis']) ?> - <?= esc($s['nama_lengkap']) ?></option>
                             <?php endforeach; ?>
@@ -114,28 +190,27 @@
                         <div class="invalid-feedback" id="error-siswa_id"></div>
                     </div>
                     <div class="form-group">
-                        <label for="jenis_transaksi">Jenis Transaksi</label>
-                        <select name="jenis_transaksi" id="jenis_transaksi" class="form-control" required>
-                            <option value="setor">Setor</option>
-                            <option value="tarik">Tarik</option>
+                        <label for="jenis_transaksi">Jenis Transaksi <span class="text-danger">*</span></label>
+                        <select name="jenis_transaksi" id="jenis_transaksi" class="form-control select2" required style="width:100%;">
+                            <option value="setor">🟢 Setor Tunai (Pemasukan)</option>
+                            <option value="tarik">🔴 Tarik Tunai (Penarikan)</option>
                         </select>
                         <div class="invalid-feedback" id="error-jenis_transaksi"></div>
                     </div>
                     <div class="form-group">
-                        <label for="jumlah">Jumlah (Rp)</label>
-                        <input type="text" name="jumlah" id="jumlah" class="form-control" required>
+                        <label for="jumlah">Nominal Transaksi (Rp) <span class="text-danger">*</span></label>
+                        <input type="text" name="jumlah" id="jumlah" class="form-control form-control-lg text-right font-weight-bold" placeholder="0" required>
                         <div class="invalid-feedback" id="error-jumlah"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="keterangan">Keterangan</label>
-                        <textarea name="keterangan" id="keterangan" class="form-control" rows="2"></textarea>
+                    <div class="form-group mb-0">
+                        <label for="keterangan">Keterangan / Catatan</label>
+                        <textarea name="keterangan" id="keterangan" class="form-control" rows="2" placeholder="Contoh: Setoran Mingguan"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary" id="btn-save">
-                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                        Simpan
+                        <i class="fas fa-save mr-1"></i> Simpan Transaksi
                     </button>
                 </div>
             </form>
@@ -143,25 +218,24 @@
     </div>
 </div>
 
-<!-- Script custom transaksi -->
 <script>
 $(document).ready(function() {
-    // Tombol Tambah diklik
     $('#btn-tambah').on('click', function() {
-        $('#modal-title').text('Tambah Transaksi');
         $('#transaksi-form')[0].reset();
         $('#id').val('');
         $('.is-invalid').removeClass('is-invalid');
+        if ($.fn.select2) {
+            $('#siswa_id, #jenis_transaksi').trigger('change');
+        }
         $('#transaksiModal').modal('show');
     });
 
-    // Form disubmit
     $('#transaksi-form').on('submit', function(e) {
         e.preventDefault();
         
         const btnSave = $('#btn-save');
         btnSave.prop('disabled', true);
-        btnSave.find('.spinner-border').removeClass('d-none');
+        btnSave.html('<i class="fas fa-spinner fa-spin mr-1"></i> Menyimpan...');
 
         $.ajax({
             url: '<?= base_url('transaksi/save') ?>',
@@ -170,10 +244,17 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 $('.is-invalid').removeClass('is-invalid');
-                if (response.success) {
+                if (response.success || response.status) {
                     $('#transaksiModal').modal('hide');
-                    alert(response.message);
-                    window.location.reload(); // Reload halaman untuk melihat data baru
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Transaksi Berhasil!',
+                        text: response.message || 'Transaksi berhasil disimpan.',
+                        timer: 1800,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
                 } else {
                     if (response.errors) {
                         $.each(response.errors, function(key, value) {
@@ -181,24 +262,28 @@ $(document).ready(function() {
                             $('#error-' + key).text(value);
                         });
                     }
-                    if(response.message){
-                        alert(response.message);
-                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menyimpan!',
+                        text: response.message || 'Terjadi kesalahan validasi.'
+                    });
                 }
             },
             error: function() {
-                alert('Terjadi kesalahan. Silakan coba lagi.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Koneksi Terputus!',
+                    text: 'Terjadi kesalahan jaringan.'
+                });
             },
             complete: function() {
                 btnSave.prop('disabled', false);
-                btnSave.find('.spinner-border').addClass('d-none');
+                btnSave.html('<i class="fas fa-save mr-1"></i> Simpan Transaksi');
             }
         });
     });
 
-    // Format input jumlah sebagai mata uang
     $('#jumlah').on('keyup', function() {
-        // Implementasi sederhana, bisa diganti dengan library seperti cleave.js
         let value = $(this).val().replace(/[^0-9]/g, '');
         if(value) {
             $(this).val(new Intl.NumberFormat('id-ID').format(value));

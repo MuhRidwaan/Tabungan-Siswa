@@ -19,9 +19,27 @@ class GuruController extends BaseController
      */
     public function index()
     {
+        $allUsers = $this->guru->findAll();
+        $totalPengguna = count($allUsers);
+        $totalGuru = 0;
+        $totalAdmin = 0;
+
+        foreach ($allUsers as $u) {
+            if ($u['role'] == 'admin') {
+                $totalAdmin++;
+            } else {
+                $totalGuru++;
+            }
+        }
+
         $data = [
-            'title' => 'Data Guru',
-            'guru'  => $this->guru->where('role', 'guru')->findAll()
+            'title' => 'Manajemen Data Guru & Pengguna',
+            'guru'  => $allUsers,
+            'stats' => [
+                'total_pengguna' => $totalPengguna,
+                'total_guru'     => $totalGuru,
+                'total_admin'    => $totalAdmin
+            ]
         ];
         return view('guru/index', $data);
     }

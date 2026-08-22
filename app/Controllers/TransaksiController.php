@@ -24,13 +24,24 @@ class TransaksiController extends BaseController
         $perPage = $this->request->getGet('per_page') ?: 10;
         $search = $this->request->getGet('q');
 
+        $statsData = $this->db->table('transaksi')
+            ->select('
+                COUNT(id) as total_transaksi,
+                COALESCE(SUM(CASE WHEN jenis_transaksi = "setor" THEN jumlah ELSE 0 END), 0) as total_setor,
+                COALESCE(SUM(CASE WHEN jenis_transaksi = "tarik" THEN jumlah ELSE 0 END), 0) as total_tarik
+            ')
+            ->get()->getRowArray();
+
+        $statsData['total_kas'] = $statsData['total_setor'] - $statsData['total_tarik'];
+
         $data = [
-            'title'       => 'Semua Transaksi',
+            'title'       => 'Riwayat Transaksi Tabungan',
             'transaksi'   => $this->transaksiModel->getTransaksiWithDetails($search, $perPage),
             'pager'       => $this->transaksiModel->pager,
             'perPage'     => $perPage,
             'search'      => $search,
-            'siswa'       => $this->siswaModel->where('status_siswa', 'aktif')->findAll() // Untuk form modal
+            'siswa'       => $this->siswaModel->where('status_siswa', 'aktif')->findAll(),
+            'stats'       => $statsData
         ];
         return view('transaksi/index', $data);
     }

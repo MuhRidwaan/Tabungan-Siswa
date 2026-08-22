@@ -26,6 +26,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->resource('siswa',        ['controller' => 'SiswaController']);
     $routes->resource('guru',         ['controller' => 'GuruController']);
     $routes->resource('kelas',        ['controller' => 'KelasController']);
+    $routes->get ('tahun-ajaran/set-active/(:num)', 'TahunAjaranController::setActive/$1');
     $routes->resource('tahun-ajaran', ['controller' => 'TahunAjaranController']);
 
     $routes->get   ('manajemen-kelas',             'ManajemenKelasController::index');

@@ -5,7 +5,13 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0"><?= $title ?></h1>
+                <h1 class="m-0"><i class="fas fa-file-invoice text-primary mr-2"></i><?= esc($title) ?></h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="<?= base_url('dashboard') ?>">Home</a></li>
+                    <li class="breadcrumb-item active">Laporan & Cetak</li>
+                </ol>
             </div>
         </div>
     </div>
@@ -14,73 +20,61 @@
 <div class="container-fluid">
     <!-- Form Filter -->
     <div class="card card-outline card-info">
-        <div class="card-header">
-            <h3 class="card-title">Filter Laporan</h3>
+        <div class="card-header py-3">
+            <h3 class="card-title font-weight-bold text-dark"><i class="fas fa-filter text-info mr-2"></i>Filter Generator Laporan</h3>
         </div>
         <form method="get" action="<?= base_url('laporan') ?>">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="form-group">
-                            <label>Jenis Laporan</label>
-                            <select name="jenis_laporan" id="jenis_laporan" class="form-control" required>
-                                <option value="">-- Pilih Jenis --</option>
-                                <option value="per_siswa" <?= ($jenisLaporan == 'per_siswa') ? 'selected' : '' ?>>Laporan per Siswa</option>
-                                <option value="per_kelas" <?= ($jenisLaporan == 'per_kelas') ? 'selected' : '' ?>>Laporan per Kelas</option>
-                                <option value="pemasukan" <?= ($jenisLaporan == 'pemasukan') ? 'selected' : '' ?>>Laporan Pemasukan</option>
-                            </select>
-                        </div>
+            <div class="card-body bg-light">
+                <div class="row align-items-end">
+                    <div class="col-lg-3 col-md-6 mb-2">
+                        <label class="small font-weight-bold">Jenis Laporan</label>
+                        <select name="jenis_laporan" id="jenis_laporan" class="form-control select2" required>
+                            <option value="">-- Pilih Jenis Laporan --</option>
+                            <option value="per_siswa" <?= ($jenisLaporan == 'per_siswa') ? 'selected' : '' ?>>📊 Laporan per Siswa</option>
+                            <option value="per_kelas" <?= ($jenisLaporan == 'per_kelas') ? 'selected' : '' ?>>🏫 Rekapitulasi per Kelas</option>
+                            <option value="pemasukan" <?= ($jenisLaporan == 'pemasukan') ? 'selected' : '' ?>>💰 Laporan Pemasukan Kas</option>
+                        </select>
                     </div>
                     
                     <!-- Dynamic Filters -->
-                    <div id="filter-per-siswa" class="col-lg-3 col-md-6" style="display: none;">
-                        <div class="form-group">
-                            <label>Pilih Siswa</label>
-                            <select name="siswa_id" class="form-control">
-                                <option value="">-- Semua Siswa --</option>
-                                <?php if(isset($listSiswa)): foreach ($listSiswa as $s) : ?>
-                                    <option value="<?= $s['id'] ?>" <?= (isset($_GET['siswa_id']) && $_GET['siswa_id'] == $s['id']) ? 'selected' : '' ?>><?= esc($s['nama_lengkap']) ?></option>
-                                <?php endforeach; endif; ?>
-                            </select>
-                        </div>
+                    <div id="filter-per-siswa" class="col-lg-3 col-md-6 mb-2" style="display: none;">
+                        <label class="small font-weight-bold">Pilih Siswa</label>
+                        <select name="siswa_id" class="form-control select2">
+                            <option value="">-- Cari NIS / Nama Siswa --</option>
+                            <?php if(isset($listSiswa)): foreach ($listSiswa as $s) : ?>
+                                <option value="<?= $s['id'] ?>" <?= (isset($_GET['siswa_id']) && $_GET['siswa_id'] == $s['id']) ? 'selected' : '' ?>><?= esc($s['nis']) ?> - <?= esc($s['nama_lengkap']) ?></option>
+                            <?php endforeach; endif; ?>
+                        </select>
                     </div>
 
-                    <div id="filter-per-kelas" class="col-lg-3 col-md-6" style="display: none;">
-                        <div class="form-group">
-                            <label>Pilih Kelas</label>
-                            <select name="kelas_id" class="form-control">
-                                <option value="">-- Semua Kelas --</option>
-                                <?php if(isset($listKelas)): foreach ($listKelas as $k) : ?>
-                                    <option value="<?= $k['id'] ?>" <?= (isset($_GET['kelas_id']) && $_GET['kelas_id'] == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?></option>
-                                <?php endforeach; endif; ?>
-                            </select>
-                        </div>
+                    <div id="filter-per-kelas" class="col-lg-3 col-md-6 mb-2" style="display: none;">
+                        <label class="small font-weight-bold">Pilih Kelas</label>
+                        <select name="kelas_id" class="form-control select2">
+                            <option value="">-- Pilih Kelas --</option>
+                            <?php if(isset($listKelas)): foreach ($listKelas as $k) : ?>
+                                <option value="<?= $k['id'] ?>" <?= (isset($_GET['kelas_id']) && $_GET['kelas_id'] == $k['id']) ? 'selected' : '' ?>><?= esc($k['nama_kelas']) ?></option>
+                            <?php endforeach; endif; ?>
+                        </select>
                     </div>
 
-                    <div id="filter-tanggal" class="col-lg-4 col-md-6" style="display: none;">
+                    <div id="filter-tanggal" class="col-lg-4 col-md-6 mb-2" style="display: none;">
                        <div class="row">
                            <div class="col-6">
-                               <div class="form-group">
-                                    <label>Tanggal Mulai</label>
-                                    <input type="date" name="start_date" class="form-control" value="<?= esc($startDate) ?>">
-                               </div>
+                                <label class="small font-weight-bold">Tanggal Mulai</label>
+                                <input type="date" name="start_date" class="form-control form-control-sm" value="<?= esc($startDate) ?>">
                            </div>
                            <div class="col-6">
-                               <div class="form-group">
-                                    <label>Tanggal Selesai</label>
-                                    <input type="date" name="end_date" class="form-control" value="<?= esc($endDate) ?>">
-                               </div>
+                                <label class="small font-weight-bold">Tanggal Selesai</label>
+                                <input type="date" name="end_date" class="form-control form-control-sm" value="<?= esc($endDate) ?>">
                            </div>
                        </div>
                     </div>
-                     <!-- End Dynamic Filters -->
+                    <!-- End Dynamic Filters -->
 
-                    <div class="col-lg-2 col-md-12 d-flex align-items-end">
-                        <div class="form-group" style="width: 100%;">
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                <i class="fas fa-search"></i> Generate
-                            </button>
-                        </div>
+                    <div class="col-lg-2 col-md-12 mb-2">
+                        <button type="submit" class="btn btn-info btn-block font-weight-bold">
+                            <i class="fas fa-play mr-1"></i> Generate
+                        </button>
                     </div>
                 </div>
             </div>
@@ -89,16 +83,20 @@
 
     <!-- Report Display -->
     <?php if ($jenisLaporan && $reportData !== null) : ?>
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h3 class="card-title"><i class="fas fa-file-alt mr-1"></i> Hasil Laporan</h3>
-                <div>
-                    <a href="<?= base_url('laporan/export?' . ($_SERVER['QUERY_STRING'] ?? '')) ?>" class="btn btn-sm btn-success mr-1">
-                        <i class="fas fa-file-excel mr-1"></i> Export Excel (CSV)
-                    </a>
-                    <button type="button" onclick="window.print()" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-print mr-1"></i> Cetak / Print
-                    </button>
+        <div class="card card-primary card-outline">
+            <div class="card-header border-0 py-3">
+                <div class="row w-100 align-items-center m-0">
+                    <div class="col-md-6 p-0 mb-2 mb-md-0">
+                        <h3 class="card-title font-weight-bold text-dark"><i class="fas fa-file-alt text-primary mr-2"></i> Hasil Laporan Tabungan</h3>
+                    </div>
+                    <div class="col-md-6 p-0 text-md-right text-left">
+                        <a href="<?= base_url('laporan/export?' . ($_SERVER['QUERY_STRING'] ?? '')) ?>" class="btn btn-success mr-1">
+                            <i class="fas fa-file-excel mr-1"></i> Export Excel (.xls)
+                        </a>
+                        <button type="button" onclick="window.print()" class="btn btn-secondary">
+                            <i class="fas fa-print mr-1"></i> Cetak Laporan
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -109,7 +107,7 @@
                 <?php elseif ($jenisLaporan == 'pemasukan') : ?>
                     <?= $this->include('laporan/pemasukan') ?>
                 <?php else: ?>
-                    <div class="alert alert-warning">Silakan pilih filter yang sesuai atau tidak ada data untuk ditampilkan.</div>
+                    <div class="alert alert-warning py-3"><i class="fas fa-exclamation-triangle mr-1"></i> Silakan pilih filter yang sesuai atau tidak ada data untuk ditampilkan.</div>
                 <?php endif; ?>
             </div>
         </div>
@@ -136,8 +134,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    jenisLaporanSelect.addEventListener('change', toggleFilters);
-    toggleFilters(); // Run on page load
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('#jenis_laporan').on('change', function() {
+            toggleFilters();
+        });
+    } else {
+        jenisLaporanSelect.addEventListener('change', toggleFilters);
+    }
+
+    toggleFilters();
 });
 </script>
 <?= $this->endSection() ?>

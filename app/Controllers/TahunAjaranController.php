@@ -19,11 +19,38 @@ class TahunAjaranController extends BaseController
      */
     public function index()
     {
+        $list = $this->tahunAjaranModel->orderBy('tahun_mulai', 'DESC')->findAll();
+        $totalTa = count($list);
+        $taAktif = null;
+
+        foreach ($list as $t) {
+            if ($t['status'] == 'aktif') {
+                $taAktif = $t['nama_tahun_ajaran'];
+                break;
+            }
+        }
+
         $data = [
-            'title'        => 'Data Tahun Ajaran',
-            'tahun_ajaran' => $this->tahunAjaranModel->orderBy('tahun_mulai', 'DESC')->findAll()
+            'title'        => 'Manajemen Data Tahun Ajaran',
+            'tahun_ajaran' => $list,
+            'stats'        => [
+                'total_ta' => $totalTa,
+                'ta_aktif' => $taAktif ?? 'Belum Diatur'
+            ]
         ];
         return view('tahun_ajaran/index', $data);
+    }
+
+    /**
+     * Set 1-klik Tahun Ajaran Aktif
+     */
+    public function setActive($id)
+    {
+        $this->nonaktifkanSemuaTahunAjaran();
+        $this->tahunAjaranModel->update($id, ['status' => 'aktif']);
+
+        session()->setFlashdata('success', 'Tahun ajaran berhasil diaktifkan.');
+        return redirect()->to('/tahun-ajaran');
     }
 
     /**
