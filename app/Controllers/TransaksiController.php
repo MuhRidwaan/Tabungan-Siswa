@@ -362,25 +362,102 @@ class TransaksiController extends BaseController
     }
 
     /**
-     * Download Template CSV untuk Import Transaksi Multi-Tanggal
+     * Download Template Excel Native (.xls) untuk Import Transaksi Multi-Tanggal
      */
     public function downloadTemplateMulti()
     {
-        $filename = "template_import_transaksi_multi.csv";
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=' . $filename);
+        $siswaModel = new \App\Models\Siswa();
+        $siswaList  = $siswaModel->where('status_siswa', 'aktif')->orderBy('nama_lengkap', 'ASC')->findAll();
 
-        $output = fopen('php://output', 'w');
-        fputcsv($output, ['nis', 'nama_lengkap', 'tanggal', 'jenis_transaksi', 'nominal', 'keterangan']);
-        fputcsv($output, ['1001', 'Ahmad Dani', date('Y-m-01'), 'setor', '10000', 'Setoran Tanggal 1']);
-        fputcsv($output, ['1001', 'Ahmad Dani', date('Y-m-02'), 'setor', '15000', 'Setoran Tanggal 2']);
-        fputcsv($output, ['1002', 'Siti Rahma', date('Y-m-01'), 'setor', '20000', 'Setoran Tanggal 1']);
-        fclose($output);
+        $filename = "template_import_transaksi_multi_" . date('Ymd_His') . ".xls";
+
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $filename);
+        header('Cache-Control: max-age=0');
+
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        echo '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        ?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Header">
+   <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#0277BD" ss:Pattern="Solid"/>
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="StringText">
+   <NumberFormat ss:Format="@"/>
+  </Style>
+ </Styles>
+
+ <Worksheet ss:Name="Form Import Transaksi">
+  <Table>
+   <Column ss:Width="100"/>
+   <Column ss:Width="180"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="140"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="200"/>
+   <Row ss:Height="25">
+    <Cell ss:StyleID="Header"><Data ss:Type="String">nis</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">nama_lengkap</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">tanggal</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">jenis_transaksi</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">nominal</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">keterangan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="StringText"><Data ss:Type="String">1001</Data></Cell>
+    <Cell><Data ss:Type="String">Ahmad Dani</Data></Cell>
+    <Cell><Data ss:Type="String"><?= date('Y-m-01') ?></Data></Cell>
+    <Cell><Data ss:Type="String">setor</Data></Cell>
+    <Cell><Data ss:Type="Number">10000</Data></Cell>
+    <Cell><Data ss:Type="String">Setoran Tanggal 1</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="StringText"><Data ss:Type="String">1001</Data></Cell>
+    <Cell><Data ss:Type="String">Ahmad Dani</Data></Cell>
+    <Cell><Data ss:Type="String"><?= date('Y-m-02') ?></Data></Cell>
+    <Cell><Data ss:Type="String">setor</Data></Cell>
+    <Cell><Data ss:Type="Number">15000</Data></Cell>
+    <Cell><Data ss:Type="String">Setoran Tanggal 2</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="REFERENSI NIS SISWA">
+  <Table>
+   <Column ss:Width="50"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="200"/>
+   <Column ss:Width="140"/>
+   <Row ss:Height="25">
+    <Cell ss:StyleID="Header"><Data ss:Type="String">No</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">NIS</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Nama Lengkap Siswa</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Saldo Saat Ini (Rp)</Data></Cell>
+   </Row>
+   <?php foreach ($siswaList as $idx => $s): ?>
+   <Row>
+    <Cell><Data ss:Type="Number"><?= $idx + 1 ?></Data></Cell>
+    <Cell ss:StyleID="StringText"><Data ss:Type="String"><?= esc($s['nis']) ?></Data></Cell>
+    <Cell><Data ss:Type="String"><?= esc($s['nama_lengkap']) ?></Data></Cell>
+    <Cell><Data ss:Type="Number"><?= (float)$s['saldo_akhir'] ?></Data></Cell>
+   </Row>
+   <?php endforeach; ?>
+  </Table>
+ </Worksheet>
+</Workbook>
+        <?php
         exit;
     }
 
     /**
-     * Import Rekap Transaksi Multi-Tanggal dari CSV
+     * Import Rekap Transaksi Multi-Tanggal dari Excel / CSV
      */
     public function importMulti()
     {
@@ -390,29 +467,52 @@ class TransaksiController extends BaseController
         }
 
         $ext = strtolower($file->getClientExtension());
-        if (!in_array($ext, ['csv', 'txt'])) {
-            return redirect()->back()->with('error', 'Format file harus berupa CSV (.csv). Silakan unduh template yang telah disediakan.');
+        if (!in_array($ext, ['csv', 'xls', 'xlsx', 'xml', 'txt'])) {
+            return redirect()->back()->with('error', 'Format file harus berupa Excel (.xls) atau CSV (.csv). Silakan unduh template yang telah disediakan.');
         }
 
-        $handle = fopen($file->getTempName(), "r");
-        if (!$handle) {
-            return redirect()->back()->with('error', 'Gagal membaca file CSV.');
+        $content = file_get_contents($file->getTempName());
+        $rawRows = [];
+
+        if (strpos($content, '<Table') !== false || strpos($content, '<Row') !== false) {
+            // Parse Excel XML Spreadsheet
+            preg_match_all('/<Row[^>]*>(.*?)<\/Row>/s', $content, $rowMatches);
+            foreach ($rowMatches[1] as $rIndex => $rowXml) {
+                preg_match_all('/<Data[^>]*>(.*?)<\/Data>/s', $rowXml, $dataMatches);
+                if (!empty($dataMatches[1])) {
+                    $rawRows[] = array_map(function($val) {
+                        return trim(html_entity_decode(strip_tags($val)));
+                    }, $dataMatches[1]);
+                }
+            }
+            if (!empty($rawRows) && strtolower($rawRows[0][0] ?? '') == 'nis') {
+                array_shift($rawRows);
+            }
+        } else {
+            // Parse standard CSV
+            $handle = fopen($file->getTempName(), "r");
+            if ($handle) {
+                fgetcsv($handle, 1000, ",");
+                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    $rawRows[] = $data;
+                }
+                fclose($handle);
+            }
         }
 
-        $header = fgetcsv($handle, 1000, ",");
         $countSuccess = 0;
-        $countFailed = 0;
+        $countFailed  = 0;
 
         $this->db->transStart();
 
-        while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            if (count($row) < 5) continue;
+        foreach ($rawRows as $row) {
+            if (count($row) < 4) continue;
 
             $nis          = trim($row[0]);
-            $namaLengkap  = trim($row[1]);
-            $tanggal      = trim($row[2]);
-            $jenis        = strtolower(trim($row[3])) == 'tarik' ? 'tarik' : 'setor';
-            $jumlah       = (float) str_replace(['.', ','], '', trim($row[4]));
+            $namaLengkap  = trim($row[1] ?? '');
+            $tanggal      = trim($row[2] ?? date('Y-m-d'));
+            $jenis        = strtolower(trim($row[3] ?? 'setor')) == 'tarik' ? 'tarik' : 'setor';
+            $jumlah       = (float) str_replace(['.', ','], '', trim($row[4] ?? '0'));
             $ket          = isset($row[5]) ? trim($row[5]) : "Import Multi-Tanggal {$tanggal}";
 
             if (empty($nis) || $jumlah <= 0 || empty($tanggal)) {
@@ -460,7 +560,6 @@ class TransaksiController extends BaseController
             $countSuccess++;
         }
 
-        fclose($handle);
         $this->db->transComplete();
 
         if ($this->db->transStatus() === FALSE) {

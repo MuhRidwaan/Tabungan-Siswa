@@ -24,25 +24,27 @@
 
     <!-- Filter Header Card -->
     <div class="card card-info card-outline">
-      <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
-        <h3 class="card-title"><i class="fas fa-user-clock mr-1"></i> Pilih Siswa & Periode Tanggal Harian</h3>
-        <div>
-          <button type="button" class="btn btn-sm btn-success mr-1" data-toggle="modal" data-target="#modalImportMulti">
-            <i class="fas fa-file-excel mr-1"></i> Import Excel/CSV Transaksi
+      <div class="card-header d-flex flex-wrap align-items-center justify-content-between py-3">
+        <h3 class="card-title font-weight-bold text-dark mb-2 mb-md-0">
+          <i class="fas fa-user-clock text-info mr-2"></i>Pilih Siswa & Periode Tanggal Harian
+        </h3>
+        <div class="card-tools d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-sm btn-success mr-2 mb-1" data-toggle="modal" data-target="#modalImportMulti">
+            <i class="fas fa-file-excel mr-1"></i> Import Excel Transaksi
           </button>
-          <a href="<?= base_url('transaksi/download-template-multi') ?>" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-download mr-1"></i> Download Template CSV
+          <a href="<?= base_url('transaksi/download-template-multi') ?>" class="btn btn-sm btn-outline-success mb-1">
+            <i class="fas fa-file-download mr-1"></i> Download Template Excel (.xls)
           </a>
         </div>
       </div>
       <div class="card-body">
         <form id="formFilterMulti">
-          <div class="row">
-            <!-- Pilih Siswa -->
-            <div class="col-md-4">
-              <div class="form-group">
+          <div class="row align-items-end">
+            <!-- Pilih Siswa (3 Columns) -->
+            <div class="col-md-3">
+              <div class="form-group mb-md-0">
                 <label for="siswa_id"><i class="fas fa-user mr-1"></i> Nama Siswa <span class="text-danger">*</span></label>
-                <select name="siswa_id" id="siswa_id" class="form-control select2" required>
+                <select name="siswa_id" id="siswa_id" class="form-control select2" required style="width:100%;">
                   <option value="">-- Pilih Siswa --</option>
                   <?php foreach ($siswa as $s) : ?>
                     <option value="<?= $s['id'] ?>" data-saldo="<?= $s['saldo_akhir'] ?>">
@@ -53,37 +55,37 @@
               </div>
             </div>
 
-            <!-- Jenis Transaksi -->
+            <!-- Jenis Transaksi (3 Columns) -->
             <div class="col-md-3">
-              <div class="form-group">
+              <div class="form-group mb-md-0">
                 <label for="jenis_transaksi"><i class="fas fa-exchange-alt mr-1"></i> Jenis Transaksi <span class="text-danger">*</span></label>
-                <select name="jenis_transaksi" id="jenis_transaksi" class="form-control" required>
+                <select name="jenis_transaksi" id="jenis_transaksi" class="form-control select2" required style="width:100%;">
                   <option value="setor">🟢 Setor Tunai (Pemasukan)</option>
                   <option value="tarik">🔴 Tarik Tunai (Penarikan)</option>
                 </select>
               </div>
             </div>
 
-            <!-- Tanggal Mulai -->
+            <!-- Tanggal Mulai (2 Columns) -->
             <div class="col-md-2 col-6">
-              <div class="form-group">
+              <div class="form-group mb-md-0">
                 <label for="tgl_mulai"><i class="fas fa-calendar-day mr-1"></i> Dari Tanggal</label>
                 <input type="date" id="tgl_mulai" class="form-control" value="<?= date('Y-m-01') ?>" required>
               </div>
             </div>
 
-            <!-- Tanggal Selesai -->
+            <!-- Tanggal Selesai (2 Columns) -->
             <div class="col-md-2 col-6">
-              <div class="form-group">
+              <div class="form-group mb-md-0">
                 <label for="tgl_selesai"><i class="fas fa-calendar-check mr-1"></i> Sampai Tanggal</label>
                 <input type="date" id="tgl_selesai" class="form-control" value="<?= date('Y-m-d') ?>" required>
               </div>
             </div>
 
-            <!-- Generate Button -->
-            <div class="col-md-1 d-flex align-items-end mb-3">
-              <button type="button" class="btn btn-info btn-block" id="btnGenerateGrid">
-                <i class="fas fa-sync-alt"></i> Buat Grid
+            <!-- Generate Button (2 Columns) -->
+            <div class="col-md-2 mt-3 mt-md-0">
+              <button type="button" class="btn btn-info btn-block shadow-sm" id="btnGenerateGrid">
+                <i class="fas fa-sync-alt mr-1"></i> Buat Grid
               </button>
             </div>
           </div>
@@ -93,10 +95,10 @@
 
     <!-- Table Matrix Multi-Tanggal -->
     <div class="card card-primary card-outline">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <h3 class="card-title" id="tableTitle"><i class="fas fa-list-ol mr-1"></i> Tabel Setoran Harian Siswa</h3>
+      <div class="card-header d-flex align-items-center justify-content-between py-3">
+        <h3 class="card-title font-weight-bold" id="tableTitle"><i class="fas fa-list-ol mr-2"></i>Tabel Setoran Harian Siswa</h3>
         <div class="card-tools">
-          <span id="draftStatusBadge" class="badge badge-secondary p-2"><i class="fas fa-info-circle"></i> Pilih siswa & periode tanggal di atas</span>
+          <span id="draftStatusBadge" class="badge badge-secondary p-2"><i class="fas fa-info-circle mr-1"></i> Pilih siswa & periode tanggal di atas</span>
         </div>
       </div>
       <div class="card-body p-0">
@@ -110,10 +112,10 @@
               <thead class="bg-light">
                 <tr>
                   <th width="50" class="text-center">No</th>
-                  <th width="180">Tanggal</th>
-                  <th width="240" class="text-center">Nominal Setoran / Tarik (Rp)</th>
+                  <th width="200">Tanggal</th>
+                  <th width="260" class="text-center">Nominal Setoran / Tarik (Rp)</th>
                   <th>Keterangan Khusus (Opsional)</th>
-                  <th width="200" class="text-right">Estimasi Saldo Akumulatif</th>
+                  <th width="220" class="text-right">Estimasi Saldo Akumulatif</th>
                 </tr>
               </thead>
               <tbody id="gridContainer">
@@ -126,7 +128,7 @@
               </tbody>
               <tfoot class="bg-light font-weight-bold d-none" id="tableFooter">
                 <tr>
-                  <td colspan="2" class="text-right">TOTAL AKUMULASI SETORAN:</td>
+                  <td colspan="2" class="text-right">TOTAL AKUMULASI TRANSAKSI:</td>
                   <td class="text-right text-success h5 mb-0" id="totalNominalDisplay">Rp 0</td>
                   <td colspan="2"><span id="hariTerisiDisplay" class="badge badge-info p-2">0 Hari Terisi</span></td>
                 </tr>
@@ -179,18 +181,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function formatDateIndo(dateStr) {
-        const d = new Date(dateStr);
+        let [y, m, d] = dateStr.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        return d.toLocaleDateString('id-ID', options);
+        return dt.toLocaleDateString('id-ID', options);
     }
 
     function generateDateArray(startDateStr, endDateStr) {
         const dates = [];
-        let curr = new Date(startDateStr);
-        const end = new Date(endDateStr);
+        let [y1, m1, d1] = startDateStr.split('-').map(Number);
+        let [y2, m2, d2] = endDateStr.split('-').map(Number);
+
+        let curr = new Date(y1, m1 - 1, d1);
+        let end  = new Date(y2, m2 - 1, d2);
 
         while (curr <= end) {
-            dates.push(curr.toISOString().split('T')[0]);
+            let year  = curr.getFullYear();
+            let month = String(curr.getMonth() + 1).padStart(2, '0');
+            let day   = String(curr.getDate()).padStart(2, '0');
+            dates.push(`${year}-${month}-${day}`);
             curr.setDate(curr.getDate() + 1);
         }
         return dates;
@@ -221,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <input type="hidden" name="tanggal[]" value="${dStr}">
                         <strong class="d-block">${formattedDate}</strong>
-                        <small class="text-muted">${dStr}</small>
+                        <small class="text-muted"><i class="far fa-calendar-alt mr-1"></i>${dStr}</small>
                     </td>
                     <td>
                         <div class="input-group">
@@ -342,7 +351,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData));
         draftStatusBadge.className = 'badge badge-success p-2';
-        draftStatusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Draft tersimpan (' + draftData.savedAt + ')';
+        draftStatusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Draft tersimpan (' + draftData.savedAt + ')';
+    }
+
+    // Support Select2 jQuery events
+    if (typeof $ !== 'undefined') {
+        $('#siswa_id').on('change select2:select', function() {
+            if (tglMulaiInput.value && tglSelesaiInput.value && this.value) {
+                const dates = generateDateArray(tglMulaiInput.value, tglSelesaiInput.value);
+                renderGrid(dates);
+            }
+        });
+
+        $('#jenis_transaksi').on('change select2:select', function() {
+            const selectedOpt = siswaSelect.options[siswaSelect.selectedIndex];
+            const initialSaldo = parseFloat(selectedOpt ? selectedOpt.dataset.saldo : 0) || 0;
+            recalculateTotals(initialSaldo);
+            saveDraftToStorage();
+        });
     }
 
     btnGenerate.addEventListener('click', function() {
@@ -351,15 +377,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const endDate = tglSelesaiInput.value;
 
         if (!siswaId) {
-            alert('Silakan pilih nama siswa terlebih dahulu!');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'warning', title: 'Pilih Siswa', text: 'Silakan pilih nama siswa terlebih dahulu!' });
+            } else {
+                alert('Silakan pilih nama siswa terlebih dahulu!');
+            }
             return;
         }
         if (!startDate || !endDate) {
-            alert('Silakan tentukan tanggal mulai dan tanggal selesai!');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'warning', title: 'Pilih Tanggal', text: 'Silakan tentukan tanggal mulai dan tanggal selesai!' });
+            } else {
+                alert('Silakan tentukan tanggal mulai dan tanggal selesai!');
+            }
             return;
         }
         if (new Date(startDate) > new Date(endDate)) {
-            alert('Tanggal mulai tidak boleh lebih besar dari tanggal selesai!');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'error', title: 'Rentang Tanggal Salah', text: 'Tanggal mulai tidak boleh lebih besar dari tanggal selesai!' });
+            } else {
+                alert('Tanggal mulai tidak boleh lebih besar dari tanggal selesai!');
+            }
             return;
         }
 
@@ -371,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btnSimpan.addEventListener('click', function() {
         const siswaId = siswaSelect.value;
         if (!siswaId) {
-            alert('Pilih siswa terlebih dahulu!');
+            Swal.fire({ icon: 'warning', title: 'Pilih Siswa', text: 'Pilih siswa terlebih dahulu!' });
             return;
         }
 
@@ -381,48 +419,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         if (countFilled === 0) {
-            alert('Silakan isi nominal setoran pada setidaknya 1 tanggal!');
+            Swal.fire({ icon: 'warning', title: 'Nominal Kosong', text: 'Silakan isi nominal setoran pada setidaknya 1 tanggal!' });
             return;
         }
 
         const selectedOpt = siswaSelect.options[siswaSelect.selectedIndex];
         const namaSiswa = selectedOpt ? selectedOpt.text : 'Siswa';
 
-        if (!confirm(`Apakah Anda yakin ingin menyimpan ${countFilled} transaksi harian untuk ${namaSiswa}?`)) {
-            return;
-        }
+        Swal.fire({
+            title: 'Konfirmasi Penyimpanan',
+            html: `Apakah Anda yakin ingin menyimpan <strong>${countFilled} transaksi harian</strong> untuk <strong>${namaSiswa}</strong>?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-check mr-1"></i> Ya, Simpan Sekarang',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                btnSimpan.disabled = true;
+                btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses Penyimpanan...';
 
-        btnSimpan.disabled = true;
-        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses Penyimpanan...';
+                const formData = new FormData(document.getElementById('formSaveMulti'));
 
-        const formData = new FormData(document.getElementById('formSaveMulti'));
-
-        fetch('<?= base_url('transaksi/save-multi-tanggal') ?>', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                fetch('<?= base_url('transaksi/save-multi-tanggal') ?>', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.removeItem(STORAGE_KEY);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message,
+                            timer: 1800,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = '<?= base_url('transaksi') ?>';
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: data.message });
+                        btnSimpan.disabled = false;
+                        btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Setoran Multi-Tanggal';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({ icon: 'error', title: 'Server Error', text: 'Terjadi kesalahan server saat menyimpan transaksi multi-tanggal.' });
+                    btnSimpan.disabled = false;
+                    btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Setoran Multi-Tanggal';
+                });
             }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                localStorage.removeItem(STORAGE_KEY);
-                alert(data.message);
-                window.location.href = '<?= base_url('transaksi') ?>';
-            } else {
-                alert('Gagal: ' + data.message);
-                btnSimpan.disabled = false;
-                btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Setoran Multi-Tanggal';
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Terjadi kesalahan server saat menyimpan transaksi multi-tanggal.');
-            btnSimpan.disabled = false;
-            btnSimpan.innerHTML = '<i class="fas fa-save mr-2"></i> Simpan Setoran Multi-Tanggal';
         });
     });
+});
 </script>
 
 <!-- Modal Import Transaksi Multi-Tanggal -->
@@ -430,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Import Transaksi Multi-Tanggal dari CSV</h5>
+                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Import Transaksi Multi-Tanggal dari Excel</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -439,11 +494,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="file_excel">Pilih File CSV (.csv)</label>
-                        <input type="file" name="file_excel" id="file_excel" class="form-control-file" accept=".csv" required>
+                        <label for="file_excel">Pilih File Excel (.xls / .xlsx / .csv)</label>
+                        <input type="file" name="file_excel" id="file_excel" class="form-control-file" accept=".xls,.xlsx,.csv" required>
                     </div>
                     <div class="alert alert-info py-2 small mb-0">
-                        <i class="fas fa-info-circle mr-1"></i> Format file harus sesuai template CSV (kolom: <code>nis, nama_lengkap, tanggal, jenis_transaksi, nominal, keterangan</code>).
+                        <i class="fas fa-info-circle mr-1"></i> Format file harus sesuai template Excel (.xls) atau CSV (kolom: <code>nis, nama_lengkap, tanggal, jenis_transaksi, nominal, keterangan</code>).
                     </div>
                 </div>
                 <div class="modal-footer">
