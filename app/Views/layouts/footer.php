@@ -63,9 +63,10 @@ $(function() {
     });
   }
 
-  // Auto initialize DataTables on all tables with .data-table or table.table-bordered
+  // Auto initialize DataTables
   if ($.fn.DataTable) {
-    $('.data-table, .table-datatable, table.table-bordered:not(.no-datatable)').each(function() {
+    // 1. Full Client-Side DataTables (.data-table or .table-datatable)
+    $('.data-table, .table-datatable').each(function() {
       if (!$.fn.DataTable.isDataTable(this)) {
         $(this).DataTable({
           "responsive": true,
@@ -91,6 +92,22 @@ $(function() {
               "sLast":     "Terakhir"
             }
           }
+        });
+      }
+    });
+
+    // 2. Server-Side CI Pager Tables (.data-table-server): Column sorting & styling without double pagination or double search
+    $('.data-table-server').each(function() {
+      if (!$.fn.DataTable.isDataTable(this)) {
+        $(this).DataTable({
+          "responsive": true,
+          "paging": false,
+          "info": false,
+          "searching": false,
+          "lengthChange": false,
+          "autoWidth": false,
+          "ordering": true,
+          "order": []
         });
       }
     });

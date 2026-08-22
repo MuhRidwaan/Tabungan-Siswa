@@ -170,7 +170,7 @@
             </form>
 
             <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover mb-0 data-table" id="tableSiswa">
+                <table class="table table-bordered table-striped table-hover mb-0 data-table-server" id="tableSiswa">
                     <thead class="bg-light">
                         <tr>
                             <th width="50" class="text-center">No</th>

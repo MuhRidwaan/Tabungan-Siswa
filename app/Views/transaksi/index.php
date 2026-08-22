@@ -139,7 +139,7 @@
             </form>
 
             <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover mb-0 data-table">
+                <table class="table table-bordered table-striped table-hover mb-0 data-table-server">
                     <thead class="bg-light">
                         <tr>
                             <th width="150" class="text-center">Waktu & Tanggal</th>
