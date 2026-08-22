@@ -24,17 +24,19 @@
 
     <!-- Filter Header Card -->
     <div class="card card-info card-outline">
-      <div class="card-header d-flex flex-wrap align-items-center justify-content-between py-3">
-        <h3 class="card-title font-weight-bold text-dark mb-2 mb-md-0">
-          <i class="fas fa-user-clock text-info mr-2"></i>Pilih Siswa & Periode Tanggal Harian
-        </h3>
-        <div class="card-tools d-flex flex-wrap gap-2">
-          <button type="button" class="btn btn-sm btn-success mr-2 mb-1" data-toggle="modal" data-target="#modalImportMulti">
-            <i class="fas fa-file-excel mr-1"></i> Import Excel Transaksi
-          </button>
-          <a href="<?= base_url('transaksi/download-template-multi') ?>" class="btn btn-sm btn-outline-success mb-1">
-            <i class="fas fa-file-download mr-1"></i> Download Template Excel (.xls)
-          </a>
+      <div class="card-header py-3">
+        <div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
+          <h3 class="card-title font-weight-bold text-dark mb-2 mb-md-0">
+            <i class="fas fa-user-clock text-info mr-2"></i>Pilih Siswa & Periode Tanggal Harian
+          </h3>
+          <div class="ml-auto text-right">
+            <button type="button" class="btn btn-sm btn-success mr-2 mb-1" data-toggle="modal" data-target="#modalImportMulti">
+              <i class="fas fa-file-excel mr-1"></i> Import Excel Transaksi
+            </button>
+            <a href="<?= base_url('transaksi/download-template-multi') ?>" class="btn btn-sm btn-outline-success mb-1">
+              <i class="fas fa-file-download mr-1"></i> Download Template Excel (.xls)
+            </a>
+          </div>
         </div>
       </div>
       <div class="card-body">
@@ -95,10 +97,17 @@
 
     <!-- Table Matrix Multi-Tanggal -->
     <div class="card card-primary card-outline">
-      <div class="card-header d-flex align-items-center justify-content-between py-3">
-        <h3 class="card-title font-weight-bold" id="tableTitle"><i class="fas fa-list-ol mr-2"></i>Tabel Setoran Harian Siswa</h3>
-        <div class="card-tools">
-          <span id="draftStatusBadge" class="badge badge-secondary p-2"><i class="fas fa-info-circle mr-1"></i> Pilih siswa & periode tanggal di atas</span>
+      <div class="card-header d-flex flex-wrap align-items-center justify-content-between py-3">
+        <h3 class="card-title font-weight-bold mb-2 mb-md-0" id="tableTitle">
+          <i class="fas fa-list-ol mr-2"></i>Tabel Setoran Harian Siswa
+        </h3>
+        <div class="card-tools d-flex align-items-center flex-wrap ml-auto">
+          <span id="draftStatusBadge" class="badge badge-secondary p-2 mr-2 mb-1">
+            <i class="fas fa-info-circle mr-1"></i> Pilih siswa & periode tanggal di atas
+          </span>
+          <button type="button" class="btn btn-sm btn-outline-primary mb-1" id="btnBulkNominal">
+            <i class="fas fa-calculator mr-1"></i> Isi Nominal Seragam
+          </button>
         </div>
       </div>
       <div class="card-body p-0">
@@ -352,6 +361,75 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData));
         draftStatusBadge.className = 'badge badge-success p-2';
         draftStatusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Draft tersimpan (' + draftData.savedAt + ')';
+    }
+
+    // Fitur Isi Nominal Seragam
+    const btnBulkNominal = document.getElementById('btnBulkNominal');
+    if (btnBulkNominal) {
+        btnBulkNominal.addEventListener('click', function() {
+            const nominalInputs = document.querySelectorAll('.input-nominal');
+            if (nominalInputs.length === 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Grid Belum Terbuat',
+                        text: 'Silakan pilih siswa dan periode tanggal lalu klik "Buat Grid" terlebih dahulu!'
+                    });
+                } else {
+                    alert('Silakan pilih siswa dan periode tanggal lalu klik "Buat Grid" terlebih dahulu!');
+                }
+                return;
+            }
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Isi Nominal Seragam',
+                    text: 'Masukkan nominal yang ingin diterapkan ke seluruh baris tanggal:',
+                    input: 'text',
+                    inputPlaceholder: 'Contoh: 10.000',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-check mr-1"></i> Terapkan ke Semua Tanggal',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#007bff',
+                    inputValidator: (value) => {
+                        if (!value || parseRawNumber(value) <= 0) {
+                            return 'Masukkan nominal angka yang valid!';
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const formattedVal = formatRupiah(result.value);
+                        nominalInputs.forEach(inp => {
+                            inp.value = formattedVal;
+                        });
+                        const selectedOpt = siswaSelect.options[siswaSelect.selectedIndex];
+                        const initialSaldo = parseFloat(selectedOpt ? selectedOpt.dataset.saldo : 0) || 0;
+                        recalculateTotals(initialSaldo);
+                        saveDraftToStorage();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil Diterapkan!',
+                            text: `Nominal Rp ${formattedVal} telah diterapkan ke ${nominalInputs.length} tanggal.`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+            } else {
+                const inputVal = prompt('Masukkan nominal seragam untuk seluruh tanggal:');
+                if (inputVal && parseRawNumber(inputVal) > 0) {
+                    const formattedVal = formatRupiah(inputVal);
+                    nominalInputs.forEach(inp => {
+                        inp.value = formattedVal;
+                    });
+                    const selectedOpt = siswaSelect.options[siswaSelect.selectedIndex];
+                    const initialSaldo = parseFloat(selectedOpt ? selectedOpt.dataset.saldo : 0) || 0;
+                    recalculateTotals(initialSaldo);
+                    saveDraftToStorage();
+                }
+            }
+        });
     }
 
     // Support Select2 jQuery events
