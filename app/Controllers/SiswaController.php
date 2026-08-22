@@ -57,13 +57,27 @@ class SiswaController extends BaseController
         }
 
         // Hitung Statistik Ringkasan Siswa (Filtered)
-        $statsBuilder = clone $builder;
-        $statsData = $statsBuilder->select('
-            COUNT(siswa.id) as total_siswa,
-            COALESCE(SUM(siswa.saldo_akhir), 0) as total_saldo,
-            COUNT(CASE WHEN siswa.jenis_kelamin = "L" THEN 1 END) as total_laki,
-            COUNT(CASE WHEN siswa.jenis_kelamin = "P" THEN 1 END) as total_perempuan
-        ')->get()->getRowArray();
+        $statsBuilder = $this->db->table('siswa')
+            ->select('
+                COUNT(siswa.id) as total_siswa,
+                COALESCE(SUM(siswa.saldo_akhir), 0) as total_saldo,
+                COUNT(CASE WHEN siswa.jenis_kelamin = "L" THEN 1 END) as total_laki,
+                COUNT(CASE WHEN siswa.jenis_kelamin = "P" THEN 1 END) as total_perempuan
+            ')
+            ->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.siswa_id = siswa.id AND riwayat_kelas_siswa.tahun_ajaran_id = ' . $this->db->escape($selectedTahunId), 'left');
+
+        if ($selectedKelasId) {
+            $statsBuilder->where('riwayat_kelas_siswa.kelas_id', $selectedKelasId);
+        }
+
+        if ($search) {
+            $statsBuilder->groupStart()
+                         ->like('siswa.nama_lengkap', $search)
+                         ->orLike('siswa.nis', $search)
+                         ->groupEnd();
+        }
+
+        $statsData = $statsBuilder->get()->getRowArray();
 
         $data = [
             'title'           => 'Daftar Data Siswa',
