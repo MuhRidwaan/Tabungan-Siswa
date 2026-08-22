@@ -8,20 +8,42 @@ use CodeIgniter\HTTP\RedirectResponse;
 class CustomLoginController extends ShieldLoginController
 {
     /**
+     * Display login view
+     */
+    public function loginView()
+    {
+        if (auth()->loggedIn()) {
+            return redirect()->to(config('Auth')->loginRedirect());
+        }
+
+        return view(setting('Auth.views')['login']);
+    }
+
+    /**
+     * Override getValidationRules to allow either Username OR Email without requiring valid_email
+     */
+    public function getValidationRules(): array
+    {
+        return [
+            'login' => [
+                'label' => 'Username atau Email',
+                'rules' => 'required',
+            ],
+            'password' => [
+                'label' => 'Kata Sandi',
+                'rules' => 'required',
+            ],
+        ];
+    }
+
+    /**
      * Override loginAction to support login using either Email OR Username
      */
     public function loginAction(): RedirectResponse
     {
-        $loginInput = trim((string)$this->request->getPost('email'));
-        if (empty($loginInput)) {
-            $loginInput = trim((string)$this->request->getPost('login'));
-        }
-        if (empty($loginInput)) {
-            $loginInput = trim((string)$this->request->getPost('username'));
-        }
-
-        $password = (string)$this->request->getPost('password');
-        $remember = (bool)$this->request->getPost('remember');
+        $loginInput = trim((string)($this->request->getPost('login') ?? $this->request->getPost('email') ?? $this->request->getPost('username')));
+        $password   = (string)$this->request->getPost('password');
+        $remember   = (bool)$this->request->getPost('remember');
 
         if (empty($loginInput) || empty($password)) {
             return redirect()->route('login')->withInput()->with('error', 'Silakan masukkan Email/Username dan Password.');
@@ -56,7 +78,7 @@ class CustomLoginController extends ShieldLoginController
         }
 
         if (! $result->isOK()) {
-            return redirect()->route('login')->withInput()->with('error', $result->reason());
+            return redirect()->route('login')->withInput()->with('error', 'Username/Email atau Password salah.');
         }
 
         if ($authenticator->hasAction()) {

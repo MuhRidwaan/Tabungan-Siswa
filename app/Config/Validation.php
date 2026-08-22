@@ -41,6 +41,17 @@ class Validation extends BaseConfig
     // --------------------------------------------------------------------
     // Rules
     // --------------------------------------------------------------------
+    public ?array $login = [
+        'login' => [
+            'label' => 'Username atau Email',
+            'rules' => 'required',
+        ],
+        'password' => [
+            'label' => 'Kata Sandi',
+            'rules' => 'required',
+        ],
+    ];
+
     public ?array $registration = [
         'username' => [
             'label' => 'Auth.username',

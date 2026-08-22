@@ -4,9 +4,10 @@ use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
 
-// 1. Shield Auth routes (login, register, logout, dsb)
-service('auth')->routes($routes);
+// 1. Shield Auth routes & custom LoginController overrides
+$routes->get('login', 'CustomLoginController::loginView');
 $routes->post('login', 'CustomLoginController::loginAction');
+service('auth')->routes($routes);
 
 // 2. Arahkan '/' ke halaman dashboard
 $routes->get('/', function () {
