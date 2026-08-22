@@ -393,7 +393,22 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('siswaTerisiDisplay').innerHTML = `${countFilled} Siswa Terisi`;
     }
 
-    // Event listeners
+    // Event listeners (Support both jQuery/Select2 and Native JS)
+    if (typeof $ !== 'undefined') {
+        $('#kelas_id').on('change select2:select', function() {
+            const val = $(this).val();
+            loadSiswaList(val, function() {
+                saveDraftToStorage();
+            });
+        });
+
+        $('#jenis_transaksi').on('change select2:select', function() {
+            document.querySelectorAll('.input-nominal').forEach(inp => updateEstimasiRow(inp));
+            recalculateTotals();
+            saveDraftToStorage();
+        });
+    }
+
     kelasSelect.addEventListener('change', function() {
         loadSiswaList(this.value, function() {
             saveDraftToStorage();
