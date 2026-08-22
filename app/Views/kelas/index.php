@@ -60,10 +60,10 @@
         <div class="card-header border-0 py-3">
             <div class="row w-100 align-items-center m-0">
                 <div class="col-md-8 p-0 mb-2 mb-md-0">
-                    <a href="<?= base_url('kelas/new') ?>" class="btn btn-primary mr-2">
+                    <a href="<?= base_url('kelas/new?tahun_ajaran_id=' . $selectedTahunId) ?>" class="btn btn-primary mr-2">
                         <i class="fas fa-plus-circle mr-1"></i> Tambah Kelas Baru
                     </a>
-                    <a href="<?= base_url('manajemen-kelas') ?>" class="btn btn-purple">
+                    <a href="<?= base_url('manajemen-kelas?tahun_ajaran_id=' . $selectedTahunId) ?>" class="btn btn-purple">
                         <i class="fas fa-random mr-1"></i> Penempatan & Kenaikan Kelas
                     </a>
                 </div>
@@ -131,7 +131,7 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="<?= base_url('manajemen-kelas?kelas_id=' . $item['id']) ?>" class="btn btn-xs btn-info mr-1" title="Atur Siswa di Kelas Ini">
+                                    <a href="<?= base_url('manajemen-kelas?tahun_ajaran_id=' . $selectedTahunId . '&kelas_id=' . $item['id']) ?>" class="btn btn-xs btn-info mr-1" title="Atur Siswa di Kelas Ini">
                                         <i class="fas fa-user-cog mr-1"></i> Kelola Murid
                                     </a>
                                     <a href="<?= base_url('kelas/' . $item['id'] . '/edit') ?>" class="btn btn-xs btn-warning mr-1" title="Edit Data Kelas">
@@ -148,7 +148,7 @@
                             </tr>
                         <?php endforeach; ?>
                         <?php if (empty($kelas)) : ?>
-                            <tr><td colspan="6" class="text-center text-muted py-4"><i class="fas fa-info-circle mr-1"></i> Belum ada data kelas yang terdaftar.</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted py-4"><i class="fas fa-info-circle mr-1"></i> Belum ada data kelas yang terdaftar pada Tahun Ajaran ini. Silakan buat kelas baru untuk Tahun Ajaran ini.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

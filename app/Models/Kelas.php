@@ -15,19 +15,22 @@ class Kelas extends Model
     protected $allowedFields    = [
         'nama_kelas',
         'tingkat',
-        'wali_kelas_id'
+        'wali_kelas_id',
+        'tahun_ajaran_id'
     ];
 
     /**
      * Mengambil semua data kelas dengan join ke tabel pengguna
-     * untuk mendapatkan nama wali kelas dan jumlah total siswa.
+     * untuk mendapatkan nama wali kelas dan jumlah total siswa pada tahun ajaran spesifik.
      */
     public function getAllKelasWithWali($tahunAjaranId = null)
     {
-        $builder = $this->select('kelas.*, pengguna.nama_lengkap as nama_wali_kelas, pengguna.nama_lengkap as nama_wali, COUNT(DISTINCT riwayat_kelas_siswa.siswa_id) as total_siswa')
-                    ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left');
+        $builder = $this->select('kelas.*, pengguna.nama_lengkap as nama_wali_kelas, pengguna.nama_lengkap as nama_wali, tahun_ajaran.nama_tahun_ajaran, COUNT(DISTINCT riwayat_kelas_siswa.siswa_id) as total_siswa')
+                    ->join('pengguna', 'pengguna.id = kelas.wali_kelas_id', 'left')
+                    ->join('tahun_ajaran', 'tahun_ajaran.id = kelas.tahun_ajaran_id', 'left');
 
         if ($tahunAjaranId) {
+            $builder->where('kelas.tahun_ajaran_id', $tahunAjaranId);
             $builder->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.kelas_id = kelas.id AND riwayat_kelas_siswa.tahun_ajaran_id = ' . $this->db->escape($tahunAjaranId), 'left');
         } else {
             $builder->join('riwayat_kelas_siswa', 'riwayat_kelas_siswa.kelas_id = kelas.id', 'left');

@@ -64,10 +64,20 @@ class KelasController extends BaseController
      */
     public function new()
     {
+        $tahunAjaranModel = new \App\Models\TahunAjaran();
+        $selectedTahunId  = $this->request->getGet('tahun_ajaran_id');
+        $tahunAktif       = $tahunAjaranModel->where('status', 'aktif')->first();
+
+        if (!$selectedTahunId && $tahunAktif) {
+            $selectedTahunId = $tahunAktif['id'];
+        }
+
         $data = [
-            'title'      => 'Tambah Data Kelas',
-            'validation' => \Config\Services::validation(),
-            'guru'       => $this->guru->where('role', 'guru')->findAll() // Ambil daftar guru
+            'title'           => 'Tambah Data Kelas Baru',
+            'validation'      => \Config\Services::validation(),
+            'guru'            => $this->guru->where('role', 'guru')->findAll(),
+            'tahunAjaran'     => $tahunAjaranModel->orderBy('id', 'DESC')->findAll(),
+            'selectedTahunId' => $selectedTahunId
         ];
         return view('kelas/create', $data);
     }
@@ -77,23 +87,36 @@ class KelasController extends BaseController
      */
     public function create()
     {
+        $tahunAjaranId = $this->request->getPost('tahun_ajaran_id');
+        $namaKelas     = trim((string)$this->request->getPost('nama_kelas'));
+
         $rules = [
-            'nama_kelas' => 'required|is_unique[kelas.nama_kelas]|max_length[50]',
-            'tingkat'    => 'required|integer'
+            'tahun_ajaran_id' => 'required|numeric',
+            'nama_kelas'      => 'required|max_length[50]',
+            'tingkat'         => 'required|integer'
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
+        // Cek keunikan nama_kelas khusus dalam tahun_ajaran_id yang sama
+        $exists = $this->kelas->where('nama_kelas', $namaKelas)
+                             ->where('tahun_ajaran_id', $tahunAjaranId)
+                             ->first();
+        if ($exists) {
+            return redirect()->back()->withInput()->with('error', 'Nama kelas "' . esc($namaKelas) . '" sudah ada pada Tahun Ajaran tersebut.');
+        }
+
         $this->kelas->save([
-            'nama_kelas'    => $this->request->getPost('nama_kelas'),
-            'tingkat'       => $this->request->getPost('tingkat'),
-            'wali_kelas_id' => $this->request->getPost('wali_kelas_id') ?: null, // Set NULL jika tidak dipilih
+            'nama_kelas'      => $namaKelas,
+            'tingkat'         => $this->request->getPost('tingkat'),
+            'wali_kelas_id'   => $this->request->getPost('wali_kelas_id') ?: null,
+            'tahun_ajaran_id' => $tahunAjaranId
         ]);
 
         session()->setFlashdata('success', 'Data kelas berhasil ditambahkan.');
-        return redirect()->to('/kelas');
+        return redirect()->to('/kelas?tahun_ajaran_id=' . $tahunAjaranId);
     }
 
     /**
@@ -101,11 +124,13 @@ class KelasController extends BaseController
      */
     public function edit($id)
     {
+        $tahunAjaranModel = new \App\Models\TahunAjaran();
         $data = [
-            'title'      => 'Edit Data Kelas',
-            'validation' => \Config\Services::validation(),
-            'kelas'      => $this->kelas->find($id),
-            'guru'       => $this->guru->where('role', 'guru')->findAll()
+            'title'       => 'Edit Data Kelas',
+            'validation'  => \Config\Services::validation(),
+            'kelas'       => $this->kelas->find($id),
+            'guru'        => $this->guru->where('role', 'guru')->findAll(),
+            'tahunAjaran' => $tahunAjaranModel->orderBy('id', 'DESC')->findAll()
         ];
         return view('kelas/edit', $data);
     }
@@ -115,23 +140,36 @@ class KelasController extends BaseController
      */
     public function update($id)
     {
+        $tahunAjaranId = $this->request->getPost('tahun_ajaran_id');
+        $namaKelas     = trim((string)$this->request->getPost('nama_kelas'));
+
         $rules = [
-            'nama_kelas' => "required|is_unique[kelas.nama_kelas,id,{$id}]|max_length[50]",
-            'tingkat'    => 'required|integer'
+            'tahun_ajaran_id' => 'required|numeric',
+            'nama_kelas'      => 'required|max_length[50]',
+            'tingkat'         => 'required|integer'
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
+        $exists = $this->kelas->where('nama_kelas', $namaKelas)
+                             ->where('tahun_ajaran_id', $tahunAjaranId)
+                             ->where('id !=', $id)
+                             ->first();
+        if ($exists) {
+            return redirect()->back()->withInput()->with('error', 'Nama kelas "' . esc($namaKelas) . '" sudah ada pada Tahun Ajaran tersebut.');
+        }
+
         $this->kelas->update($id, [
-            'nama_kelas'    => $this->request->getPost('nama_kelas'),
-            'tingkat'       => $this->request->getPost('tingkat'),
-            'wali_kelas_id' => $this->request->getPost('wali_kelas_id') ?: null,
+            'nama_kelas'      => $namaKelas,
+            'tingkat'         => $this->request->getPost('tingkat'),
+            'wali_kelas_id'   => $this->request->getPost('wali_kelas_id') ?: null,
+            'tahun_ajaran_id' => $tahunAjaranId
         ]);
 
         session()->setFlashdata('success', 'Data kelas berhasil diupdate.');
-        return redirect()->to('/kelas');
+        return redirect()->to('/kelas?tahun_ajaran_id=' . $tahunAjaranId);
     }
 
     /**

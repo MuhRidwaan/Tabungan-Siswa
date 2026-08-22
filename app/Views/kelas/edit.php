@@ -26,7 +26,17 @@
         <form action="<?= base_url('kelas/' . $kelas['id']) ?>" method="post">
             <?= csrf_field() ?>
             <input type="hidden" name="_method" value="PUT">
-            <div class="card-body">
+                <div class="form-group">
+                    <label for="tahun_ajaran_id">Tahun Ajaran <span class="text-danger">*</span></label>
+                    <select class="form-control" name="tahun_ajaran_id" id="tahun_ajaran_id" required>
+                        <?php foreach ($tahunAjaran as $ta) : ?>
+                            <option value="<?= $ta['id'] ?>" <?= (old('tahun_ajaran_id', $kelas['tahun_ajaran_id']) == $ta['id']) ? 'selected' : '' ?>>
+                                <?= esc($ta['nama_tahun_ajaran']) ?> <?= ($ta['status'] == 'aktif') ? '[Aktif]' : '' ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="nama_kelas">Nama Kelas <span class="text-danger">*</span></label>
                     <input type="text" class="form-control <?= ($validation->hasError('nama_kelas')) ? 'is-invalid' : '' ?>" id="nama_kelas" name="nama_kelas" value="<?= old('nama_kelas', $kelas['nama_kelas']) ?>" placeholder="Contoh: Kelas 1, Kelas 2-A">

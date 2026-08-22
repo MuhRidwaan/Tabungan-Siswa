@@ -28,10 +28,15 @@ class ManajemenKelasController extends BaseController
         $selectedTahunId = $this->request->getGet('tahun_ajaran_id');
         $selectedKelasId = $this->request->getGet('kelas_id');
 
+        $kelasQuery = $this->kelasModel->orderBy('tingkat', 'ASC');
+        if ($selectedTahunId) {
+            $kelasQuery->where('tahun_ajaran_id', $selectedTahunId);
+        }
+
         $data = [
             'title'           => 'Penempatan & Kenaikan Kelas',
             'tahun_ajaran'    => $this->tahunAjaranModel->orderBy('tahun_mulai', 'DESC')->findAll(),
-            'kelas'           => $this->kelasModel->orderBy('tingkat', 'ASC')->findAll(),
+            'kelas'           => $kelasQuery->findAll(),
             'selectedTahunId' => $selectedTahunId,
             'selectedKelasId' => $selectedKelasId,
             'siswaDiKelas'    => [],
