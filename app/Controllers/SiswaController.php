@@ -252,8 +252,23 @@ class SiswaController extends BaseController
      */
     public function delete($id)
     {
-        $this->siswa->delete($id);
-        session()->setFlashdata('success', 'Data siswa berhasil dihapus.');
+        $transaksiCount = $this->db->table('transaksi')->where('siswa_id', $id)->countAllResults();
+        if ($transaksiCount > 0) {
+            session()->setFlashdata('error', "Gagal menghapus! Siswa ini memiliki {$transaksiCount} record transaksi tabungan. Silakan ubah status siswa menjadi 'Nonaktif' atau 'Lulus' alih-alih menghapusnya.");
+            return redirect()->to('/siswa');
+        }
+
+        try {
+            $this->db->transStart();
+            $this->riwayatKelasModel->where('siswa_id', $id)->delete();
+            $this->siswa->delete($id);
+            $this->db->transComplete();
+
+            session()->setFlashdata('success', 'Data siswa berhasil dihapus.');
+        } catch (\Throwable $e) {
+            session()->setFlashdata('error', 'Gagal menghapus data siswa karena terhubung dengan data lain di sistem.');
+        }
+
         return redirect()->to('/siswa');
     }
 

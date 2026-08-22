@@ -132,9 +132,21 @@ class KelasController extends BaseController
      */
     public function delete($id)
     {
-        // Pengecekan apakah ada siswa di kelas tersebut bisa ditambahkan di sini
-        $this->kelas->delete($id);
-        session()->setFlashdata('success', 'Data kelas berhasil dihapus.');
+        $riwayatModel = new \App\Models\RiwayatKelasSiswa();
+        $countSiswa = $riwayatModel->where('kelas_id', $id)->countAllResults();
+
+        if ($countSiswa > 0) {
+            session()->setFlashdata('error', "Gagal menghapus! Kelas ini masih terdaftar pada {$countSiswa} riwayat penempatan siswa. Silakan keluarkan atau pindahkan siswa terlebih dahulu.");
+            return redirect()->to('/kelas');
+        }
+
+        try {
+            $this->kelas->delete($id);
+            session()->setFlashdata('success', 'Data kelas berhasil dihapus.');
+        } catch (\Throwable $e) {
+            session()->setFlashdata('error', 'Gagal menghapus kelas karena data ini masih digunakan oleh data lain di sistem.');
+        }
+
         return redirect()->to('/kelas');
     }
 }

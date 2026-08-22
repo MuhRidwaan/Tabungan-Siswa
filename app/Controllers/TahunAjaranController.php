@@ -145,8 +145,21 @@ class TahunAjaranController extends BaseController
      */
     public function delete($id)
     {
-        $this->tahunAjaranModel->delete($id);
-        session()->setFlashdata('success', 'Tahun ajaran berhasil dihapus.');
+        $riwayatModel = new \App\Models\RiwayatKelasSiswa();
+        $countRiwayat = $riwayatModel->where('tahun_ajaran_id', $id)->countAllResults();
+
+        if ($countRiwayat > 0) {
+            session()->setFlashdata('error', "Gagal menghapus! Tahun Ajaran ini masih memiliki {$countRiwayat} riwayat penempatan siswa.");
+            return redirect()->to('/tahun-ajaran');
+        }
+
+        try {
+            $this->tahunAjaranModel->delete($id);
+            session()->setFlashdata('success', 'Tahun ajaran berhasil dihapus.');
+        } catch (\Throwable $e) {
+            session()->setFlashdata('error', 'Gagal menghapus tahun ajaran karena data ini masih terhubung ke riwayat transaksi atau data lain.');
+        }
+
         return redirect()->to('/tahun-ajaran');
     }
 
