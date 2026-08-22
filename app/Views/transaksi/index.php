@@ -71,7 +71,7 @@
         <div class="card-header border-0 py-3">
             <div class="row w-100 align-items-center m-0">
                 <div class="col-md-8 p-0 mb-2 mb-md-0">
-                    <button type="button" class="btn btn-primary mr-1 mb-1" id="btn-tambah">
+                    <button type="button" class="btn btn-primary mr-1 mb-1" id="btn-tambah" data-toggle="modal" data-target="#transaksiModal">
                         <i class="fas fa-plus-circle mr-1"></i> Transaksi Instan
                     </button>
                     <a href="<?= base_url('transaksi/kolektif') ?>" class="btn btn-success mr-1 mb-1">
@@ -245,16 +245,27 @@
 
 <script>
 $(document).ready(function() {
-    $('#btn-tambah').on('click', function() {
+    $(document).on('click', '#btn-tambah', function(e) {
+        e.preventDefault();
         $('#transaksi-form')[0].reset();
         $('#id').val('');
         $('.is-invalid').removeClass('is-invalid');
+        if ($.fn.select2) {
+            $('#siswa_id, #jenis_transaksi').val('').trigger('change');
+        }
         $('#transaksiModal').modal('show');
     });
 
     $('#transaksiModal').on('shown.bs.modal', function() {
         if ($.fn.select2) {
-            $('#siswa_id, #jenis_transaksi').select2({
+            $('#siswa_id').select2({
+                theme: 'bootstrap4',
+                width: '100%',
+                placeholder: '-- Cari NIS / Nama Siswa --',
+                allowClear: true,
+                dropdownParent: $('#transaksiModal')
+            });
+            $('#jenis_transaksi').select2({
                 theme: 'bootstrap4',
                 width: '100%',
                 dropdownParent: $('#transaksiModal')

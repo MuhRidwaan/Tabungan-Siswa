@@ -78,9 +78,9 @@ class TransaksiController extends BaseController
      */
     public function save()
     {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setStatusCode(403);
-        }
+        // Sanitize numeric input from formatted currency strings
+        $rawJumlah = str_replace(['.', ','], '', (string) $this->request->getPost('jumlah'));
+        $_POST['jumlah'] = $rawJumlah;
 
         $validation = \Config\Services::validation();
         $rules = [
